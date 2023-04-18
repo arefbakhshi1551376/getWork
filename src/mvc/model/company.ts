@@ -34,7 +34,7 @@ export const companySchema = new Schema({
         }
     ],
     establishYear: {
-        type: String,
+        type: Number,
         required: true,
         default: ''
     },

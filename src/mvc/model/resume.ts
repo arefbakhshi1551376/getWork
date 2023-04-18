@@ -48,20 +48,25 @@ export const resumeSchema = new Schema({
             required: true
         }
     ],
+    jobPlace: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'JobPlace',
+            required: true
+        }
+    ],
     favoriteJob: [
         {
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'JobAd',
+            ref: 'Category',
             required: true
         }
     ],
-    expectedSalary: [
-        {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Salary',
-            required: true
-        }
-    ],
+    expectedSalary: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Salary',
+        required: true
+    },
     isShowToOthers: {
         type: Boolean,
         required: true,

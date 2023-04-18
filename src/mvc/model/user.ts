@@ -36,6 +36,18 @@ export const userSchema = new Schema({
         required: true,
         default: ''
     },
+    isDeleted: {
+        type: Boolean,
+        required: true,
+        default: false
+    },
+    ip: [
+        {
+            type: String,
+            required: true,
+            default: ''
+        }
+    ],
     introduction: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Introduction',
@@ -56,7 +68,12 @@ export const userSchema = new Schema({
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Request',
             required: true
-        }],
+        }
+    ],
+    lastLoginDate: {
+        type: Date,
+        required: true
+    },
     createDate: {
         type: Date,
         required: true,
