@@ -1,16 +1,15 @@
 import mongoose, {Schema} from "mongoose";
 
-export const citySchema = new Schema({
-    title: {
-        type: String,
-        required: true,
-        default: ''
-    },
-    state: {
+export const skillLevelSchema = new Schema({
+    skill: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'State',
+        ref: 'Skill',
+        required: true
+    },
+    level: {
+        type: Number,
         required: true,
-        default: ''
+        default: 0
     },
     createDate: {
         type: Date,
@@ -24,17 +23,17 @@ export const citySchema = new Schema({
     },
 })
 
-citySchema.virtual('id').get(function ()
+skillLevelSchema.virtual('id').get(function ()
 {
     return this._id.toHexString()
 })
 
-citySchema.set('toJSON', {
+skillLevelSchema.set('toJSON', {
     virtuals: true
 })
 
 
-export const City = mongoose.model(
-    'City',
-    citySchema
+export const LanguageLevel = mongoose.model(
+    'LanguageLevel',
+    skillLevelSchema
 )
