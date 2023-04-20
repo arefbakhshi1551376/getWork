@@ -1,5 +1,4 @@
 import {User} from "./user";
-import {Skill} from "./skill";
 import {LanguageLevel} from "./languageLevel";
 import {Degree} from "./degree";
 import {CareerHistory} from "./careerHistory";
@@ -7,10 +6,11 @@ import {JobTime} from "./jobTime";
 import {JobPlace} from "./jobPlace";
 import {Category} from "./category";
 import {Salary} from "./salary";
+import {SkillLevel} from "./skillLevel";
 
 export type Resume = {
     user: User,
-    skill: Skill[],
+    skillLevel: SkillLevel[],
     languageLevel: LanguageLevel[],
     degree: Degree[],
     careerHistory: CareerHistory[],
@@ -26,7 +26,7 @@ export type Resume = {
 
 export type ResumeAddVm = {
     user: string,
-    skill: string[],
+    skillLevel: string[],
     languageLevel: string[],
     degree: string[],
     careerHistory: string[],
@@ -41,7 +41,7 @@ export type ResumeAddVm = {
 export type ResumeUpdateVm = {
     id: string,
     user: string,
-    skill: string[],
+    skillLevel: string[],
     languageLevel: string[],
     degree: string[],
     careerHistory: string[],

@@ -17,7 +17,6 @@ export type JobAd = {
     jobTime: JobTime[],
     jobPlace: JobPlace[],
     seniorityLevel: SeniorityLevel[],
-    request: Request[],
     requiredWorkExperience: number,
     isEnable: boolean,
     expireDate: Date,
@@ -35,7 +34,6 @@ export type JobAdAddVm = {
     jobTime: string[],
     jobPlace: string[],
     seniorityLevel: string[],
-    request: string[],
     requiredWorkExperience: number,
     isEnable: boolean,
 }

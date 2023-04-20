@@ -51,23 +51,23 @@ export const userSchema = new Schema({
     introduction: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Introduction',
-        required: true
+        required: false
     },
     gender: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Gender',
-        required: true
+        required: false
     },
     city: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'City',
-        required: true
+        required: false
     },
     request: [
         {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Request',
-            required: true
+            required: false
         }
     ],
     lastLoginDate: {

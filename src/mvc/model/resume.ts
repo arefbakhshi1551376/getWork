@@ -6,66 +6,66 @@ export const resumeSchema = new Schema({
         ref: 'User',
         required: true
     },
-    skill: [
+    skillLevel: [
         {
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'Skill',
-            required: true
+            ref: 'SkillLevel',
+            required: false
         }
     ],
     languageLevel: [
         {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'LanguageLevel',
-            required: true
+            required: false
         }
     ],
     degree: [
         {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Degree',
-            required: true
+            required: false
         }
     ],
     careerHistory: [
         {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'CareerHistory',
-            required: true
+            required: false
         }
     ],
     link: [
         {
             type: String,
-            required: true,
-            default: ''
+            required: false,
+            default: []
         }
     ],
     jobTime: [
         {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'JobTime',
-            required: true
+            required: false
         }
     ],
     jobPlace: [
         {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'JobPlace',
-            required: true
+            required: false
         }
     ],
     favoriteJob: [
         {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Category',
-            required: true
+            required: false,
         }
     ],
     expectedSalary: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Salary',
-        required: true
+        required: false
     },
     isShowToOthers: {
         type: Boolean,

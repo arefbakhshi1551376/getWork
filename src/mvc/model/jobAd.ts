@@ -50,7 +50,8 @@ export const jobAdSchema = new Schema({
     seniorityLevel: [
         {
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'SeniorityLevel'
+            ref: 'SeniorityLevel',
+            required: false,
         }
     ],
     request: [

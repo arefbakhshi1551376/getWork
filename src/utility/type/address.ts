@@ -15,7 +15,8 @@ export type AddressAddVM = {
 export type AddressUpdateVM = {
     id: string,
     city: string,
-    restOfAddress: string
+    restOfAddress: string,
+    updateDate: Date
 }
 
 export type AddressDeleteVM = {

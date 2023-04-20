@@ -20,7 +20,7 @@ export type RequestUpdateVm = {
     id: string,
     user: string,
     jobAd: string,
-    status: string[],
+    status: string,
     updateDate: Date
 }
 

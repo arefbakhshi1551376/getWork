@@ -33,7 +33,7 @@ skillLevelSchema.set('toJSON', {
 })
 
 
-export const LanguageLevel = mongoose.model(
-    'LanguageLevel',
+export const SkillLevel = mongoose.model(
+    'SkillLevel',
     skillLevelSchema
 )

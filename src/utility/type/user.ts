@@ -30,11 +30,9 @@ export type UserAddVm = {
     phoneNumber: string,
     image: string,
     password: string,
-    ip: string[],
-    introduction: string,
+    ip: string,
     gender: string,
     city: string,
-    request: string[],
     lastLoginDate: Date
 }
 
@@ -47,13 +45,11 @@ export type UserUpdateVm = {
     phoneNumber: string,
     image: string,
     password: string,
-    isDeleted:boolean,
-    ip: string[],
+    ip: string,
     introduction: string,
     gender: string,
     city: string,
-    request: string[],
-    lastLoginDate: Date,
+    lastLoginDate: Date
     updateDate: Date
 }
 
