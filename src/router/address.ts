@@ -1,8 +1,14 @@
 import express from "express";
-import {addNewAddress, getAllAddress} from "../utility/coreMethod/address";
-import {AddressAddVM} from "../utility/type/address";
-import {showMessageForEveryThing} from "../utility/showResponseMessage";
-import {modelsName, whatHappened} from "../utility/constant";
+import {
+    addNewAddress, deleteExistAddress,
+    getAddressByFilter,
+    getAddressById, getAddressByIdAndFilter,
+    getAllAddress,
+    getCountOfAddress, updateExistAddress
+} from "../utility/coreMethod/address";
+import {AddressAddVM, AddressDeleteVM, AddressUpdateVM} from "../utility/type/address";
+import {State} from "../mvc/model/state";
+import {Address} from "../mvc/model/address";
 
 export const addressRouter = express.Router()
 
@@ -13,30 +19,159 @@ addressRouter.get(
         let addressList = await getAllAddress()
         if (addressList != null)
         {
-            console.log(modelsName.CareerHistory.toString())
             return res.status(200).json(addressList)
         }
         else
         {
             return res.status(404).json({
-                Message: 'No Address Found!!!'
+                Message: `No address found!`
+            })
+        }
+    }
+)
+
+addressRouter.get(
+    `/count`,
+    async (req, res) =>
+    {
+        let addressCount = await getCountOfAddress()
+        if (addressCount != null)
+        {
+            return res.status(200).json(`Count of address: ${addressCount}`)
+        }
+        else
+        {
+            return res.status(404).json({
+                Message: `No address found!`
+            })
+        }
+    }
+)
+
+addressRouter.get(
+    `/:id`,
+    async (req, res) =>
+    {
+        let currentAddress = await getAddressById(req.params.id)
+        if (currentAddress != null)
+        {
+            return res.status(200).json(currentAddress)
+        }
+        else
+        {
+            return res.status(404).json({
+                Message: `No address found!`
+            })
+        }
+    }
+)
+
+addressRouter.get(
+    `/by_filter/:filter`,
+    async (req, res) =>
+    {
+        let addressList = await getAddressByFilter(req.params.filter)
+        if (addressList != null)
+        {
+            return res.status(200).json(addressList)
+        }
+        else
+        {
+            return res.status(404).json({
+                Message: `No address found!`
+            })
+        }
+    }
+)
+
+addressRouter.get(
+    `/by_id_and_filter/:id/:filter?`,
+    async (req, res) =>
+    {
+        let addressList = await getAddressByIdAndFilter(req.params.id, req.params.filter)
+        if (addressList != null)
+        {
+            return res.status(200).json(addressList)
+        }
+        else
+        {
+            return res.status(404).json({
+                Message: `No address found!`
             })
         }
     }
 )
 
 addressRouter.post(
-    `/`,
+    '/',
     async (req, res) =>
     {
         let currentAddressAddVm: AddressAddVM = {
             city: req.body.city,
             restOfAddress: req.body.restOfAddress
         }
-        let result = await addNewAddress(currentAddressAddVm)
+        let result: boolean | null = await addNewAddress(currentAddressAddVm)
         if (result == true)
         {
-            return showMessageForEveryThing(res, 200, modelsName.Address, whatHappened.Added);
+            return res.status(200).json({
+                Message: `Address Added Successfully!`
+            })
+        }
+        else
+        {
+            return res.status(400).json({
+                Message: 'An error occurred!'
+            })
+        }
+    }
+)
+
+addressRouter.put(
+    '/:id',
+    async (req, res) =>
+    {
+        let currentAddressUpdateVm: AddressUpdateVM = {
+            updateDate: new Date(),
+            id: req.params.id,
+            city: req.body.city,
+            restOfAddress: req.body.restOfAddress
+        }
+        let result: null | boolean = await updateExistAddress(currentAddressUpdateVm)
+        if (result == true)
+        {
+            return res.status(200).json({
+                Message: `Current Address Updated Successfully!`
+            })
+        }
+        else
+        {
+            return res.status(400).json({
+                Message: 'An error occurred!'
+            })
+        }
+    }
+)
+
+
+addressRouter.delete(
+    '/:id',
+    async (req, res) =>
+    {
+        let currentAddressDeleteVm: AddressDeleteVM = {
+            id: req.params.id
+        }
+        let result: null | boolean = await deleteExistAddress(currentAddressDeleteVm)
+        if (result == true)
+        {
+            return res.status(200).json({
+                Message: `Address Deleted Successfully!`
+            })
+        }
+        else
+        {
+            return res.status(400).json({
+                Message: 'An error occurred!'
+            })
         }
     }
 )

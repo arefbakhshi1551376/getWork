@@ -1,6 +1,7 @@
 import {Gender} from "../../mvc/model/gender";
 import {GenderAddVm, GenderDeleteVm, GenderUpdateVm} from "../type/gender";
 import {idIsNotValid} from "../validator";
+import {Country} from "../../mvc/model/country";
 
 export async function getCountOfGender()
 {
@@ -74,7 +75,7 @@ export async function getGenderById(id: string)
 
 export async function getGenderByTitle(title: string)
 {
-    let currentGender = await Gender.find({
+    let currentGender = await Gender.findOne({
         title: title
     })
         .sort(
@@ -82,6 +83,35 @@ export async function getGenderByTitle(title: string)
                 'createDate': -1
             }
         )
+
+    if (currentGender)
+    {
+        return currentGender
+    }
+    else
+    {
+        return null
+    }
+}
+
+export async function getGenderByIdAndFilter(id: string, filter: any)
+{
+
+    let currentGender: any
+    if (filter)
+    {
+        currentGender = await Gender.findById(id)
+            .select(`${filter}`)
+            .sort(
+                {
+                    'createDate': -1
+                }
+            );
+    }
+    else
+    {
+        currentGender = getGenderById(id)
+    }
 
     if (currentGender)
     {

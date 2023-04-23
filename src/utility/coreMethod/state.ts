@@ -20,8 +20,8 @@ export async function getAllState()
 {
     let stateList = await State.find()
         .populate({
-            path: 'Country',
-            populate: 'title'
+            path: 'country',
+            select: 'title',
         })
         .sort(
             {
@@ -43,8 +43,8 @@ export async function getStateByFilter(filter: any)
 {
     let stateList = await State.find()
         .populate({
-            path: 'Country',
-            populate: 'title'
+            path: 'country',
+            select: 'title',
         })
         .select(`${filter}`)
         .sort(
@@ -67,8 +67,8 @@ export async function getStateById(id: string)
 {
     let currentState = await State.findById(id)
         .populate({
-            path: 'Country',
-            populate: 'title'
+            path: 'country',
+            select: 'title',
         })
         .sort(
             {
@@ -93,8 +93,8 @@ export async function getStateByIdAndFilter(id: string, filter: any)
     {
         currentState = await State.findById(id)
             .populate({
-                path: 'Country',
-                populate: 'title'
+                path: 'country',
+                select: 'title',
             })
             .select(`${filter}`)
             .sort(
@@ -105,12 +105,7 @@ export async function getStateByIdAndFilter(id: string, filter: any)
     }
     else
     {
-        currentState = await State.findById(id)
-            .sort(
-                {
-                    'createDate': -1
-                }
-            )
+        currentState = await getStateById(id)
     }
 
     if (currentState)

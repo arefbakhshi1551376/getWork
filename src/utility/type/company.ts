@@ -35,6 +35,12 @@ export type CompanyUpdateVm = {
     updateDate: Date
 }
 
+export type CompanyGalleryUpdateVm = {
+    id: string,
+    albumImages: string[],
+    updateDate: Date
+}
+
 
 export type CompanyDeleteVm = {
     id: string,

@@ -20,8 +20,8 @@ export async function getAllSkillLevel()
 {
     let skillLevelList = await SkillLevel.find()
         .populate({
-            path: 'Skill',
-            populate: 'title'
+            path: 'skill',
+            select: 'title'
         })
         .sort(
             {
@@ -43,8 +43,8 @@ export async function getSkillLevelByFilter(filter: any)
 {
     let skillLevelList = await SkillLevel.find()
         .populate({
-            path: 'Skill',
-            populate: 'title'
+            path: 'skill',
+            select: 'title'
         })
         .select(`${filter}`)
         .sort(
@@ -67,8 +67,8 @@ export async function getSkillLevelById(id: string)
 {
     let currentSkillLevel = await SkillLevel.findById(id)
         .populate({
-            path: 'Skill',
-            populate: 'title'
+            path: 'skill',
+            select: 'title'
         })
         .sort(
             {
@@ -93,8 +93,8 @@ export async function getSkillLevelByIdAndFilter(id: string, filter: any)
     {
         currentSkillLevel = await SkillLevel.findById(id)
             .populate({
-                path: 'Skill',
-                populate: 'title'
+                path: 'skill',
+                select: 'title'
             })
             .select(`${filter}`)
             .sort(
@@ -105,16 +105,7 @@ export async function getSkillLevelByIdAndFilter(id: string, filter: any)
     }
     else
     {
-        currentSkillLevel = await SkillLevel.findById(id)
-            .populate({
-                path: 'Skill',
-                populate: 'title'
-            })
-            .sort(
-                {
-                    'createDate': -1
-                }
-            )
+        currentSkillLevel = await getSkillLevelById(id)
     }
 
     if (currentSkillLevel)

@@ -5,10 +5,12 @@ import {
     addNewStatus, deleteExistStatus,
     getAllStatus,
     getCountOfStatus,
-    getStatusByFilter,
+    getStatusByFilter, getStatusById, getStatusByIdAndFilter,
     updateExistStatus
 } from "../utility/coreMethod/status";
 import {StatusAddVm, StatusDeleteVm, StatusUpdateVm} from "../utility/type/status";
+import {getStateById, getStateByIdAndFilter} from "../utility/coreMethod/state";
+import {stateRouter} from "./state";
 
 export const statusRouter = express.Router()
 
@@ -17,37 +19,6 @@ statusRouter.get(
     async (req, res) =>
     {
         let statusList = await getAllStatus()
-        if (statusList != null)
-        {
-            let my = {
-                name: {
-                    a: 'aref'
-                },
-                family: {
-                    name: {
-                        name: {
-                            name: {
-                                b: 'adel'
-                            }
-                        }
-                    }
-                }
-            }
-            // return res.status(200).json(statusList)
-            return res.status(200).json(my)
-        }
-        else
-        {
-            return showMessageForEveryThing(res, 404, modelsName.Status, whatHappened.Found)
-        }
-    }
-)
-
-statusRouter.get(
-    `/by_filter/:filter`,
-    async (req, res) =>
-    {
-        let statusList = await getStatusByFilter(req.params.filter)
         if (statusList != null)
         {
             return res.status(200).json(statusList)
@@ -71,6 +42,58 @@ statusRouter.get(
         else
         {
             return showMessageForEveryThing(res, 404, modelsName.Status, whatHappened.Found)
+        }
+    }
+)
+
+statusRouter.get(
+    `/:id`,
+    async (req, res) =>
+    {
+        let currentStatus = await getStatusById(req.params.id)
+        if (currentStatus != null)
+        {
+            return res.status(200).json(currentStatus)
+        }
+        else
+        {
+            return res.status(404).json({
+                Message: `No state found!`
+            })
+        }
+    }
+)
+
+statusRouter.get(
+    `/by_filter/:filter`,
+    async (req, res) =>
+    {
+        let statusList = await getStatusByFilter(req.params.filter)
+        if (statusList != null)
+        {
+            return res.status(200).json(statusList)
+        }
+        else
+        {
+            return showMessageForEveryThing(res, 404, modelsName.Status, whatHappened.Found)
+        }
+    }
+)
+
+statusRouter.get(
+    `/by_id_and_filter/:id/:filter?`,
+    async (req, res) =>
+    {
+        let statusList = await getStatusByIdAndFilter(req.params.id, req.params.filter)
+        if (statusList != null)
+        {
+            return res.status(200).json(statusList)
+        }
+        else
+        {
+            return res.status(404).json({
+                Message: `No state found!`
+            })
         }
     }
 )

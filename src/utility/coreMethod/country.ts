@@ -73,6 +73,35 @@ export async function getCountryById(id: string)
     }
 }
 
+export async function getCountryByIdAndFilter(id: string, filter: any)
+{
+
+    let currentCountry: any
+    if (filter)
+    {
+        currentCountry = await Country.findById(id)
+            .select(`${filter}`)
+            .sort(
+                {
+                    'createDate': -1
+                }
+            );
+    }
+    else
+    {
+        currentCountry = getCountryById(id)
+    }
+
+    if (currentCountry)
+    {
+        return currentCountry
+    }
+    else
+    {
+        return null
+    }
+}
+
 export async function addNewCountry(entity: CountryAddVm): Promise<null | boolean>
 {
     let titleExist = await checkIfCountryWithTheSameTitleExist(entity.title)
@@ -168,5 +197,4 @@ async function checkIfCountryWithTheSameTitleExist(title: string)
         title: title
     })
     return !!currentCountry;
-
 }

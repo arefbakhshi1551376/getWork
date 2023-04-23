@@ -53,6 +53,34 @@ export async function getLanguageByFilter(filter: any)
     }
 }
 
+export async function getLanguageByIdAndFilter(id: string, filter: any)
+{
+    let languageList: any
+    if (filter)
+    {
+        languageList = await Language.find().select(`${filter}`)
+            .sort(
+                {
+                    'createDate': -1
+                }
+            );
+    }
+    else
+    {
+        languageList = getLanguageById(id)
+    }
+
+
+    if (languageList)
+    {
+        return languageList
+    }
+    else
+    {
+        return null
+    }
+}
+
 export async function getLanguageById(id: string)
 {
     let currentLanguage = await Language.findById(id)

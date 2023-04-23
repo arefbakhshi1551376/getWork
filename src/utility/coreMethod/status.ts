@@ -1,6 +1,4 @@
 import {Status} from "../../mvc/model/status";
-import {Country} from "../../mvc/model/country";
-import {CountryAddVm, CountryDeleteVm, CountryUpdateVm} from "../type/country";
 import {StatusAddVm, StatusDeleteVm, StatusUpdateVm} from "../type/status";
 import mongoose from "mongoose";
 import {idIsNotValid} from "../validator";
@@ -64,6 +62,35 @@ export async function getStatusById(id: string)
                 'createDate': -1
             }
         )
+
+    if (currentStatus)
+    {
+        return currentStatus
+    }
+    else
+    {
+        return null
+    }
+}
+
+export async function getStatusByIdAndFilter(id: string, filter: any)
+{
+    let currentStatus: any
+    if (filter)
+    {
+        currentStatus = await Status.findById(id)
+            .select(`${filter}`)
+            .sort(
+                {
+                    'createDate': -1
+                }
+            );
+    }
+    else
+    {
+        currentStatus = await getStatusById(id)
+    }
+
 
     if (currentStatus)
     {

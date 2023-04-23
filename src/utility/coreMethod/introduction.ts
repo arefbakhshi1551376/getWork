@@ -72,6 +72,34 @@ export async function getIntroductionById(id: string)
     }
 }
 
+export async function getIntroductionByIdAndFilter(id: string, filter: any)
+{
+    let currentIntroduction: any
+    if (filter)
+    {
+        currentIntroduction = await Introduction.findById(id)
+            .select(`${filter}`)
+            .sort(
+                {
+                    'createDate': -1
+                }
+            );
+    }
+    else
+    {
+        currentIntroduction = await getIntroductionById(id)
+    }
+
+    if (currentIntroduction)
+    {
+        return currentIntroduction
+    }
+    else
+    {
+        return null
+    }
+}
+
 export async function addNewIntroduction(entity: IntroductionAddVm): Promise<null | boolean>
 {
     let currentIntroduction = new Introduction({

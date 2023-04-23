@@ -1,5 +1,5 @@
 import {Company} from "../../mvc/model/company";
-import {CompanyAddVm, CompanyDeleteVm, CompanyUpdateVm} from "../type/company";
+import {CompanyAddVm, CompanyDeleteVm, CompanyGalleryUpdateVm, CompanyUpdateVm} from "../type/company";
 import {idIsNotValid} from "../validator";
 import {Address} from "../../mvc/model/address";
 import {getAddressById} from "./address";
@@ -22,13 +22,22 @@ export async function getAllCompany()
 {
     let companyList = await Company.find() // TODO: Check if it works!
         .populate({
-            path: 'Introduction',
+            path: 'introduction',
+            select: 'title description'
         })
         .populate({
-            path: 'Address',
+            path: 'address',
             populate: {
-                path: 'City',
-                populate: 'title'
+                path: 'city',
+                select: 'title',
+                populate: {
+                    path: 'state',
+                    select: 'title',
+                    populate: {
+                        path: 'country',
+                        populate: 'title'
+                    }
+                }
             }
         })
         .sort(
@@ -180,15 +189,7 @@ export async function addNewCompany(entity: CompanyAddVm): Promise<null | boolea
             establishYear: entity.establishYear,
         })
         let result = await currentCompany.save()
-        if (result)
-        {
-            console.log(result)
-            return true
-        }
-        else
-        {
-            return false
-        }
+        return !!result;
     }
     return false
 
@@ -224,7 +225,6 @@ export async function updateExistCompany(entity: CompanyUpdateVm)
                 email: entity.email,
                 phoneNumber: entity.phoneNumber,
                 mainImage: entity.mainImage,
-                albumImage: entity.albumImage,
                 establishYear: entity.establishYear,
                 updateDate: entity.updateDate
             }
@@ -232,6 +232,18 @@ export async function updateExistCompany(entity: CompanyUpdateVm)
         return !!currentCompany;
     }
     return false
+}
+
+export async function updateGalleryOfExistCompany(entity: CompanyGalleryUpdateVm)
+{
+    let currentCompany = await Company.findByIdAndUpdate(
+        entity.id,
+        {
+            albumImages: entity.albumImages,
+            updateDate: entity.updateDate
+        }
+    )
+    return !!currentCompany;
 }
 
 export async function deleteExistCompany(entity: CompanyDeleteVm)

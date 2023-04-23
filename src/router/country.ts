@@ -4,7 +4,7 @@ import {
     addNewCountry,
     deleteExistCountry,
     getAllCountry,
-    getCountOfCountry, getCountryByFilter,
+    getCountOfCountry, getCountryByFilter, getCountryById, getCountryByIdAndFilter,
     updateExistCountry
 } from "../utility/coreMethod/country";
 import {showMessageForEveryThing} from "../utility/showResponseMessage";
@@ -23,23 +23,9 @@ countryRouter.get(
         }
         else
         {
-            return showMessageForEveryThing(res, 404, modelsName.Country, whatHappened.Found)
-        }
-    }
-)
-
-countryRouter.get(
-    `/by_filter/:filter`,
-    async (req, res) =>
-    {
-        let countryList = await getCountryByFilter(req.params.filter)
-        if (countryList != null)
-        {
-            return res.status(200).json(countryList)
-        }
-        else
-        {
-            return showMessageForEveryThing(res, 404, modelsName.Country, whatHappened.Found)
+            return res.status(404).json({
+                Message: `No country found!`
+            })
         }
     }
 )
@@ -55,7 +41,63 @@ countryRouter.get(
         }
         else
         {
-            return showMessageForEveryThing(res, 404, modelsName.Country, whatHappened.Found)
+            return res.status(404).json({
+                Message: `No country found!`
+            })
+        }
+    }
+)
+
+countryRouter.get(
+    `/:id`,
+    async (req, res) =>
+    {
+        let currentCountry = await getCountryById(req.params.id)
+        if (currentCountry != null)
+        {
+            return res.status(200).json(currentCountry)
+        }
+        else
+        {
+            return res.status(404).json({
+                Message: `No country found!`
+            })
+        }
+    }
+)
+
+countryRouter.get(
+    `/by_filter/:filter`,
+    async (req, res) =>
+    {
+        let countryList = await getCountryByFilter(req.params.filter)
+        if (countryList != null)
+        {
+            return res.status(200).json(countryList)
+        }
+        else
+        {
+            return res.status(404).json({
+                Message: `No country found!`
+            })
+        }
+    }
+)
+
+countryRouter.get(
+    `/by_id_and_filter/:id/:filter?`,
+    async (req, res) =>
+    {
+        let countryList = await getCountryByIdAndFilter(req.params.id, req.params.filter)
+        if (countryList != null)
+        {
+            return res.status(200).json(countryList)
+        }
+        else
+        {
+            return res.status(404).json({
+                Message: `No country found!`
+            })
         }
     }
 )

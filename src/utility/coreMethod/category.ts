@@ -20,16 +20,16 @@ export async function getCountOfCategory()
 
 export async function getAllCategory()
 {
-    let skillCategory = await Category.find()
+    let categoryList = await Category.find()
         .sort(
             {
                 'createDate': -1
             }
         )
 
-    if (skillCategory)
+    if (categoryList)
     {
-        return skillCategory
+        return categoryList
     }
     else
     {
@@ -89,12 +89,7 @@ export async function getCategoryByIdAndFilter(id: string, filter: any)
     }
     else
     {
-        currentCategory = await Category.findById(id)
-            .sort(
-                {
-                    'createDate': -1
-                }
-            )
+        currentCategory = await getCategoryById(id)
     }
 
     if (currentCategory)

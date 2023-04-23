@@ -53,6 +53,34 @@ export async function getJobPlaceByFilter(filter: any)
     }
 }
 
+export async function getJobPlaceByIdAndFilter(id: string, filter: any)
+{
+    let jobPlaceList: any
+    if (filter)
+    {
+        jobPlaceList = await JobPlace.find().select(`${filter}`)
+            .sort(
+                {
+                    'createDate': -1
+                }
+            );
+    }
+    else
+    {
+        jobPlaceList = getJobPlaceById(id)
+    }
+
+
+    if (jobPlaceList)
+    {
+        return jobPlaceList
+    }
+    else
+    {
+        return null
+    }
+}
+
 export async function getJobPlaceById(id: string)
 {
     let currentJobPlace = await JobPlace.findById(id)

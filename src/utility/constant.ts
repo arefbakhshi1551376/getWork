@@ -38,3 +38,46 @@ export enum whatHappened
     Found = 'Found',
 }
 
+export function getProtocolAndHost(req: any): string
+{
+    let finalResult: string = ''
+    let protocol = req.protocol
+    let host = req.get('host')
+    finalResult = `${protocol}://${host}`
+    return finalResult
+}
+
+export function getUploadPath(req: any): string
+{
+    return `${getProtocolAndHost(req)}/src/public/upload/`
+}
+
+export function getUploadPathArray(req: any): string
+{
+    return `${getProtocolAndHost(req)}/src/public/upload/`
+}
+
+export const FILE_TYPE_MAP = {
+    'image/png': 'png',
+    'image/jpeg': 'jpeg',
+    'image/jpg': 'jpg'
+}
+
+export function getExtensionOfImage(mimetype: any)
+{
+    switch (mimetype)
+    {
+        case 'image/png':
+        {
+            return 'png'
+        }
+        case 'image/jpeg':
+        {
+            return 'jpeg'
+        }
+        case 'image/jpg':
+        {
+            return 'jpg'
+        }
+    }
+}

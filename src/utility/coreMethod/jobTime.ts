@@ -53,6 +53,34 @@ export async function getJobTimeByFilter(filter: any)
     }
 }
 
+export async function getJobTimeByIdAndFilter(id: string, filter: any)
+{
+    let jobTimeList: any
+    if (filter)
+    {
+        jobTimeList = await JobTime.find().select(`${filter}`)
+            .sort(
+                {
+                    'createDate': -1
+                }
+            );
+    }
+    else
+    {
+        jobTimeList = getJobTimeById(id)
+    }
+
+
+    if (jobTimeList)
+    {
+        return jobTimeList
+    }
+    else
+    {
+        return null
+    }
+}
+
 export async function getJobTimeById(id: string)
 {
     let currentJobTime = await JobTime.findById(id)

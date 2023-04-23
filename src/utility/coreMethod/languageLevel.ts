@@ -20,8 +20,8 @@ export async function getAllLanguageLevel()
 {
     let languageLevelList = await LanguageLevel.find()
         .populate({
-            path: 'Language',
-            populate: 'title'
+            path: 'language',
+            select: 'title'
         })
         .sort(
             {
@@ -43,8 +43,8 @@ export async function getLanguageLevelByFilter(filter: any)
 {
     let languageLevelList = await LanguageLevel.find()
         .populate({
-            path: 'Language',
-            populate: 'title'
+            path: 'language',
+            select: 'title'
         })
         .select(`${filter}`)
         .sort(
@@ -67,8 +67,8 @@ export async function getLanguageLevelById(id: string)
 {
     let currentLanguageLevel = await LanguageLevel.findById(id)
         .populate({
-            path: 'Language',
-            populate: 'title'
+            path: 'language',
+            select: 'title'
         })
         .sort(
             {
@@ -93,8 +93,8 @@ export async function getLanguageLevelByIdAndFilter(id: string, filter: any)
     {
         currentLanguageLevel = await LanguageLevel.findById(id)
             .populate({
-                path: 'Language',
-                populate: 'title'
+                path: 'language',
+                select: 'title'
             })
             .select(`${filter}`)
             .sort(
@@ -105,16 +105,7 @@ export async function getLanguageLevelByIdAndFilter(id: string, filter: any)
     }
     else
     {
-        currentLanguageLevel = await LanguageLevel.findById(id)
-            .populate({
-                path: 'Language',
-                populate: 'title'
-            })
-            .sort(
-                {
-                    'createDate': -1
-                }
-            )
+        currentLanguageLevel = await getLanguageLevelById(id)
     }
 
     if (currentLanguageLevel)

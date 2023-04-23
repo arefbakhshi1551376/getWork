@@ -86,12 +86,7 @@ export async function getCareerHistoryByIdAndFilter(id: string, filter: any)
     }
     else
     {
-        currentCareerHistory = await CareerHistory.findById(id)
-            .sort(
-                {
-                    'createDate': -1
-                }
-            )
+        currentCareerHistory = await getCareerHistoryById(id)
     }
 
     if (currentCareerHistory)
@@ -106,6 +101,11 @@ export async function getCareerHistoryByIdAndFilter(id: string, filter: any)
 
 export async function addNewCareerHistory(entity: CareerHistoryAddVm): Promise<null | boolean>
 {
+    let currentCareerHistoryExist = await checkIfCareerHistoryWithTheSamePropertiesExist(entity)
+    if (currentCareerHistoryExist)
+    {
+        return true
+    }
     let currentCareerHistory = new CareerHistory({
         workPlace: entity.workPlace,
         startWorkingYear: entity.startWorkingYear,
@@ -137,6 +137,12 @@ export async function addNewCareerHistory(entity: CareerHistoryAddVm): Promise<n
 
 export async function updateExistCareerHistory(entity: CareerHistoryUpdateVm)
 {
+    let currentCareerHistoryExist = await checkIfCareerHistoryWithTheSamePropertiesExist(entity)
+    if (currentCareerHistoryExist)
+    {
+        return true
+    }
+
     if (idIsNotValid(entity.id))
     {
         return null
@@ -180,4 +186,15 @@ export async function deleteExistCareerHistory(entity: CareerHistoryDeleteVm)
     //     console.log(reason)
     //     return false
     // })
+}
+
+async function checkIfCareerHistoryWithTheSamePropertiesExist(entity: CareerHistoryAddVm)
+{
+    let currentCountry = await CareerHistory.findOne({
+        workPlace: entity.workPlace,
+        startWorkingYear: entity.startWorkingYear,
+        endWorkingYear: entity.endWorkingYear,
+        isWorkingYet: entity.isWorkingYet,
+    })
+    return !!currentCountry;
 }

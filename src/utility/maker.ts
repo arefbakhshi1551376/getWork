@@ -36,8 +36,8 @@ export function textMaker(numberOfCharacters: number = 30): string
 
 export function emailMaker(numberOfCharacters: number = 10, afterEmail: string = 'yahoo.com'): string
 {
-    let allowedCharacter = 'abcdefghijklmnopqrstuvwxyzA...BCDEFGHIJKLMNOPQRSTUVWXYZ'
     let finalResult = ''
+    let allowedCharacter = 'abcdefghijklmnopqrstuvwxyzA...BCDEFGHIJKLMNOPQRSTUVWXYZ'
     let randomIndex: number;
     for (let i = 0; i < numberOfCharacters; i++)
     {
@@ -65,12 +65,14 @@ export function phoneNumberMaker(numberOfCharacters: number = 9): string
 
 export async function defaultGenderMaker()
 {
+    console.log('We are ready to add 3 genders')
     let maleGender = await getGenderByTitle('Male')
     let feMaleGender = await getGenderByTitle('Female')
     let notDetectedGender = await getGenderByTitle('Not Detected')
 
     if (!maleGender)
     {
+        console.log('Female is not exists')
         let genderAddMaleVm: GenderAddVm = {
             title: 'Male'
         }
@@ -79,6 +81,7 @@ export async function defaultGenderMaker()
 
     if (!feMaleGender)
     {
+        console.log('Male is not exists')
         let genderAddFemaleVm: GenderAddVm = {
             title: 'Female'
         }
@@ -87,6 +90,7 @@ export async function defaultGenderMaker()
 
     if (!notDetectedGender)
     {
+        console.log('NotDetected is not exists')
         let genderAddNotDetectedVm: GenderAddVm = {
             title: 'Not Detected'
         }
@@ -123,5 +127,22 @@ export async function defaultStatusMaker()
         }
         await addNewStatus(deniedStatusAddVm)
     }
+}
+
+export async function imageNameMaker(beforeName: string, numberOfCharacters: number = 50)
+{
+    let finalResult: string = `${beforeName}_`
+    let allowedCharacter = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    let randomIndex: number;
+    for (let i = 0; i < numberOfCharacters; i++)
+    {
+        randomIndex = randomInt(0, allowedCharacter.length - 1);
+        let currentCharacter = allowedCharacter[randomIndex]
+        finalResult += currentCharacter
+    }
+    let nowDate = new Date()
+    let nowDateAsString = `${nowDate.getSeconds()}${nowDate.getMinutes()}${nowDate.getHours()}${nowDate.getDay()}${nowDate.getMonth()}${nowDate.getFullYear()}`
+    finalResult += nowDateAsString
+    return finalResult
 }
 

@@ -72,6 +72,33 @@ export async function getSalaryById(id: string)
     }
 }
 
+export async function getSalaryByIdAndFilter(id: string, filter: any)
+{
+    let currentSalary: any
+    if (filter)
+    {
+        currentSalary = await Salary.findById(id)
+            .sort(
+                {
+                    'createDate': -1
+                }
+            );
+    }
+    else
+    {
+        currentSalary = await getSalaryById(id)
+    }
+
+    if (currentSalary)
+    {
+        return currentSalary
+    }
+    else
+    {
+        return null
+    }
+}
+
 export async function getSalaryByAgreedStatus(agreedStatus: boolean = true)
 {
     let salaryList = await Salary.find({

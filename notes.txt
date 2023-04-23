@@ -1,0 +1,91 @@
+Node with TypeScript
+
+npm init -y
+npm install -g typescript
+tsc --init
+npm install -D ts-node
+npm i node
+npm i @types/node
+"scripts": {
+    "start": "ts-node ./src/index.ts",
+    // "start": "tsc --watch"
+},
+npm install csv-parse --save-dev
+
+TypeScript with express and solve its problem:
+	https://www.aparat.com/v/oh96R?playlist=4920152
+
+_______________________________________________________
+/////////////******************************************
+_______________________________________________________
+Preparing project for express
+_______________________________________________________
+/////////////******************************************
+_______________________________________________________
+npm init -y
+tsc --init
+set rootDir and outDir
+npm i express
+npm i @types/express
+npm i morgan
+npm i @types/morgan
+npm i mongoose
+npm i mongodb
+npm install --save @types/cors
+npm i @types/bcryptjs
+npm i bcryptjs // You must install both @types/bcryptjs and bcryptjs
+npm i jsonwebtoken
+npm i @types/jsonwebtoken
+npm i express-jwt
+npm i multer
+npm i @types/multer
+npm i body-parser
+npm i @types/body-parser
+npm i -D typescript ts-node nodemon @types/node @types/express
+"scripts": {
+    "start": "node dist/server.js",
+    "dev": "nodemon src/server.ts",
+    "build": "tsc -p ."
+  },
+npm i express-handlebars
+
+// In server.ts or any main ts file:
+app.engine('handlebars', engine());
+app.set('view engine', 'handlebars');
+app.use((req, res, next) =>
+{
+    let start = Date.now()
+    // console.log(`${req.method} - ${req.url}`)
+    next()
+    // console.log(`Time: ${Date.now() - start} ms`)
+})
+app.use(morgan('tiny'))
+app.use('/site', express.static(path.join(__dirname, 'public')))
+// app.use("/images", express.static(path.join(__dirname, "/public/images")));
+app.use(express.json())
+
+// For using handlebars files:
+app.get('/', (req, res) =>
+{
+    res.render('home', {
+        name: 'Aref',
+        title:'Home'
+    })
+    // If you want to render home into main
+
+    // res.render('home',{layout: false})
+    // If you want to render home itself
+})
+
+
+
+
+
+
+
+
+
+
+
+
+

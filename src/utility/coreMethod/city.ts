@@ -20,10 +20,11 @@ export async function getAllCity()
 {
     let cityList = await City.find() // TODO: Check if it works!
         .populate({
-            path: 'State',
+            path: 'state',
+            select: 'title',
             populate: {
-                path: 'Country',
-                populate: 'title'
+                path: 'country',
+                select: 'title'
             }
         })
         .sort(
@@ -46,10 +47,11 @@ export async function getCityByFilter(filter: any)
 {
     let cityList = await City.find()
         .populate({
-            path: 'State',
+            path: 'state',
+            select: 'title',
             populate: {
-                path: 'Country',
-                populate: 'title'
+                path: 'country',
+                select: 'title'
             }
         })
         .select(`${filter}`)
@@ -73,10 +75,11 @@ export async function getCityById(id: string)
 {
     let currentCity = await City.findById(id)
         .populate({
-            path: 'State',
+            path: 'state',
+            select: 'title',
             populate: {
-                path: 'Country',
-                populate: 'title'
+                path: 'country',
+                select: 'title'
             }
         })
         .sort(
@@ -102,10 +105,11 @@ export async function getCityByIdAndFilter(id: string, filter: any)
     {
         currentCity = await City.findById(id)
             .populate({
-                path: 'State',
+                path: 'state',
+                select: 'title',
                 populate: {
-                    path: 'Country',
-                    populate: 'title'
+                    path: 'country',
+                    select: 'title'
                 }
             })
             .select(`${filter}`)
@@ -117,19 +121,7 @@ export async function getCityByIdAndFilter(id: string, filter: any)
     }
     else
     {
-        currentCity = await City.findById(id)
-            .populate({
-                path: 'State',
-                populate: {
-                    path: 'Country',
-                    populate: 'title'
-                }
-            })
-            .sort(
-                {
-                    'createDate': -1
-                }
-            )
+        currentCity = await getCityById(id)
     }
 
     if (currentCity)

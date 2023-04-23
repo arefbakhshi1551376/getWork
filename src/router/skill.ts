@@ -13,6 +13,22 @@ import {SkillAddVm, SkillDeleteVm, SkillUpdateVm} from "../utility/type/skill";
 export const skillRouter = express.Router()
 
 skillRouter.get(
+    `/count`,
+    async (req, res) =>
+    {
+        let skillCount = await getCountOfSkill()
+        if (skillCount != null)
+        {
+            return res.status(200).json(`Count of skill: ${skillCount}`)
+        }
+        else
+        {
+            return showMessageForEveryThing(res, 404, modelsName.Skill, whatHappened.Found)
+        }
+    }
+)
+
+skillRouter.get(
     `/`,
     async (req, res) =>
     {
@@ -52,22 +68,6 @@ skillRouter.get(
         if (skillList != null)
         {
             return res.status(200).json(skillList)
-        }
-        else
-        {
-            return showMessageForEveryThing(res, 404, modelsName.Skill, whatHappened.Found)
-        }
-    }
-)
-
-skillRouter.get(
-    `/count`,
-    async (req, res) =>
-    {
-        let skillCount = await getCountOfSkill()
-        if (skillCount != null)
-        {
-            return res.status(200).json(`Count of skill: ${skillCount}`)
         }
         else
         {
@@ -151,7 +151,7 @@ skillRouter.delete(
         if (result == true)
         {
             return res.status(200).json({
-                Message: `Status Deleted Successfully!`
+                Message: `Skill Deleted Successfully!`
             })
         }
         else
