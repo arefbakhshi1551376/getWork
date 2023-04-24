@@ -1,6 +1,6 @@
 import mongoose, {Schema} from "mongoose";
 
-export const requestSchema = new Schema({
+export const userRequestSchema = new Schema({
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
@@ -30,17 +30,17 @@ export const requestSchema = new Schema({
     },
 })
 
-requestSchema.virtual('id').get(function ()
+userRequestSchema.virtual('id').get(function ()
 {
     return this._id.toHexString()
 })
 
-requestSchema.set('toJSON', {
+userRequestSchema.set('toJSON', {
     virtuals: true
 })
 
 
-export const Request = mongoose.model(
-    'Request',
-    requestSchema
+export const UserRequest = mongoose.model(
+    'UserRequest',
+    userRequestSchema
 )

@@ -3,6 +3,8 @@ import {addNewGender, getGenderByTitle} from "./coreMethod/gender";
 import {GenderAddVm} from "./type/gender";
 import {addNewStatus, getStatusById, getStatusByTitle} from "./coreMethod/status";
 import {StatusAddVm} from "./type/status";
+import {addNewSeniorityLevel, getSeniorityLevelByTitle} from "./coreMethod/seniorityLevel";
+import {SeniorityLevelAddVm} from "./type/seniorityLevel";
 
 export function nameMaker(numberOfCharacters: number = 10): string
 {
@@ -107,7 +109,7 @@ export async function defaultStatusMaker()
     if (!seenStatus)
     {
         let seenStatusAddVm: StatusAddVm = {
-            title: 'Male'
+            title: 'Seen'
         }
         await addNewStatus(seenStatusAddVm)
     }
@@ -129,6 +131,46 @@ export async function defaultStatusMaker()
     }
 }
 
+export async function defaultSeniorityLevelMaker()
+{
+    let internSeniorityLevel = await getSeniorityLevelByTitle('Intern')
+    let juniorSeniorityLevel = await getSeniorityLevelByTitle('Junior')
+    let seniorSeniorityLevel = await getStatusByTitle('Senior')
+    let midLevelSeniorityLevel = await getStatusByTitle('MidLevel')
+
+    if (!internSeniorityLevel)
+    {
+        let internSeniorityLevelAddVm: SeniorityLevelAddVm = {
+            title: 'Intern'
+        }
+        await addNewSeniorityLevel(internSeniorityLevelAddVm)
+    }
+
+    if (!juniorSeniorityLevel)
+    {
+        let juniorSeniorityLevelAddVm: SeniorityLevelAddVm = {
+            title: 'Junior'
+        }
+        await addNewSeniorityLevel(juniorSeniorityLevelAddVm)
+    }
+
+    if (!seniorSeniorityLevel)
+    {
+        let seniorSeniorityLevelAddVm: SeniorityLevelAddVm = {
+            title: 'Senior'
+        }
+        await addNewSeniorityLevel(seniorSeniorityLevelAddVm)
+    }
+
+    if (!midLevelSeniorityLevel)
+    {
+        let midLevelSeniorityLevelAddVm: SeniorityLevelAddVm = {
+            title: 'MidLevel'
+        }
+        await addNewSeniorityLevel(midLevelSeniorityLevelAddVm)
+    }
+}
+
 export async function imageNameMaker(beforeName: string, numberOfCharacters: number = 50)
 {
     let finalResult: string = `${beforeName}_`
@@ -145,4 +187,24 @@ export async function imageNameMaker(beforeName: string, numberOfCharacters: num
     finalResult += nowDateAsString
     return finalResult
 }
+
+
+export async function verifyTokenMaker(beforeName: string, numberOfCharacters: number = 50)
+{
+    let finalResult: string = `${beforeName}_`
+    let allowedCharacter = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    let randomIndex: number;
+    for (let i = 0; i < numberOfCharacters; i++)
+    {
+        randomIndex = randomInt(0, allowedCharacter.length - 1);
+        let currentCharacter = allowedCharacter[randomIndex]
+        finalResult += currentCharacter
+    }
+    let nowDate = new Date()
+    let nowDateAsString = `${nowDate.getSeconds()}${nowDate.getMinutes()}${nowDate.getHours()}${nowDate.getDay()}${nowDate.getMonth()}${nowDate.getFullYear()}`
+    finalResult += nowDateAsString
+    return finalResult
+}
+
+
 

@@ -5,7 +5,7 @@ import {
     addNewStatus, deleteExistStatus,
     getAllStatus,
     getCountOfStatus,
-    getStatusByFilter, getStatusById, getStatusByIdAndFilter,
+    getStatusByFilter, getStatusById, getStatusByIdAndFilter, getStatusByTitle,
     updateExistStatus
 } from "../utility/coreMethod/status";
 import {StatusAddVm, StatusDeleteVm, StatusUpdateVm} from "../utility/type/status";
@@ -69,6 +69,22 @@ statusRouter.get(
     async (req, res) =>
     {
         let statusList = await getStatusByFilter(req.params.filter)
+        if (statusList != null)
+        {
+            return res.status(200).json(statusList)
+        }
+        else
+        {
+            return showMessageForEveryThing(res, 404, modelsName.Status, whatHappened.Found)
+        }
+    }
+)
+
+statusRouter.get(
+    `/by_title/:title`,
+    async (req, res) =>
+    {
+        let statusList = await getStatusByTitle(req.params.title)
         if (statusList != null)
         {
             return res.status(200).json(statusList)

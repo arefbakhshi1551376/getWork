@@ -2,9 +2,11 @@ import {Status} from "../../mvc/model/status";
 import {StatusAddVm, StatusDeleteVm, StatusUpdateVm} from "../type/status";
 import mongoose from "mongoose";
 import {idIsNotValid} from "../validator";
+import {defaultStatusMaker} from "../maker";
 
 export async function getCountOfStatus()
 {
+    await defaultStatusMaker()
     let countOfStatus = await Status.count()
     if (countOfStatus)
     {
@@ -18,6 +20,7 @@ export async function getCountOfStatus()
 
 export async function getAllStatus()
 {
+    await defaultStatusMaker()
     let statusList = await Status.find()
         .sort(
             {
@@ -104,7 +107,7 @@ export async function getStatusByIdAndFilter(id: string, filter: any)
 
 export async function getStatusByTitle(title: string)
 {
-    let currentStatus = await Status.find({
+    let currentStatus = await Status.findOne({
         title: title
     })
         .sort(

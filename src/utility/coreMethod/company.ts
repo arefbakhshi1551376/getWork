@@ -60,13 +60,22 @@ export async function getCompanyByFilter(filter: any)
 {
     let companyList = await Company.find()
         .populate({
-            path: 'Introduction',
+            path: 'introduction',
+            select: 'title description'
         })
         .populate({
-            path: 'Address',
+            path: 'address',
             populate: {
-                path: 'City',
-                populate: 'title'
+                path: 'city',
+                select: 'title',
+                populate: {
+                    path: 'state',
+                    select: 'title',
+                    populate: {
+                        path: 'country',
+                        populate: 'title'
+                    }
+                }
             }
         })
         .select(`${filter}`)
@@ -90,13 +99,22 @@ export async function getCompanyById(id: string)
 {
     let currentCompany = await Company.findById(id)
         .populate({
-            path: 'Introduction',
+            path: 'introduction',
+            select: 'title description'
         })
         .populate({
-            path: 'Address',
+            path: 'address',
             populate: {
-                path: 'City',
-                populate: 'title'
+                path: 'city',
+                select: 'title',
+                populate: {
+                    path: 'state',
+                    select: 'title',
+                    populate: {
+                        path: 'country',
+                        populate: 'title'
+                    }
+                }
             }
         })
         .sort(
@@ -122,13 +140,22 @@ export async function getCompanyByIdAndFilter(id: string, filter: any)
     {
         currentCompany = await Company.findById(id)
             .populate({
-                path: 'Introduction',
+                path: 'introduction',
+                select: 'title description'
             })
             .populate({
-                path: 'Address',
+                path: 'address',
                 populate: {
-                    path: 'City',
-                    populate: 'title'
+                    path: 'city',
+                    select: 'title',
+                    populate: {
+                        path: 'state',
+                        select: 'title',
+                        populate: {
+                            path: 'country',
+                            populate: 'title'
+                        }
+                    }
                 }
             })
             .select(`${filter}`)
@@ -140,22 +167,7 @@ export async function getCompanyByIdAndFilter(id: string, filter: any)
     }
     else
     {
-        currentCompany = await Company.findById(id)
-            .populate({
-                path: 'Introduction',
-            })
-            .populate({
-                path: 'Address',
-                populate: {
-                    path: 'City',
-                    populate: 'title'
-                }
-            })
-            .sort(
-                {
-                    'createDate': -1
-                }
-            )
+        currentCompany = await getCompanyById(id)
     }
 
     if (currentCompany)

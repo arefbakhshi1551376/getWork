@@ -18,18 +18,15 @@ export const userSchema = new Schema({
     },
     email: {
         type: String,
-        required: true,
-        default: ''
+        required: false
     },
     phoneNumber: {
         type: String,
-        required: true,
-        default: ''
+        required: false
     },
     image: {
         type: String,
-        required: true,
-        default: ''
+        required: false
     },
     password: {
         type: String,
@@ -41,11 +38,30 @@ export const userSchema = new Schema({
         required: true,
         default: false
     },
+    isEnabled: {
+        type: Boolean,
+        required: true,
+        default: false
+    },
+    isAdmin: {
+        type: Boolean,
+        required: true,
+        default: false
+    },
+    isVerifiedEmail: {
+        type: Boolean,
+        required: true,
+        default: false
+    },
+    isVerifiedPhoneNumber: {
+        type: Boolean,
+        required: true,
+        default: false
+    },
     ip: [
         {
             type: String,
-            required: true,
-            default: ''
+            required: false
         }
     ],
     introduction: {
@@ -63,16 +79,9 @@ export const userSchema = new Schema({
         ref: 'City',
         required: false
     },
-    request: [
-        {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Request',
-            required: false
-        }
-    ],
     lastLoginDate: {
         type: Date,
-        required: true
+        required: false
     },
     createDate: {
         type: Date,

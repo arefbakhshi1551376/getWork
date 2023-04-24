@@ -1,13 +1,23 @@
 import {User} from "../../mvc/model/user";
-import {UserAddVm, UserDeleteVm, UserUpdateVm} from "../type/user";
+import {
+    UserAddByAdminVm, UserChangeAdministrationStateVm, UserChangeEnableStateVm, UserChangePasswordVm,
+    UserDeleteVm,
+    UserLoginVm, UserRegisterItselfVm, UserUpdateImageVm, UserUpdateVm,
+    UserVerifyEmailVm, UserVerifyPhoneNumberVm
+} from "../type/user";
 import {idIsNotValid} from "../validator";
-import {Introduction} from "../type/introduction";
-import {Gender} from "../type/gender";
-import {City} from "../type/city";
 import bcrypt from "bcryptjs";
 import {getGenderById, getGenderByTitle} from "./gender";
 import {getCityById} from "./city";
 import {getIntroductionById} from "./introduction";
+import jwt from "jsonwebtoken";
+import {
+    currentErrorList,
+    currentUserData,
+    SECRET_JWT,
+} from "../constant";
+import {getVerifyUserEmailByToken} from "./verifyUserEmail";
+import {getVerifyUserPhoneNumberByToken} from "./verifyUserPhoneNumber";
 
 export async function getCountOfUser()
 {
@@ -24,30 +34,25 @@ export async function getCountOfUser()
 
 export async function getAllUser()
 {
-    let userList = await User.find() // TODO: Check if it works!
+    let userList = await User.find()
         .populate({
-            path: 'Introduction',
-            populate: 'title description'
+            path: 'introduction',
+            select: 'title description'
         })
         .populate({
-            path: 'Gender',
-            populate: 'title'
+            path: 'gender',
+            select: 'title'
         })
         .populate({
-            path: 'City',
+            path: 'city',
+            select: 'title',
             populate: {
-                path: 'State',
+                path: 'state',
+                select: 'title',
                 populate: {
-                    path: 'Country',
+                    path: 'country',
                     populate: 'title'
                 }
-            }
-        })
-        .populate({
-            path: 'Request',
-            populate: {
-                path: 'Status',
-                populate: 'title'
             }
         })
         .sort(
@@ -70,28 +75,23 @@ export async function getUserByFilter(filter: any)
 {
     let userList = await User.find()
         .populate({
-            path: 'Introduction',
-            populate: 'title description'
+            path: 'introduction',
+            select: 'title description'
         })
         .populate({
-            path: 'Gender',
-            populate: 'title'
+            path: 'gender',
+            select: 'title'
         })
         .populate({
-            path: 'City',
+            path: 'city',
+            select: 'title',
             populate: {
-                path: 'State',
+                path: 'state',
+                select: 'title',
                 populate: {
-                    path: 'Country',
+                    path: 'country',
                     populate: 'title'
                 }
-            }
-        })
-        .populate({
-            path: 'Request',
-            populate: {
-                path: 'Status',
-                populate: 'title'
             }
         })
         .select(`${filter}`)
@@ -115,28 +115,105 @@ export async function getUserById(id: string)
 {
     let currentUser = await User.findById(id)
         .populate({
-            path: 'Introduction',
-            populate: 'title description'
+            path: 'introduction',
+            select: 'title description'
         })
         .populate({
-            path: 'Gender',
-            populate: 'title'
+            path: 'gender',
+            select: 'title'
         })
         .populate({
-            path: 'City',
+            path: 'city',
+            select: 'title',
             populate: {
-                path: 'State',
+                path: 'state',
+                select: 'title',
                 populate: {
-                    path: 'Country',
+                    path: 'country',
                     populate: 'title'
                 }
             }
         })
+        .sort(
+            {
+                'createDate': -1
+            }
+        )
+
+    if (currentUser)
+    {
+        return currentUser
+    }
+    else
+    {
+        return null
+    }
+}
+
+export async function getUserByEmail(email: string)
+{
+    let currentUser = await User.find({
+        email: email
+    })
         .populate({
-            path: 'Request',
+            path: 'introduction',
+            select: 'title description'
+        })
+        .populate({
+            path: 'gender',
+            select: 'title'
+        })
+        .populate({
+            path: 'city',
+            select: 'title',
             populate: {
-                path: 'Status',
-                populate: 'title'
+                path: 'state',
+                select: 'title',
+                populate: {
+                    path: 'country',
+                    populate: 'title'
+                }
+            }
+        })
+        .sort(
+            {
+                'createDate': -1
+            }
+        )
+
+    if (currentUser)
+    {
+        return currentUser
+    }
+    else
+    {
+        return null
+    }
+}
+
+export async function getUserByPhoneNumber(phoneNumber: string)
+{
+    let currentUser = await User.find({
+        phoneNumber: phoneNumber
+    })
+        .populate({
+            path: 'introduction',
+            select: 'title description'
+        })
+        .populate({
+            path: 'gender',
+            select: 'title'
+        })
+        .populate({
+            path: 'city',
+            select: 'title',
+            populate: {
+                path: 'state',
+                select: 'title',
+                populate: {
+                    path: 'country',
+                    populate: 'title'
+                }
             }
         })
         .sort(
@@ -162,28 +239,23 @@ export async function getUserByIdAndFilter(id: string, filter: any)
     {
         currentUser = await User.findById(id)
             .populate({
-                path: 'Introduction',
-                populate: 'title description'
+                path: 'introduction',
+                select: 'title description'
             })
             .populate({
-                path: 'Gender',
-                populate: 'title'
+                path: 'gender',
+                select: 'title'
             })
             .populate({
-                path: 'City',
+                path: 'city',
+                select: 'title',
                 populate: {
-                    path: 'State',
+                    path: 'state',
+                    select: 'title',
                     populate: {
-                        path: 'Country',
+                        path: 'country',
                         populate: 'title'
                     }
-                }
-            })
-            .populate({
-                path: 'Request',
-                populate: {
-                    path: 'Status',
-                    populate: 'title'
                 }
             })
             .select(`${filter}`)
@@ -195,37 +267,7 @@ export async function getUserByIdAndFilter(id: string, filter: any)
     }
     else
     {
-        currentUser = await User.findById(id)
-            .populate({
-                path: 'Introduction',
-                populate: 'title description'
-            })
-            .populate({
-                path: 'Gender',
-                populate: 'title'
-            })
-            .populate({
-                path: 'City',
-                populate: {
-                    path: 'State',
-                    populate: {
-                        path: 'Country',
-                        populate: 'title'
-                    }
-                }
-            })
-            .populate({
-                path: 'Request',
-                populate: {
-                    path: 'Status',
-                    populate: 'title'
-                }
-            })
-            .sort(
-                {
-                    'createDate': -1
-                }
-            )
+        currentUser = await getUserById(id)
     }
 
     if (currentUser)
@@ -238,41 +280,176 @@ export async function getUserByIdAndFilter(id: string, filter: any)
     }
 }
 
-export async function addNewUser(entity: UserAddVm): Promise<null | boolean>
+export async function changeExistUserPassword(entity: UserChangePasswordVm)
 {
-    let userNameExist = await checkIfUserWithTheSameUserNameExist(entity.userName)
-    let emailExist = await checkIfUserWithTheSameEmailExist(entity.email)
-    let phoneNumberExist = await checkIfUserWithTheSamePhoneNumberExist(entity.phoneNumber)
-    if (!userNameExist && !emailExist && !phoneNumberExist)
+    if (idIsNotValid(entity.id))
     {
-        if (
-            idIsNotValid(entity.userName) ||
-            idIsNotValid(entity.email) ||
-            idIsNotValid(entity.phoneNumber) ||
-            idIsNotValid(entity.city)
-        )
-        {
-            return null
-        }
+        return null
+    }
 
-        let currentGender: any
-        if (!entity.gender)
+    let previousUser: any = await getUserById(entity.id)
+
+    if (previousUser)
+    {
+        if (bcrypt.compareSync(entity.oldPassword, previousUser.password))
         {
-            currentGender = await getGenderByTitle('Not Detected')
+            if (entity.newPassword == entity.repeatNewPassword)
+            {
+                let currentUser = await User.findByIdAndUpdate(
+                    previousUser.id,
+                    {
+                        password: bcrypt.hashSync(entity.newPassword, 10)
+                    }
+                )
+                return !!currentUser
+            }
+            else
+            {
+                return null
+            }
         }
         else
         {
-            currentGender = await getGenderById(entity.gender)
+            return null
         }
+    }
+    else
+    {
+        return null
+    }
+}
 
-        let currentCity = await getCityById(entity.city)
-        if (!currentCity)
+export async function changeExistUserEnableState(entity: UserChangeEnableStateVm)
+{
+    if (idIsNotValid(entity.id))
+    {
+        return null
+    }
+
+    let previousUser: any = await getUserById(entity.id)
+
+    if (previousUser)
+    {
+        let currentUser = await User.findByIdAndUpdate(
+            previousUser.id,
+            {
+                isEnabled: !previousUser.isEnabled,
+                updateDate: entity.updateDate
+            }
+        )
+        return !!currentUser
+    }
+    else
+    {
+        return null
+    }
+}
+
+export async function changeExistUserAdministrationState(entity: UserChangeAdministrationStateVm)
+{
+    if (idIsNotValid(entity.id))
+    {
+        return null
+    }
+
+    let previousUser: any = await getUserById(entity.id)
+
+    if (previousUser)
+    {
+        let currentUser = await User.findByIdAndUpdate(
+            previousUser.id,
+            {
+                isAdmin: !previousUser.isAdmin,
+                updateDate: entity.updateDate
+            }
+        )
+        return !!currentUser
+    }
+    else
+    {
+        return null
+    }
+}
+
+export async function registerNewUserByItself(entity: UserRegisterItselfVm)
+{
+    let userNameExist = await checkIfUserWithTheSameUserNameExist(entity.userName)
+
+    let emailExist: boolean = false
+    if (entity.email)
+    {
+        emailExist = await checkIfUserWithTheSameEmailExist(entity.email);
+    }
+
+    let phoneNumberExist: boolean = false;
+    if (entity.phoneNumber)
+    {
+        phoneNumberExist = await checkIfUserWithTheSamePhoneNumberExist(entity.phoneNumber);
+    }
+
+    if (!userNameExist && !emailExist && !phoneNumberExist)
+    {
+        let currentGender: any
+        if (entity.gender)
         {
+            if (idIsNotValid(entity.gender))
+            {
+                currentErrorList.MY_ERROR_LIST.push('Gender id exists but it is not valid!' +
+                    'So we set it manually!')
+                currentGender = await getGenderByTitle('Not Detected')
+                return null
+            }
+            else
+            {
+                currentGender = await getGenderById(entity.gender)
+            }
+        }
+        else
+        {
+            currentErrorList.MY_ERROR_LIST.push('Gender id does not exist!' +
+                'So we set it manually!')
+            currentGender = await getGenderByTitle('Not Detected')
             return null
         }
 
-        let userIpList: string[] = []
-        userIpList.push(entity.ip)
+        let currentCity: any
+        if (entity.city)
+        {
+            if (idIsNotValid(entity.city))
+            {
+                currentErrorList.MY_ERROR_LIST.push('City id exists but it is not valid!')
+                return null
+            }
+            else
+            {
+                currentCity = await getCityById(entity.city)
+            }
+        }
+        else
+        {
+            currentErrorList.MY_ERROR_LIST.push('City id does not exist')
+            return null
+        }
+
+        let currentIntroduction: any
+        if (entity.introduction)
+        {
+            if (idIsNotValid(entity.introduction))
+            {
+                currentErrorList.MY_ERROR_LIST.push('Introduction id exists but it is not valid!')
+                return null
+            }
+            else
+            {
+                currentIntroduction = await getIntroductionById(entity.introduction)
+            }
+        }
+        else
+        {
+            currentErrorList.MY_ERROR_LIST.push('Introduction id does not exist')
+            return null
+        }
+
         let currentUser = new User({
             name: entity.name,
             family: entity.family,
@@ -281,10 +458,9 @@ export async function addNewUser(entity: UserAddVm): Promise<null | boolean>
             phoneNumber: entity.phoneNumber,
             image: entity.image,
             password: bcrypt.hashSync(entity.password),
-            ip: userIpList,
-            gender: currentGender['id'],
-            city: entity.city,
-            lastLoginDate: new Date()
+            gender: currentGender.id,
+            city: currentCity.id,
+            introduction: currentIntroduction.id
         })
         let result = await currentUser.save()
         if (result)
@@ -301,66 +477,204 @@ export async function addNewUser(entity: UserAddVm): Promise<null | boolean>
     {
         return false
     }
+}
 
-    // currentAddress.save()
-    //     .then(value =>
-    //     {
-    //         console.log(value)
-    //         return true
-    //     })
-    //     .catch(reason =>
-    //     {
-    //         console.log(reason)
-    //         return false
-    //     })
+export async function addNewUserByAdmin(entity: UserAddByAdminVm): Promise<null | boolean>
+{
+    let userNameExist = await checkIfUserWithTheSameUserNameExist(entity.userName)
+
+    let emailExist: boolean = false
+    if (entity.email)
+    {
+        emailExist = await checkIfUserWithTheSameEmailExist(entity.email);
+    }
+
+    let phoneNumberExist: boolean = false;
+    if (entity.phoneNumber)
+    {
+        phoneNumberExist = await checkIfUserWithTheSamePhoneNumberExist(entity.phoneNumber);
+    }
+
+    if (!userNameExist && !emailExist && !phoneNumberExist)
+    {
+        let currentGender: any
+        if (entity.gender)
+        {
+            if (idIsNotValid(entity.gender))
+            {
+                currentErrorList.MY_ERROR_LIST.push('Gender id exists but it is not valid!' +
+                    'So we set it manually!')
+                currentGender = await getGenderByTitle('Not Detected')
+                return null
+            }
+            else
+            {
+                currentGender = await getGenderById(entity.gender)
+            }
+        }
+        else
+        {
+            currentErrorList.MY_ERROR_LIST.push('Gender id does not exist!' +
+                'So we set it manually!')
+            currentGender = await getGenderByTitle('Not Detected')
+            return null
+        }
+
+        let currentCity: any
+        if (entity.city)
+        {
+            if (idIsNotValid(entity.city))
+            {
+                currentErrorList.MY_ERROR_LIST.push('City id exists but it is not valid!')
+                return null
+            }
+            else
+            {
+                currentCity = await getCityById(entity.city)
+            }
+        }
+        else
+        {
+            currentErrorList.MY_ERROR_LIST.push('City id does not exist')
+            return null
+        }
+
+        let currentIntroduction: any
+        if (entity.introduction)
+        {
+            if (idIsNotValid(entity.introduction))
+            {
+                currentErrorList.MY_ERROR_LIST.push('Introduction id exists but it is not valid!')
+                return null
+            }
+            else
+            {
+                currentIntroduction = await getIntroductionById(entity.introduction)
+            }
+        }
+        else
+        {
+            currentErrorList.MY_ERROR_LIST.push('Introduction id does not exist')
+            return null
+        }
+
+        let currentUser = new User({
+            name: entity.name,
+            family: entity.family,
+            userName: entity.userName,
+            email: entity.email,
+            phoneNumber: entity.phoneNumber,
+            image: entity.image,
+            password: bcrypt.hashSync(entity.password),
+            isEnabled: entity.isEnabled,
+            isAdmin: entity.isAdmin,
+            isVerifiedEmail: entity.isVerifiedEmail,
+            isVerifiedPhoneNumber: entity.isVerifiedPhoneNumber,
+            gender: currentGender.id,
+            city: currentCity.id,
+            introduction: currentIntroduction.id
+        })
+        let result = await currentUser.save()
+        if (result)
+        {
+            console.log(result)
+            return true
+        }
+        else
+        {
+            return false
+        }
+    }
+    else
+    {
+        return false
+    }
 }
 
 export async function updateExistUser(entity: UserUpdateVm)
 {
     let userNameExist = await checkIfUserWithTheSameUserNameExist(entity.userName)
-    let emailExist = await checkIfUserWithTheSameEmailExist(entity.email)
-    let phoneNumberExist = await checkIfUserWithTheSamePhoneNumberExist(entity.phoneNumber)
+
+    let emailExist: boolean = false
+    if (entity.email)
+    {
+        emailExist = await checkIfUserWithTheSameEmailExist(entity.email);
+    }
+
+    let phoneNumberExist: boolean = false;
+    if (entity.phoneNumber)
+    {
+        phoneNumberExist = await checkIfUserWithTheSamePhoneNumberExist(entity.phoneNumber);
+    }
+
     if (!userNameExist && !emailExist && !phoneNumberExist)
     {
-        if (
-            idIsNotValid(entity.userName) ||
-            idIsNotValid(entity.email) ||
-            idIsNotValid(entity.phoneNumber) ||
-            idIsNotValid(entity.city) ||
-            idIsNotValid(entity.introduction)
-        )
-        {
-            return null
-        }
-
         let currentGender: any
-        if (!entity.gender)
+        if (entity.gender)
         {
-            currentGender = await getGenderByTitle('Not Detected')
+            if (idIsNotValid(entity.gender))
+            {
+                currentErrorList.MY_ERROR_LIST.push('Gender id exists but it is not valid!' +
+                    'So we set it manually!')
+                currentGender = await getGenderByTitle('Not Detected')
+                return null
+            }
+            else
+            {
+                currentGender = await getGenderById(entity.gender)
+            }
         }
         else
         {
-            currentGender = await getGenderById(entity.gender)
-        }
-
-        let currentCity = await getCityById(entity.city)
-        if (!currentCity)
-        {
+            currentErrorList.MY_ERROR_LIST.push('Gender id does not exist!' +
+                'So we set it manually!')
+            currentGender = await getGenderByTitle('Not Detected')
             return null
         }
 
-        let currentIntroduction = await getIntroductionById(entity.introduction)
-        if (!currentIntroduction)
+        let currentCity: any
+        if (entity.city)
         {
+            if (idIsNotValid(entity.city))
+            {
+                currentErrorList.MY_ERROR_LIST.push('City id exists but it is not valid!')
+                return null
+            }
+            else
+            {
+                currentCity = await getCityById(entity.city)
+            }
+        }
+        else
+        {
+            currentErrorList.MY_ERROR_LIST.push('City id does not exist')
             return null
         }
 
-        let previousUser = await getUserById(entity.id)
-        let previousUserIpList: string[];
-        if (previousUser)
+        let currentIntroduction: any
+        if (entity.introduction)
         {
-            previousUserIpList = previousUser['ip'] as string[];
-            previousUserIpList.push(entity.ip)
+            if (idIsNotValid(entity.introduction))
+            {
+                currentErrorList.MY_ERROR_LIST.push('Introduction id exists but it is not valid!')
+                return null
+            }
+            else
+            {
+                currentIntroduction = await getIntroductionById(entity.introduction)
+            }
+        }
+        else
+        {
+            currentErrorList.MY_ERROR_LIST.push('Introduction id does not exist')
+            return null
+        }
+
+        let currentUserForIpList: any = await getUserById(entity.id)
+        let userOldIpList: any = currentUserForIpList.ip;
+        if (currentUserData.LOGIN_USER_ID == entity.id)
+        {
+            userOldIpList.push(entity.ip)
         }
 
         let currentUser = await User.findByIdAndUpdate(
@@ -371,13 +685,11 @@ export async function updateExistUser(entity: UserUpdateVm)
                 userName: entity.userName,
                 email: entity.email,
                 phoneNumber: entity.phoneNumber,
-                image: entity.image,
-                password: bcrypt.hashSync(entity.password),
-                ip: previousUserIpList,
-                introduction: currentIntroduction['id'],
-                gender: currentGender['id'],
-                city: entity.city,
-                lastLoginDate: new Date(),
+                ip: userOldIpList,
+                introduction: currentIntroduction.id,
+                gender: currentGender.id,
+                city: currentCity.id,
+                lastLoginDate: currentUserData.LOGIN_USER_ID == entity.id ? new Date() : null,
                 updateDate: entity.updateDate
             }
         )
@@ -389,6 +701,158 @@ export async function updateExistUser(entity: UserUpdateVm)
     }
 }
 
+export async function updateExistUserVerifyEmail(entity: UserVerifyEmailVm)
+{
+    let currentVerifyUserEmail: any = await getVerifyUserEmailByToken(entity.token)
+    if (currentVerifyUserEmail)
+    {
+        let currentUserEmail = currentVerifyUserEmail.email
+        let previousUser: any = await getUserByEmail(currentUserEmail)
+        if (previousUser)
+        {
+            let currentUser = User.findByIdAndUpdate(
+                previousUser.id,
+                {
+                    isVerifiedEmail: true
+                }
+            )
+            return !!currentUser
+        }
+        else
+        {
+            return null
+        }
+    }
+    else
+    {
+        return null
+    }
+}
+
+export async function updateExistUserVerifyPhoneNumber(entity: UserVerifyPhoneNumberVm)
+{
+    let currentVerifyUserPhoneNumber: any = await getVerifyUserPhoneNumberByToken(entity.token)
+    if (currentVerifyUserPhoneNumber)
+    {
+        let currentUserPhoneNumber = currentVerifyUserPhoneNumber.phoneNumber
+        let previousUser: any = await getUserByPhoneNumber(currentUserPhoneNumber)
+        if (previousUser)
+        {
+            let currentUser = User.findByIdAndUpdate(
+                previousUser.id,
+                {
+                    isVerifiedPhoneNumber: true
+                }
+            )
+            return !!currentUser
+        }
+        else
+        {
+            return null
+        }
+    }
+    else
+    {
+        return null
+    }
+}
+
+export async function updateExistUserImage(entity: UserUpdateImageVm)
+{
+    if (idIsNotValid(entity.id))
+    {
+        return null
+    }
+    let previousUser: any = await getUserById(entity.id)
+    if (previousUser)
+    {
+        let currentUser = User.findByIdAndUpdate(
+            entity.id,
+            {
+                image: entity.image
+            }
+        )
+        return !!currentUser
+    }
+    else
+    {
+        return null
+    }
+}
+
+export async function loginExistUser(entity: UserLoginVm)
+{
+    let currentUser: any = null
+
+    if (entity.email)
+    {
+        let wantedUserWithEmail = await User.findOne({
+            email: entity.email
+        })
+        if (wantedUserWithEmail)
+        {
+            currentUser = wantedUserWithEmail
+            console.log('User found with email')
+        }
+    }
+    else if (entity.userName)
+    {
+        let wantedUserWithUserName = await User.findOne({
+            userName: entity.userName
+        })
+        if (wantedUserWithUserName)
+        {
+            currentUser = wantedUserWithUserName
+            console.log('User found with email')
+        }
+    }
+    else if (entity.phoneNumber)
+    {
+        let wantedUserWithUPhoneNumber = await User.findOne({
+            phoneNumber: entity.phoneNumber
+        })
+        if (wantedUserWithUPhoneNumber)
+        {
+            currentUser = wantedUserWithUPhoneNumber
+            console.log('User found with email')
+        }
+    }
+
+    console.log(currentUser)
+
+    if (!currentUser)
+    {
+        return null
+    }
+    else
+    {
+        if (bcrypt.compareSync(entity.password, currentUser.password))
+        {
+            let token = jwt.sign(
+                {
+                    userId: currentUser.id,
+                    isAdmin: currentUser.isAdmin,
+                },
+                SECRET_JWT,
+                {
+                    expiresIn: '1w', // Ite means 1 day. You can use 1w for 1 week!
+                    algorithm: 'HS256'
+                }
+            )
+            currentUserData.IS_USER_LOGIN = true
+            currentUserData.LOGIN_USER_ID = currentUser.id
+            currentUserData.IS_USER_ADMIN = currentUser.isAdmin
+            return {
+                token: token
+            }
+        }
+        else
+        {
+            return null
+        }
+    }
+}
+
 export async function deleteExistUser(entity: UserDeleteVm)
 {
     if (idIsNotValid(entity.id))
@@ -397,24 +861,18 @@ export async function deleteExistUser(entity: UserDeleteVm)
     }
     let result = await User.findByIdAndRemove(entity.id)
     return !!result;
-    // .then(value =>
+
+
+    // let deleteExistRequestByUserIdResult = await deleteExistRequestByJobAd(entity.id)
+    // if (deleteExistRequestByUserIdResult)
     // {
-    //     if (value)
-    //     {
-    //         console.log(value)
-    //         return true
-    //     }
-    //     else
-    //     {
-    //         console.log('Error while removing country!')
-    //         return false
-    //     }
-    // })
-    // .catch(reason =>
+    //     let result = await JobAd.findByIdAndRemove(entity.id)
+    //     return !!result;
+    // }
+    // else
     // {
-    //     console.log(reason)
-    //     return false
-    // })
+    //     return null
+    // }
 }
 
 async function checkIfUserWithTheSameUserNameExist(userName: string)

@@ -20,48 +20,48 @@ export async function getCountOfResume()
 
 export async function getAllResume()
 {
-    let resumeList = await Resume.find() // TODO: Check if it works!
+    let resumeList = await Resume.find()
         .populate({
-            path: 'User',
-            populate: 'name family userName'
+            path: 'user',
+            select: 'name family userName'
         })
         .populate({
-            path: 'SkillLevel',
+            path: 'skillLevel',
             populate: {
-                path: 'Skill',
-                populate: 'title'
+                path: 'skill',
+                select: 'title'
             }
         })
         .populate({
-            path: 'LanguageLevel',
+            path: 'languageLevel',
             populate: {
-                path: 'Language',
-                populate: 'title'
+                path: 'language',
+                select: 'title'
             }
         })
         .populate({
-            path: 'Degree',
-            populate: 'title'
+            path: 'degree',
+            select: 'title'
         })
         .populate({
-            path: 'JobTime',
-            populate: 'title'
+            path: 'jobTime',
+            select: 'title'
         })
         .populate({
-            path: 'JobPlace',
-            populate: 'title'
+            path: 'jobPlace',
+            select: 'title'
         })
         .populate({
-            path: 'Category',
-            populate: 'title'
+            path: 'category',
+            select: 'title'
         })
         .populate({
-            path: 'Salary',
-            populate: 'isAgreed amount'
+            path: 'salary',
+            select: 'isAgreed amount'
         })
         .populate({
-            path: 'CareerHistory',
-            populate: 'workPlace startWorkingYear endWorkingYear isWorkingYet'
+            path: 'careerHistory',
+            select: 'workPlace startWorkingYear endWorkingYear isWorkingYet'
         })
         .sort(
             {

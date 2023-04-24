@@ -7,7 +7,6 @@ import {addressRouter} from "./router/address";
 import {countryRouter} from "./router/country";
 import {statusRouter} from "./router/status";
 import {skillRouter} from "./router/skill";
-import {defaultGenderMaker} from "./utility/maker";
 import {careerHistoryRouter} from "./router/careerHistory";
 import {stateRouter} from "./router/state";
 import {cityRouter} from "./router/city";
@@ -22,6 +21,12 @@ import {introductionRouter} from "./router/introduction";
 import {degreeRouter} from "./router/degree";
 import {languageLevelRouter} from "./router/languageLevel";
 import {skillLevelRouter} from "./router/skillLevel";
+import {salaryRouter} from "./router/salary";
+import {seniorityLevelRouter} from "./router/seniorityLevel";
+import {jobAdRouter} from "./router/jobAd";
+import {userRequestRouter} from "./router/request";
+import {authJwt} from "./utility/jwt/authJwt";
+import {userRouter} from "./router/user";
 
 const app = express()
 
@@ -38,6 +43,9 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(morgan('tiny'))
 app.use('/src/public/upload', express.static(__dirname + '/src/public/upload'));
+app.use(
+    authJwt() // You have to use this method with parentheses like authJwt() not like authJwt
+)
 app.use(error_handler)
 
 app.use(`${BEFORE_LINK_V1}/address`, addressRouter)
@@ -57,6 +65,11 @@ app.use(`${BEFORE_LINK_V1}/introduction`, introductionRouter)
 app.use(`${BEFORE_LINK_V1}/degree`, degreeRouter)
 app.use(`${BEFORE_LINK_V1}/languageLevel`, languageLevelRouter)
 app.use(`${BEFORE_LINK_V1}/skillLevel`, skillLevelRouter)
+app.use(`${BEFORE_LINK_V1}/salary`, salaryRouter)
+app.use(`${BEFORE_LINK_V1}/seniorityLevel`, seniorityLevelRouter)
+app.use(`${BEFORE_LINK_V1}/jobAd`, jobAdRouter)
+app.use(`${BEFORE_LINK_V1}/user`, userRouter)
+app.use(`${BEFORE_LINK_V1}/userRequest`, userRequestRouter)
 
 const connectionString = 'mongodb://127.0.0.1:27017/GetWork'
 mongoose.connect(connectionString)

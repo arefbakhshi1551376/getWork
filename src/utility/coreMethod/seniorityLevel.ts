@@ -1,9 +1,11 @@
 import {SeniorityLevel} from "../../mvc/model/seniorityLevel";
 import {SeniorityLevelAddVm, SeniorityLevelDeleteVm, SeniorityLevelUpdateVm} from "../type/seniorityLevel";
 import {idIsNotValid} from "../validator";
+import {defaultSeniorityLevelMaker} from "../maker";
 
 export async function getCountOfSeniorityLevel()
 {
+    await defaultSeniorityLevelMaker()
     let countOfSeniorityLevel = await SeniorityLevel.count()
     if (countOfSeniorityLevel)
     {
@@ -17,6 +19,7 @@ export async function getCountOfSeniorityLevel()
 
 export async function getAllSeniorityLevel()
 {
+    await defaultSeniorityLevelMaker()
     let seniorityLevelList = await SeniorityLevel.find()
         .sort(
             {
@@ -38,6 +41,27 @@ export async function getSeniorityLevelByFilter(filter: any)
 {
     let seniorityLevelList = await SeniorityLevel.find()
         .select(`${filter}`)
+        .sort(
+            {
+                'createDate': -1
+            }
+        )
+
+    if (seniorityLevelList)
+    {
+        return seniorityLevelList
+    }
+    else
+    {
+        return null
+    }
+}
+
+export async function getSeniorityLevelByTitle(title: string)
+{
+    let seniorityLevelList = await SeniorityLevel.findOne({
+        title: title
+    })
         .sort(
             {
                 'createDate': -1

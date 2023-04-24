@@ -49,9 +49,14 @@ export type JobAdUpdateVm = {
     jobTime: string[],
     jobPlace: string[],
     seniorityLevel: string[],
-    request: string[],
     requiredWorkExperience: number,
     isEnable: boolean,
+    updateDate: Date
+}
+
+export type JobAdAddNewRequestVm = {
+    id: string,
+    request: string,
     updateDate: Date
 }
 

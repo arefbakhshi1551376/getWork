@@ -54,12 +54,6 @@ export const jobAdSchema = new Schema({
             required: false,
         }
     ],
-    request: [
-        {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Request'
-        }
-    ],
     requiredWorkExperience: {
         type: Number,
         required: true,

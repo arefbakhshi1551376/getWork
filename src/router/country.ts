@@ -1,5 +1,4 @@
 import express from "express";
-import {modelsName, whatHappened} from "../utility/constant";
 import {
     addNewCountry,
     deleteExistCountry,
@@ -7,7 +6,6 @@ import {
     getCountOfCountry, getCountryByFilter, getCountryById, getCountryByIdAndFilter,
     updateExistCountry
 } from "../utility/coreMethod/country";
-import {showMessageForEveryThing} from "../utility/showResponseMessage";
 import {CountryAddVm, CountryDeleteVm, CountryUpdateVm} from "../utility/type/country";
 
 export const countryRouter = express.Router()

@@ -125,7 +125,7 @@ export async function addNewSalary(entity: SalaryAddVm): Promise<null | boolean>
 
     let currentGender = new Salary({
         isAgreed: entity.isAgreed,
-        amount: entity.isAgreed ? 0 : entity.amount
+        amount: entity.amount
     })
     let result = await currentGender.save()
     if (result)
@@ -162,7 +162,7 @@ export async function updateExistSalary(entity: SalaryUpdateVm)
         entity.id,
         {
             isAgreed: entity.isAgreed,
-            amount: entity.isAgreed ? 0 : entity.amount,
+            amount: entity.amount,
             updateDate: entity.updateDate
         }
     )

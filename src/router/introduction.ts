@@ -7,6 +7,7 @@ import {
     getIntroductionById, getIntroductionByIdAndFilter, updateExistIntroduction
 } from "../utility/coreMethod/introduction";
 import {IntroductionAddVm, IntroductionDeleteVm, IntroductionUpdateVm} from "../utility/type/introduction";
+import {currentErrorList} from "../utility/constant";
 
 export const introductionRouter = express.Router()
 
@@ -21,9 +22,7 @@ introductionRouter.get(
         }
         else
         {
-            return res.status(404).json({
-                Message: `No introduction found!`
-            })
+            return res.status(404).json(currentErrorList.MY_ERROR_LIST)
         }
     }
 )
@@ -39,9 +38,7 @@ introductionRouter.get(
         }
         else
         {
-            return res.status(404).json({
-                Message: `No introduction found!`
-            })
+            return res.status(404).json(currentErrorList.MY_ERROR_LIST)
         }
     }
 )
@@ -57,9 +54,7 @@ introductionRouter.get(
         }
         else
         {
-            return res.status(404).json({
-                Message: `No introduction found!`
-            })
+            return res.status(404).json(currentErrorList.MY_ERROR_LIST)
         }
     }
 )
@@ -75,9 +70,7 @@ introductionRouter.get(
         }
         else
         {
-            return res.status(404).json({
-                Message: `No introduction found!`
-            })
+            return res.status(404).json(currentErrorList.MY_ERROR_LIST)
         }
     }
 )
@@ -93,9 +86,7 @@ introductionRouter.get(
         }
         else
         {
-            return res.status(404).json({
-                Message: `No introduction found!`
-            })
+            return res.status(404).json(currentErrorList.MY_ERROR_LIST)
         }
     }
 )
@@ -117,9 +108,7 @@ introductionRouter.post(
         }
         else
         {
-            return res.status(400).json({
-                Message: 'An error occurred!'
-            })
+            return res.status(400).json(currentErrorList.MY_ERROR_LIST)
         }
     }
 )
@@ -143,9 +132,7 @@ introductionRouter.put(
         }
         else
         {
-            return res.status(400).json({
-                Message: 'An error occurred!'
-            })
+            return res.status(400).json(currentErrorList.MY_ERROR_LIST)
         }
     }
 )
@@ -167,9 +154,7 @@ introductionRouter.delete(
         }
         else
         {
-            return res.status(400).json({
-                Message: 'An error occurred!'
-            })
+            return res.status(400).json(currentErrorList.MY_ERROR_LIST)
         }
     }
 )

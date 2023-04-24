@@ -13,13 +13,18 @@ export type Request = {
 export type RequestAddVm = {
     user: string,
     jobAd: string,
-    status: string[],
 }
 
 export type RequestUpdateVm = {
     id: string,
     user: string,
     jobAd: string,
+    status: string,
+    updateDate: Date
+}
+
+export type RequestUpdateStatusVm = {
+    id: string,
     status: string,
     updateDate: Date
 }

@@ -18,15 +18,20 @@ export async function getCountOfCountry()
 
 export async function getAllCountry()
 {
-    let countryList = await Country.find()
+    let countryList: any
+    countryList = await Country.find()
         .sort(
             {
                 'createDate': -1
             }
-        )
+        );
 
     if (countryList)
     {
+        for (let i = 0; i < countryList.length; i++)
+        {
+            console.log(countryList[i].title)
+        }
         return countryList
     }
     else
@@ -89,7 +94,7 @@ export async function getCountryByIdAndFilter(id: string, filter: any)
     }
     else
     {
-        currentCountry = getCountryById(id)
+        currentCountry = await getCountryById(id)
     }
 
     if (currentCountry)

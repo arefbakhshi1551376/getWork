@@ -15,8 +15,6 @@ genderRouter.get(
     `/`,
     async (req, res) =>
     {
-        console.log('We are in add gender')
-        await defaultGenderMaker()
         let genderList = await getAllGender()
         if (genderList != null)
         {

@@ -2,9 +2,11 @@ import {Gender} from "../../mvc/model/gender";
 import {GenderAddVm, GenderDeleteVm, GenderUpdateVm} from "../type/gender";
 import {idIsNotValid} from "../validator";
 import {Country} from "../../mvc/model/country";
+import {defaultGenderMaker} from "../maker";
 
 export async function getCountOfGender()
 {
+    await defaultGenderMaker()
     let countOfGender = await Gender.count()
     if (countOfGender)
     {
@@ -18,6 +20,7 @@ export async function getCountOfGender()
 
 export async function getAllGender()
 {
+    await defaultGenderMaker()
     let genderList = await Gender.find()
         .sort(
             {
