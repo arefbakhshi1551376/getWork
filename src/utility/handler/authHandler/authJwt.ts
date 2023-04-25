@@ -1,6 +1,8 @@
 import {JwtPayload} from "jsonwebtoken";
-import {BEFORE_LINK_V1, currentUserData, SECRET_JWT} from "../constant";
+import {BEFORE_LINK_V1, currentAuthType, SECRET_JWT} from "../../constant";
 import {expressjwt} from "express-jwt";
+import {isAnyUserLogin} from "../../coreMethod/user";
+import {getUserTokenByUserIdAndTokenUniqueCode} from "../../coreMethod/userToken";
 
 export function authJwt()
 {
@@ -9,15 +11,16 @@ export function authJwt()
         algorithms: [
             'HS256'
         ],
-        isRevoked: (req, token) =>
+        isRevoked: async (req, token) =>
         {
             let tokenPayload: JwtPayload = <JwtPayload>token!['payload']
-            currentUserData.IS_USER_LOGIN = true
-            currentUserData.LOGIN_USER_ID = tokenPayload.userId
-            currentUserData.IS_USER_ADMIN = tokenPayload.isAdmin
-            console.log(currentUserData)
-            // console.log(`Admin : ${tokenPayload['isAdmin']}`)
-            return false
+            currentAuthType.LOGIN_USER_ID = tokenPayload.userId
+            currentAuthType.IS_USER_ADMIN = tokenPayload.isAdmin
+            currentAuthType.LOGIN_USER_TOKEN_UNIQUE_CODE = tokenPayload.uniqueCode
+            currentAuthType.IS_USER_LOGIN = await isAnyUserLogin()
+
+            let currentUserToken: any = await getUserTokenByUserIdAndTokenUniqueCode(currentAuthType.LOGIN_USER_ID, currentAuthType.LOGIN_USER_TOKEN_UNIQUE_CODE)
+            return currentUserToken.isWorkingYet != true;
         },
     }).unless({
         path: [

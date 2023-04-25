@@ -7,6 +7,7 @@ import {
     updateExistCountry
 } from "../utility/coreMethod/country";
 import {CountryAddVm, CountryDeleteVm, CountryUpdateVm} from "../utility/type/country";
+import {getErrorMessageList, getSuccessMessageList} from "../utility/handler/messageHandler/messageMethod";
 
 export const countryRouter = express.Router()
 
@@ -21,9 +22,7 @@ countryRouter.get(
         }
         else
         {
-            return res.status(404).json({
-                Message: `No country found!`
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -39,33 +38,13 @@ countryRouter.get(
         }
         else
         {
-            return res.status(404).json({
-                Message: `No country found!`
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
 
 countryRouter.get(
-    `/:id`,
-    async (req, res) =>
-    {
-        let currentCountry = await getCountryById(req.params.id)
-        if (currentCountry != null)
-        {
-            return res.status(200).json(currentCountry)
-        }
-        else
-        {
-            return res.status(404).json({
-                Message: `No country found!`
-            })
-        }
-    }
-)
-
-countryRouter.get(
-    `/by_filter/:filter`,
+    `/by_filter/:filter?`,
     async (req, res) =>
     {
         let countryList = await getCountryByFilter(req.params.filter)
@@ -75,9 +54,7 @@ countryRouter.get(
         }
         else
         {
-            return res.status(404).json({
-                Message: `No country found!`
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -93,9 +70,23 @@ countryRouter.get(
         }
         else
         {
-            return res.status(404).json({
-                Message: `No country found!`
-            })
+            return res.status(404).json(getErrorMessageList())
+        }
+    }
+)
+
+countryRouter.get(
+    `/:id`,
+    async (req, res) =>
+    {
+        let currentCountry = await getCountryById(req.params.id)
+        if (currentCountry != null)
+        {
+            return res.status(200).json(currentCountry)
+        }
+        else
+        {
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -110,15 +101,11 @@ countryRouter.post(
         let result: boolean | null = await addNewCountry(currentCountryAddVm)
         if (result == true)
         {
-            return res.status(200).json({
-                Message: `${currentCountryAddVm.title} Added Successfully!`
-            })
+            return res.status(200).json(getSuccessMessageList())
         }
         else
         {
-            return res.status(400).json({
-                Message: 'An error occurred!'
-            })
+            return res.status(400).json(getErrorMessageList())
         }
     }
 )
@@ -135,15 +122,11 @@ countryRouter.put(
         let result: null | boolean = await updateExistCountry(currentCountryUpdateVm)
         if (result == true)
         {
-            return res.status(200).json({
-                Message: `${currentCountryUpdateVm.title} Updated Successfully!`
-            })
+            return res.status(200).json(getSuccessMessageList())
         }
         else
         {
-            return res.status(400).json({
-                Message: 'An error occurred!'
-            })
+            return res.status(400).json(getErrorMessageList())
         }
     }
 )
@@ -159,15 +142,11 @@ countryRouter.delete(
         let result: null | boolean = await deleteExistCountry(currentCountryDeleteVm)
         if (result == true)
         {
-            return res.status(200).json({
-                Message: `Country Deleted Successfully!`
-            })
+            return res.status(200).json(getSuccessMessageList())
         }
         else
         {
-            return res.status(400).json({
-                Message: 'An error occurred!'
-            })
+            return res.status(400).json(getErrorMessageList())
         }
     }
 )

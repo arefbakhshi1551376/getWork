@@ -1,5 +1,5 @@
 import mongoose, {Schema} from "mongoose";
-import {verifyTokenMaker} from "../../utility/maker";
+import {verifyEmailOrMobileNumberTokenMaker} from "../../utility/maker";
 
 export const verifyUserPhoneNumberSchema = new Schema({
     phoneNumber: {
@@ -9,7 +9,7 @@ export const verifyUserPhoneNumberSchema = new Schema({
     token: {
         type: String,
         required: true,
-        default: verifyTokenMaker('phoneNumber_')
+        default: verifyEmailOrMobileNumberTokenMaker('phoneNumber_')
     },
     createDate: {
         type: Date,

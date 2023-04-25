@@ -7,7 +7,11 @@ import {
     getIntroductionById, getIntroductionByIdAndFilter, updateExistIntroduction
 } from "../utility/coreMethod/introduction";
 import {IntroductionAddVm, IntroductionDeleteVm, IntroductionUpdateVm} from "../utility/type/introduction";
-import {currentErrorList} from "../utility/constant";
+import {
+    addNewSuccessMessage,
+    getErrorMessageList,
+    getSuccessMessageList
+} from "../utility/handler/messageHandler/messageMethod";
 
 export const introductionRouter = express.Router()
 
@@ -22,7 +26,7 @@ introductionRouter.get(
         }
         else
         {
-            return res.status(404).json(currentErrorList.MY_ERROR_LIST)
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -38,7 +42,23 @@ introductionRouter.get(
         }
         else
         {
-            return res.status(404).json(currentErrorList.MY_ERROR_LIST)
+            return res.status(404).json(getErrorMessageList())
+        }
+    }
+)
+
+introductionRouter.get(
+    `/by_filter/:filter?`,
+    async (req, res) =>
+    {
+        let introductionList = await getIntroductionByFilter(req.params.filter)
+        if (introductionList != null)
+        {
+            return res.status(200).json(introductionList)
+        }
+        else
+        {
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -54,23 +74,7 @@ introductionRouter.get(
         }
         else
         {
-            return res.status(404).json(currentErrorList.MY_ERROR_LIST)
-        }
-    }
-)
-
-introductionRouter.get(
-    `/by_filter/:filter`,
-    async (req, res) =>
-    {
-        let introductionList = await getIntroductionByFilter(req.params.filter)
-        if (introductionList != null)
-        {
-            return res.status(200).json(introductionList)
-        }
-        else
-        {
-            return res.status(404).json(currentErrorList.MY_ERROR_LIST)
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -86,7 +90,7 @@ introductionRouter.get(
         }
         else
         {
-            return res.status(404).json(currentErrorList.MY_ERROR_LIST)
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -102,13 +106,12 @@ introductionRouter.post(
         let result: boolean | null = await addNewIntroduction(currentIntroductionAddVm)
         if (result == true)
         {
-            return res.status(200).json({
-                Message: `${currentIntroductionAddVm.title} Added Successfully!`
-            })
+            addNewSuccessMessage(`${currentIntroductionAddVm.title} Added Successfully!`)
+            return res.status(200).json(getSuccessMessageList())
         }
         else
         {
-            return res.status(400).json(currentErrorList.MY_ERROR_LIST)
+            return res.status(400).json(getErrorMessageList())
         }
     }
 )
@@ -126,13 +129,12 @@ introductionRouter.put(
         let result: null | boolean = await updateExistIntroduction(currentIntroductionUpdateVm)
         if (result == true)
         {
-            return res.status(200).json({
-                Message: `${currentIntroductionUpdateVm.title} Updated Successfully!`
-            })
+            addNewSuccessMessage(`${currentIntroductionUpdateVm.title} Updated Successfully!`)
+            return res.status(200).json(getSuccessMessageList())
         }
         else
         {
-            return res.status(400).json(currentErrorList.MY_ERROR_LIST)
+            return res.status(400).json(getErrorMessageList())
         }
     }
 )
@@ -148,13 +150,12 @@ introductionRouter.delete(
         let result: null | boolean = await deleteExistIntroduction(currentIntroductionDeleteVm)
         if (result == true)
         {
-            return res.status(200).json({
-                Message: `Introduction Deleted Successfully!`
-            })
+            addNewSuccessMessage(`Introduction Deleted Successfully!`)
+            return res.status(200).json(getSuccessMessageList())
         }
         else
         {
-            return res.status(400).json(currentErrorList.MY_ERROR_LIST)
+            return res.status(400).json(getErrorMessageList())
         }
     }
 )

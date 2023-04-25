@@ -1,14 +1,15 @@
 import {Introduction} from "../../mvc/model/introduction";
 import {IntroductionAddVm, IntroductionDeleteVm, IntroductionUpdateVm} from "../type/introduction";
 import {idIsNotValid} from "../validator";
-import {currentErrorList, currentUserData} from "../constant";
+import {currentAuthType} from "../constant";
+import {addNewErrorMessage, emptyMessageList} from "../handler/messageHandler/messageMethod";
 
 export async function getCountOfIntroduction()
 {
-    currentErrorList.MY_ERROR_LIST = []
-    if (!currentUserData.IS_USER_ADMIN)
+    emptyMessageList()
+    if (!currentAuthType.IS_USER_ADMIN)
     {
-        currentErrorList.MY_ERROR_LIST.push('You are not admin. So you can`t access this part!')
+        addNewErrorMessage('You are not admin. So you can`t access this part!')
         return null
     }
 
@@ -19,17 +20,17 @@ export async function getCountOfIntroduction()
     }
     else
     {
-        currentErrorList.MY_ERROR_LIST.push('We can`t get count of introductions! Some thing went wrong')
+        addNewErrorMessage('We can`t get count of introductions! Some thing went wrong')
         return null
     }
 }
 
 export async function getAllIntroduction()
 {
-    currentErrorList.MY_ERROR_LIST = []
-    if (!currentUserData.IS_USER_ADMIN)
+    emptyMessageList()
+    if (!currentAuthType.IS_USER_ADMIN)
     {
-        currentErrorList.MY_ERROR_LIST.push('You are not admin. So you can`t access this part!')
+        addNewErrorMessage('You are not admin. So you can`t access this part!')
         return null
     }
 
@@ -46,26 +47,36 @@ export async function getAllIntroduction()
     }
     else
     {
-        currentErrorList.MY_ERROR_LIST.push('We can`t get list of introductions! Some thing went wrong')
+        addNewErrorMessage('We can`t get list of introductions! Some thing went wrong')
         return null
     }
 }
 
 export async function getIntroductionByFilter(filter: any)
 {
-    currentErrorList.MY_ERROR_LIST = []
-    if (!currentUserData.IS_USER_ADMIN)
+    emptyMessageList()
+    if (!currentAuthType.IS_USER_ADMIN)
     {
-        currentErrorList.MY_ERROR_LIST.push('You are not admin. So you can`t access this part!')
+        addNewErrorMessage('You are not admin. So you can`t access this part!')
         return null
     }
 
-    let introductionList = await Introduction.find().select(`${filter}`)
-        .sort(
-            {
-                'createDate': -1
-            }
-        )
+    let introductionList: any
+    if (filter)
+    {
+        introductionList = await Introduction.find().select(`${filter}`)
+            .sort(
+                {
+                    'createDate': -1
+                }
+            );
+    }
+    else
+    {
+        addNewErrorMessage('You have to enter a filter!')
+        return null
+    }
+
 
     if (introductionList)
     {
@@ -73,17 +84,17 @@ export async function getIntroductionByFilter(filter: any)
     }
     else
     {
-        currentErrorList.MY_ERROR_LIST.push('We can`t get list of introductions! Some thing went wrong')
+        addNewErrorMessage('We can`t get list of introductions! Some thing went wrong')
         return null
     }
 }
 
 export async function getIntroductionById(id: string)
 {
-    currentErrorList.MY_ERROR_LIST = []
-    if (!currentUserData.IS_USER_ADMIN)
+    emptyMessageList()
+    if (!currentAuthType.IS_USER_ADMIN)
     {
-        currentErrorList.MY_ERROR_LIST.push('You are not admin. So you can`t access this part!')
+        addNewErrorMessage('You are not admin. So you can`t access this part!')
         return null
     }
 
@@ -100,17 +111,17 @@ export async function getIntroductionById(id: string)
     }
     else
     {
-        currentErrorList.MY_ERROR_LIST.push('We can`t get current introductions! Some thing went wrong')
+        addNewErrorMessage('We can`t get current introductions! Some thing went wrong')
         return null
     }
 }
 
 export async function getIntroductionByIdAndFilter(id: string, filter: any)
 {
-    currentErrorList.MY_ERROR_LIST = []
-    if (!currentUserData.IS_USER_ADMIN)
+    emptyMessageList()
+    if (!currentAuthType.IS_USER_ADMIN)
     {
-        currentErrorList.MY_ERROR_LIST.push('You are not admin. So you can`t access this part!')
+        addNewErrorMessage('You are not admin. So you can`t access this part!')
         return null
     }
 
@@ -136,24 +147,24 @@ export async function getIntroductionByIdAndFilter(id: string, filter: any)
     }
     else
     {
-        currentErrorList.MY_ERROR_LIST.push('We can`t get current introductions! Some thing went wrong')
+        addNewErrorMessage('We can`t get current introductions! Some thing went wrong')
         return null
     }
 }
 
 export async function addNewIntroduction(entity: IntroductionAddVm): Promise<null | boolean>
 {
-    currentErrorList.MY_ERROR_LIST = []
-    if (!currentUserData.IS_USER_ADMIN)
+    emptyMessageList()
+    if (!currentAuthType.IS_USER_ADMIN)
     {
-        currentErrorList.MY_ERROR_LIST.push('You are not admin. So you can`t access this part!')
+        addNewErrorMessage('You are not admin. So you can`t access this part!')
         return null
     }
 
     let introductionExists = await checkIfIntroductionWithTheSamePropertiesExist(entity.title, entity.description)
     if (introductionExists)
     {
-        currentErrorList.MY_ERROR_LIST.push('An introduction with the same properties exists!')
+        addNewErrorMessage('An introduction with the same properties exists!')
         return null
     }
 
@@ -168,36 +179,36 @@ export async function addNewIntroduction(entity: IntroductionAddVm): Promise<nul
     }
     else
     {
-        currentErrorList.MY_ERROR_LIST.push('We can`t save this introduction! Some thing went wrong')
+        addNewErrorMessage('We can`t save this introduction! Some thing went wrong')
         return false
     }
 }
 
 export async function updateExistIntroduction(entity: IntroductionUpdateVm)
 {
-    currentErrorList.MY_ERROR_LIST = []
-    if (!currentUserData.IS_USER_ADMIN)
+    emptyMessageList()
+    if (!currentAuthType.IS_USER_ADMIN)
     {
-        currentErrorList.MY_ERROR_LIST.push('You are not admin. So you can`t access this part!')
+        addNewErrorMessage('You are not admin. So you can`t access this part!')
         return null
     }
 
     let introductionExists = await checkIfIntroductionWithTheSamePropertiesExist(entity.title, entity.description)
     if (introductionExists)
     {
-        currentErrorList.MY_ERROR_LIST.push('An introduction with the same properties exists!')
+        addNewErrorMessage('An introduction with the same properties exists!')
         return null
     }
 
     if (idIsNotValid(entity.id))
     {
-        currentErrorList.MY_ERROR_LIST.push(`Id ${entity.id} is not valid!`)
+        addNewErrorMessage(`Id ${entity.id} is not valid!`)
         return null
     }
     let currentIntroduction = await getIntroductionById(entity.id)
     if (!currentIntroduction)
     {
-        currentErrorList.MY_ERROR_LIST.push(`No introduction with id ${entity.id} was found!`)
+        addNewErrorMessage(`No introduction with id ${entity.id} was found!`)
         return null
     }
 
@@ -215,29 +226,29 @@ export async function updateExistIntroduction(entity: IntroductionUpdateVm)
     }
     else
     {
-        currentErrorList.MY_ERROR_LIST.push('We can`t update this introduction! Some thing went wrong')
+        addNewErrorMessage('We can`t update this introduction! Some thing went wrong')
         return false
     }
 }
 
 export async function deleteExistIntroduction(entity: IntroductionDeleteVm)
 {
-    currentErrorList.MY_ERROR_LIST = []
-    if (!currentUserData.IS_USER_ADMIN)
+    emptyMessageList()
+    if (!currentAuthType.IS_USER_ADMIN)
     {
-        currentErrorList.MY_ERROR_LIST.push('You are not admin. So you can`t access this part!')
+        addNewErrorMessage('You are not admin. So you can`t access this part!')
         return null
     }
 
     if (idIsNotValid(entity.id))
     {
-        currentErrorList.MY_ERROR_LIST.push(`Id ${entity.id} is not valid!`)
+        addNewErrorMessage(`Id ${entity.id} is not valid!`)
         return null
     }
     let currentIntroduction = await getIntroductionById(entity.id)
     if (!currentIntroduction)
     {
-        currentErrorList.MY_ERROR_LIST.push(`No introduction with id ${entity.id} was found!`)
+        addNewErrorMessage(`No introduction with id ${entity.id} was found!`)
         return null
     }
 
@@ -248,7 +259,7 @@ export async function deleteExistIntroduction(entity: IntroductionDeleteVm)
     }
     else
     {
-        currentErrorList.MY_ERROR_LIST.push('We can`t delete this introduction! Some thing went wrong')
+        addNewErrorMessage('We can`t delete this introduction! Some thing went wrong')
         return false
     }
 }

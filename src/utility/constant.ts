@@ -1,15 +1,16 @@
-import {userData} from "./type/helper/userData";
-import {errorList} from "./type/helper/errorList";
+import {authType} from "./handler/authHandler/authType";
+import {messageList} from "./handler/messageHandler/messageType";
 
 export const BEFORE_LINK_V1 = '/api/v1'
 export const SECRET_JWT = 'secret'
-export const currentUserData: userData = {
+export const currentAuthType: authType = {
     IS_USER_ADMIN: false,
     IS_USER_LOGIN: true,
+    LOGIN_USER_TOKEN_UNIQUE_CODE: "",
     LOGIN_USER_ID: ''
 }
-export const currentErrorList: errorList = {
-    MY_ERROR_LIST: []
+export const currentMessageList: messageList = {
+    messageList: []
 }
 
 export enum modelsName

@@ -189,10 +189,27 @@ export async function imageNameMaker(beforeName: string, numberOfCharacters: num
 }
 
 
-export async function verifyTokenMaker(beforeName: string, numberOfCharacters: number = 50)
+export async function verifyEmailOrMobileNumberTokenMaker(beforeName: string, numberOfCharacters: number = 50)
 {
     let finalResult: string = `${beforeName}_`
     let allowedCharacter = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    let randomIndex: number;
+    for (let i = 0; i < numberOfCharacters; i++)
+    {
+        randomIndex = randomInt(0, allowedCharacter.length - 1);
+        let currentCharacter = allowedCharacter[randomIndex]
+        finalResult += currentCharacter
+    }
+    let nowDate = new Date()
+    let nowDateAsString = `${nowDate.getSeconds()}${nowDate.getMinutes()}${nowDate.getHours()}${nowDate.getDay()}${nowDate.getMonth()}${nowDate.getFullYear()}`
+    finalResult += nowDateAsString
+    return finalResult
+}
+
+export async function userAuthUniqueTokenMaker(beforeName: string, numberOfCharacters: number = 50)
+{
+    let finalResult: string = `${beforeName}_`
+    let allowedCharacter = 'abcdefghijklmnopqrstuvwxyz___ABCDEFGHIJKLMNOPQRSTUVWXYZ'
     let randomIndex: number;
     for (let i = 0; i < numberOfCharacters; i++)
     {

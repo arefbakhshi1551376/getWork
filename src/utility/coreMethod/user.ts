@@ -12,15 +12,18 @@ import {getCityById} from "./city";
 import {getIntroductionById} from "./introduction";
 import jwt from "jsonwebtoken";
 import {
-    currentErrorList,
-    currentUserData,
+    currentAuthType,
     SECRET_JWT,
 } from "../constant";
 import {getVerifyUserEmailByToken} from "./verifyUserEmail";
 import {getVerifyUserPhoneNumberByToken} from "./verifyUserPhoneNumber";
+import {addNewErrorMessage, emptyMessageList} from "../handler/messageHandler/messageMethod";
+import {addNewUserToken, getUserTokenByUserIdAndTokenUniqueCode, updateExistUserTokenIsWorkingYet} from "./userToken";
+import {userAuthUniqueTokenMaker} from "../maker";
 
 export async function getCountOfUser()
 {
+    emptyMessageList()
     let countOfUser = await User.count()
     if (countOfUser)
     {
@@ -28,12 +31,14 @@ export async function getCountOfUser()
     }
     else
     {
+        addNewErrorMessage('Sorry! We can`t get count of user!')
         return null
     }
 }
 
 export async function getAllUser()
 {
+    emptyMessageList()
     let userList = await User.find()
         .populate({
             path: 'introduction',
@@ -67,12 +72,14 @@ export async function getAllUser()
     }
     else
     {
+        addNewErrorMessage('Sorry! We can`t get all of users!')
         return null
     }
 }
 
 export async function getUserByFilter(filter: any)
 {
+    emptyMessageList()
     let userList = await User.find()
         .populate({
             path: 'introduction',
@@ -107,12 +114,14 @@ export async function getUserByFilter(filter: any)
     }
     else
     {
+        addNewErrorMessage('Sorry! We can`t get list of users!')
         return null
     }
 }
 
 export async function getUserById(id: string)
 {
+    emptyMessageList()
     let currentUser = await User.findById(id)
         .populate({
             path: 'introduction',
@@ -146,12 +155,14 @@ export async function getUserById(id: string)
     }
     else
     {
+        addNewErrorMessage('Sorry! We can`t get current user!')
         return null
     }
 }
 
 export async function getUserByEmail(email: string)
 {
+    emptyMessageList()
     let currentUser = await User.find({
         email: email
     })
@@ -187,12 +198,14 @@ export async function getUserByEmail(email: string)
     }
     else
     {
+        addNewErrorMessage('Sorry! We can`t get list of users!')
         return null
     }
 }
 
 export async function getUserByPhoneNumber(phoneNumber: string)
 {
+    emptyMessageList()
     let currentUser = await User.find({
         phoneNumber: phoneNumber
     })
@@ -228,12 +241,14 @@ export async function getUserByPhoneNumber(phoneNumber: string)
     }
     else
     {
+        addNewErrorMessage('Sorry! We can`t get list of users!')
         return null
     }
 }
 
 export async function getUserByIdAndFilter(id: string, filter: any)
 {
+    emptyMessageList()
     let currentUser: any
     if (filter)
     {
@@ -276,14 +291,17 @@ export async function getUserByIdAndFilter(id: string, filter: any)
     }
     else
     {
+        addNewErrorMessage('Sorry! We can`t get current user!')
         return null
     }
 }
 
 export async function changeExistUserPassword(entity: UserChangePasswordVm)
 {
+    emptyMessageList()
     if (idIsNotValid(entity.id))
     {
+        addNewErrorMessage(`the id ${entity.id} is not valid!`)
         return null
     }
 
@@ -305,24 +323,30 @@ export async function changeExistUserPassword(entity: UserChangePasswordVm)
             }
             else
             {
+                addNewErrorMessage('You have to repeat new password correctly!')
                 return null
             }
         }
         else
         {
+
+            addNewErrorMessage('Sorry! Your old password is wrong!')
             return null
         }
     }
     else
     {
+        addNewErrorMessage(`No user with id ${entity.id} exists!`)
         return null
     }
 }
 
 export async function changeExistUserEnableState(entity: UserChangeEnableStateVm)
 {
+    emptyMessageList()
     if (idIsNotValid(entity.id))
     {
+        addNewErrorMessage(`the id ${entity.id} is not valid!`)
         return null
     }
 
@@ -341,14 +365,17 @@ export async function changeExistUserEnableState(entity: UserChangeEnableStateVm
     }
     else
     {
+        addNewErrorMessage(`No user with id ${entity.id} exists!`)
         return null
     }
 }
 
 export async function changeExistUserAdministrationState(entity: UserChangeAdministrationStateVm)
 {
+    emptyMessageList()
     if (idIsNotValid(entity.id))
     {
+        addNewErrorMessage(`the id ${entity.id} is not valid!`)
         return null
     }
 
@@ -367,12 +394,14 @@ export async function changeExistUserAdministrationState(entity: UserChangeAdmin
     }
     else
     {
+        addNewErrorMessage(`No user with id ${entity.id} exists!`)
         return null
     }
 }
 
 export async function registerNewUserByItself(entity: UserRegisterItselfVm)
 {
+    emptyMessageList()
     let userNameExist = await checkIfUserWithTheSameUserNameExist(entity.userName)
 
     let emailExist: boolean = false
@@ -394,7 +423,7 @@ export async function registerNewUserByItself(entity: UserRegisterItselfVm)
         {
             if (idIsNotValid(entity.gender))
             {
-                currentErrorList.MY_ERROR_LIST.push('Gender id exists but it is not valid!' +
+                addNewErrorMessage('Gender id exists but it is not valid!' +
                     'So we set it manually!')
                 currentGender = await getGenderByTitle('Not Detected')
                 return null
@@ -406,7 +435,7 @@ export async function registerNewUserByItself(entity: UserRegisterItselfVm)
         }
         else
         {
-            currentErrorList.MY_ERROR_LIST.push('Gender id does not exist!' +
+            addNewErrorMessage('Gender id does not exist!' +
                 'So we set it manually!')
             currentGender = await getGenderByTitle('Not Detected')
             return null
@@ -417,7 +446,7 @@ export async function registerNewUserByItself(entity: UserRegisterItselfVm)
         {
             if (idIsNotValid(entity.city))
             {
-                currentErrorList.MY_ERROR_LIST.push('City id exists but it is not valid!')
+                addNewErrorMessage('City id exists but it is not valid!')
                 return null
             }
             else
@@ -427,7 +456,7 @@ export async function registerNewUserByItself(entity: UserRegisterItselfVm)
         }
         else
         {
-            currentErrorList.MY_ERROR_LIST.push('City id does not exist')
+            addNewErrorMessage('City id does not exist')
             return null
         }
 
@@ -436,7 +465,7 @@ export async function registerNewUserByItself(entity: UserRegisterItselfVm)
         {
             if (idIsNotValid(entity.introduction))
             {
-                currentErrorList.MY_ERROR_LIST.push('Introduction id exists but it is not valid!')
+                addNewErrorMessage('Introduction id exists but it is not valid!')
                 return null
             }
             else
@@ -446,7 +475,7 @@ export async function registerNewUserByItself(entity: UserRegisterItselfVm)
         }
         else
         {
-            currentErrorList.MY_ERROR_LIST.push('Introduction id does not exist')
+            addNewErrorMessage('Introduction id does not exist')
             return null
         }
 
@@ -470,17 +499,20 @@ export async function registerNewUserByItself(entity: UserRegisterItselfVm)
         }
         else
         {
+            addNewErrorMessage('we can not save the user! something went wrong!')
             return false
         }
     }
     else
     {
+        addNewErrorMessage('An user with this properties exists!')
         return false
     }
 }
 
 export async function addNewUserByAdmin(entity: UserAddByAdminVm): Promise<null | boolean>
 {
+    emptyMessageList()
     let userNameExist = await checkIfUserWithTheSameUserNameExist(entity.userName)
 
     let emailExist: boolean = false
@@ -502,7 +534,7 @@ export async function addNewUserByAdmin(entity: UserAddByAdminVm): Promise<null 
         {
             if (idIsNotValid(entity.gender))
             {
-                currentErrorList.MY_ERROR_LIST.push('Gender id exists but it is not valid!' +
+                addNewErrorMessage('Gender id exists but it is not valid!' +
                     'So we set it manually!')
                 currentGender = await getGenderByTitle('Not Detected')
                 return null
@@ -514,7 +546,7 @@ export async function addNewUserByAdmin(entity: UserAddByAdminVm): Promise<null 
         }
         else
         {
-            currentErrorList.MY_ERROR_LIST.push('Gender id does not exist!' +
+            addNewErrorMessage('Gender id does not exist!' +
                 'So we set it manually!')
             currentGender = await getGenderByTitle('Not Detected')
             return null
@@ -525,7 +557,7 @@ export async function addNewUserByAdmin(entity: UserAddByAdminVm): Promise<null 
         {
             if (idIsNotValid(entity.city))
             {
-                currentErrorList.MY_ERROR_LIST.push('City id exists but it is not valid!')
+                addNewErrorMessage('City id exists but it is not valid!')
                 return null
             }
             else
@@ -535,7 +567,7 @@ export async function addNewUserByAdmin(entity: UserAddByAdminVm): Promise<null 
         }
         else
         {
-            currentErrorList.MY_ERROR_LIST.push('City id does not exist')
+            addNewErrorMessage('City id does not exist')
             return null
         }
 
@@ -544,7 +576,7 @@ export async function addNewUserByAdmin(entity: UserAddByAdminVm): Promise<null 
         {
             if (idIsNotValid(entity.introduction))
             {
-                currentErrorList.MY_ERROR_LIST.push('Introduction id exists but it is not valid!')
+                addNewErrorMessage('Introduction id exists but it is not valid!')
                 return null
             }
             else
@@ -554,7 +586,7 @@ export async function addNewUserByAdmin(entity: UserAddByAdminVm): Promise<null 
         }
         else
         {
-            currentErrorList.MY_ERROR_LIST.push('Introduction id does not exist')
+            addNewErrorMessage('Introduction id does not exist')
             return null
         }
 
@@ -582,17 +614,20 @@ export async function addNewUserByAdmin(entity: UserAddByAdminVm): Promise<null 
         }
         else
         {
+            addNewErrorMessage('This user can not be added!')
             return false
         }
     }
     else
     {
+        addNewErrorMessage('An user with this properties exists!')
         return false
     }
 }
 
 export async function updateExistUser(entity: UserUpdateVm)
 {
+    emptyMessageList()
     let userNameExist = await checkIfUserWithTheSameUserNameExist(entity.userName)
 
     let emailExist: boolean = false
@@ -614,7 +649,7 @@ export async function updateExistUser(entity: UserUpdateVm)
         {
             if (idIsNotValid(entity.gender))
             {
-                currentErrorList.MY_ERROR_LIST.push('Gender id exists but it is not valid!' +
+                addNewErrorMessage('Gender id exists but it is not valid!' +
                     'So we set it manually!')
                 currentGender = await getGenderByTitle('Not Detected')
                 return null
@@ -626,7 +661,7 @@ export async function updateExistUser(entity: UserUpdateVm)
         }
         else
         {
-            currentErrorList.MY_ERROR_LIST.push('Gender id does not exist!' +
+            addNewErrorMessage('Gender id does not exist!' +
                 'So we set it manually!')
             currentGender = await getGenderByTitle('Not Detected')
             return null
@@ -637,7 +672,7 @@ export async function updateExistUser(entity: UserUpdateVm)
         {
             if (idIsNotValid(entity.city))
             {
-                currentErrorList.MY_ERROR_LIST.push('City id exists but it is not valid!')
+                addNewErrorMessage('City id exists but it is not valid!')
                 return null
             }
             else
@@ -647,7 +682,7 @@ export async function updateExistUser(entity: UserUpdateVm)
         }
         else
         {
-            currentErrorList.MY_ERROR_LIST.push('City id does not exist')
+            addNewErrorMessage('City id does not exist')
             return null
         }
 
@@ -656,7 +691,7 @@ export async function updateExistUser(entity: UserUpdateVm)
         {
             if (idIsNotValid(entity.introduction))
             {
-                currentErrorList.MY_ERROR_LIST.push('Introduction id exists but it is not valid!')
+                addNewErrorMessage('Introduction id exists but it is not valid!')
                 return null
             }
             else
@@ -666,13 +701,13 @@ export async function updateExistUser(entity: UserUpdateVm)
         }
         else
         {
-            currentErrorList.MY_ERROR_LIST.push('Introduction id does not exist')
+            addNewErrorMessage('Introduction id does not exist')
             return null
         }
 
         let currentUserForIpList: any = await getUserById(entity.id)
         let userOldIpList: any = currentUserForIpList.ip;
-        if (currentUserData.LOGIN_USER_ID == entity.id)
+        if (currentAuthType.LOGIN_USER_ID == entity.id)
         {
             userOldIpList.push(entity.ip)
         }
@@ -689,20 +724,30 @@ export async function updateExistUser(entity: UserUpdateVm)
                 introduction: currentIntroduction.id,
                 gender: currentGender.id,
                 city: currentCity.id,
-                lastLoginDate: currentUserData.LOGIN_USER_ID == entity.id ? new Date() : null,
+                lastLoginDate: currentAuthType.LOGIN_USER_ID == entity.id ? new Date() : null,
                 updateDate: entity.updateDate
             }
         )
-        return !!currentUser;
+        if (currentUser)
+        {
+            return true
+        }
+        else
+        {
+            addNewErrorMessage('The user can not be updated!')
+            return false
+        }
     }
     else
     {
+        addNewErrorMessage('An user with this properties exists!')
         return false
     }
 }
 
 export async function updateExistUserVerifyEmail(entity: UserVerifyEmailVm)
 {
+    emptyMessageList()
     let currentVerifyUserEmail: any = await getVerifyUserEmailByToken(entity.token)
     if (currentVerifyUserEmail)
     {
@@ -720,17 +765,20 @@ export async function updateExistUserVerifyEmail(entity: UserVerifyEmailVm)
         }
         else
         {
+            addNewErrorMessage(`No user with email ${currentUserEmail} found!`)
             return null
         }
     }
     else
     {
+        addNewErrorMessage('The link for email verification is invalid')
         return null
     }
 }
 
 export async function updateExistUserVerifyPhoneNumber(entity: UserVerifyPhoneNumberVm)
 {
+    emptyMessageList()
     let currentVerifyUserPhoneNumber: any = await getVerifyUserPhoneNumberByToken(entity.token)
     if (currentVerifyUserPhoneNumber)
     {
@@ -748,19 +796,23 @@ export async function updateExistUserVerifyPhoneNumber(entity: UserVerifyPhoneNu
         }
         else
         {
+            addNewErrorMessage(`No user with phone number ${currentUserPhoneNumber} found!`)
             return null
         }
     }
     else
     {
+        addNewErrorMessage('The link for phone number verification is invalid')
         return null
     }
 }
 
 export async function updateExistUserImage(entity: UserUpdateImageVm)
 {
+    emptyMessageList()
     if (idIsNotValid(entity.id))
     {
+        addNewErrorMessage(`The id ${entity.id} is not valid!`)
         return null
     }
     let previousUser: any = await getUserById(entity.id)
@@ -776,12 +828,28 @@ export async function updateExistUserImage(entity: UserUpdateImageVm)
     }
     else
     {
+        addNewErrorMessage(`No user with id ${entity.id} exists!`)
         return null
     }
 }
 
+export async function logoutExistUser()
+{
+    await updateExistUserTokenIsWorkingYet({
+        uniqueCode: currentAuthType.LOGIN_USER_TOKEN_UNIQUE_CODE,
+        updateDate: new Date(),
+        userId: currentAuthType.LOGIN_USER_ID
+    })
+
+    currentAuthType.IS_USER_LOGIN = false
+    currentAuthType.LOGIN_USER_ID = ''
+    currentAuthType.IS_USER_ADMIN = false
+    return true
+}
+
 export async function loginExistUser(entity: UserLoginVm)
 {
+    emptyMessageList()
     let currentUser: any = null
 
     if (entity.email)
@@ -822,16 +890,19 @@ export async function loginExistUser(entity: UserLoginVm)
 
     if (!currentUser)
     {
+        addNewErrorMessage(`No user found with this properties!`)
         return null
     }
     else
     {
         if (bcrypt.compareSync(entity.password, currentUser.password))
         {
+            let currentUniqueCode = await userAuthUniqueTokenMaker('userUniqueTokenCode')
             let token = jwt.sign(
                 {
                     userId: currentUser.id,
                     isAdmin: currentUser.isAdmin,
+                    uniqueCode: currentUniqueCode
                 },
                 SECRET_JWT,
                 {
@@ -839,15 +910,21 @@ export async function loginExistUser(entity: UserLoginVm)
                     algorithm: 'HS256'
                 }
             )
-            currentUserData.IS_USER_LOGIN = true
-            currentUserData.LOGIN_USER_ID = currentUser.id
-            currentUserData.IS_USER_ADMIN = currentUser.isAdmin
-            return {
-                token: token
-            }
+
+            currentAuthType.IS_USER_LOGIN = true
+            currentAuthType.LOGIN_USER_ID = currentUser.id
+            currentAuthType.IS_USER_ADMIN = currentUser.isAdmin
+            currentAuthType.LOGIN_USER_TOKEN_UNIQUE_CODE = currentUniqueCode
+
+            await addNewUserToken({
+                uniqueCode: currentUniqueCode,
+                userId: currentUser.id
+            })
+            return token
         }
         else
         {
+            addNewErrorMessage(`No user found with this properties!`)
             return null
         }
     }
@@ -857,22 +934,37 @@ export async function deleteExistUser(entity: UserDeleteVm)
 {
     if (idIsNotValid(entity.id))
     {
+        addNewErrorMessage(`The id ${entity.id} is not valid!`)
         return null
     }
     let result = await User.findByIdAndRemove(entity.id)
     return !!result;
+}
 
-
-    // let deleteExistRequestByUserIdResult = await deleteExistRequestByJobAd(entity.id)
-    // if (deleteExistRequestByUserIdResult)
-    // {
-    //     let result = await JobAd.findByIdAndRemove(entity.id)
-    //     return !!result;
-    // }
-    // else
-    // {
-    //     return null
-    // }
+export async function isAnyUserLogin()
+{
+    if (
+        !currentAuthType.LOGIN_USER_ID ||
+        currentAuthType.LOGIN_USER_ID == ''
+    )
+    {
+        return false
+    }
+    else
+    {
+        if (
+            !currentAuthType.LOGIN_USER_TOKEN_UNIQUE_CODE ||
+            currentAuthType.LOGIN_USER_TOKEN_UNIQUE_CODE == ''
+        )
+        {
+            return false
+        }
+        else
+        {
+            let currentUserToken: any = await getUserTokenByUserIdAndTokenUniqueCode(currentAuthType.LOGIN_USER_ID, currentAuthType.LOGIN_USER_TOKEN_UNIQUE_CODE)
+            return currentUserToken.isWorkingYet == true;
+        }
+    }
 }
 
 async function checkIfUserWithTheSameUserNameExist(userName: string)

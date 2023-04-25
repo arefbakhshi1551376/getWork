@@ -1,15 +1,19 @@
 import mongoose, {Schema} from "mongoose";
-import {verifyEmailOrMobileNumberTokenMaker} from "../../utility/maker";
+import {userAuthUniqueTokenMaker} from "../../utility/maker";
 
-export const verifyUserEmailSchema = new Schema({
-    email: {
+export const userTokenSchema = new Schema({
+    userId: {
         type: String,
         required: true
     },
-    token: {
+    uniqueCode: {
         type: String,
         required: true,
-        default: verifyEmailOrMobileNumberTokenMaker('email_')
+    },
+    isWorkingYet: {
+        type: Boolean,
+        required: true,
+        default: true
     },
     createDate: {
         type: Date,
@@ -23,17 +27,17 @@ export const verifyUserEmailSchema = new Schema({
     },
 })
 
-verifyUserEmailSchema.virtual('id').get(function ()
+userTokenSchema.virtual('id').get(function ()
 {
     return this._id.toHexString()
 })
 
-verifyUserEmailSchema.set('toJSON', {
+userTokenSchema.set('toJSON', {
     virtuals: true
 })
 
 
-export const VerifyUserEmail = mongoose.model(
-    'VerifyUserEmail',
-    verifyUserEmailSchema
+export const UserToken = mongoose.model(
+    'UserToken',
+    userTokenSchema
 )

@@ -10,7 +10,7 @@ import {
     getUserByFilter,
     getUserById,
     getUserByIdAndFilter,
-    loginExistUser,
+    loginExistUser, logoutExistUser,
     registerNewUserByItself,
     updateExistUserImage,
     updateExistUserVerifyEmail,
@@ -26,6 +26,11 @@ import {
 } from "../utility/type/user";
 import {getUploadPath} from "../utility/constant";
 import {uploadOptions} from "../utility/diskStorage";
+import {
+    addNewErrorMessage,
+    addNewSuccessMessage, getErrorMessageList,
+    getSuccessMessageList
+} from "../utility/handler/messageHandler/messageMethod";
 
 export const userRouter = express.Router()
 
@@ -86,6 +91,24 @@ userRouter.post(
             return res.status(404).json({
                 Message: `You can\`t login!`
             })
+        }
+    }
+)
+
+userRouter.post(
+    `/logout`,
+    async (req, res) =>
+    {
+        let result = await logoutExistUser()
+        if (result)
+        {
+            addNewSuccessMessage('You successfully logout')
+            return res.status(200).json(getSuccessMessageList())
+        }
+        else
+        {
+            addNewErrorMessage('Something went wrong!')
+            return res.status(400).json(getErrorMessageList())
         }
     }
 )

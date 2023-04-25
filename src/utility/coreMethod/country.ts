@@ -1,10 +1,18 @@
 import {Country} from "../../mvc/model/country";
 import {CountryAddVm, CountryDeleteVm, CountryUpdateVm} from "../type/country";
-import mongoose from "mongoose";
 import {idIsNotValid} from "../validator";
+import {addNewErrorMessage, addNewSuccessMessage, emptyMessageList} from "../handler/messageHandler/messageMethod";
+import {currentAuthType} from "../constant";
 
 export async function getCountOfCountry()
 {
+    emptyMessageList()
+    if (!currentAuthType.IS_USER_ADMIN)
+    {
+        addNewErrorMessage('You are not admin. So you can`t access this part!')
+        return null
+    }
+
     let countOfCountry = await Country.count()
     if (countOfCountry)
     {
@@ -12,12 +20,20 @@ export async function getCountOfCountry()
     }
     else
     {
+        addNewErrorMessage(`We can not get count of country`)
         return null
     }
 }
 
 export async function getAllCountry()
 {
+    emptyMessageList()
+    if (!currentAuthType.IS_USER_ADMIN)
+    {
+        addNewErrorMessage('You are not admin. So you can`t access this part!')
+        return null
+    }
+
     let countryList: any
     countryList = await Country.find()
         .sort(
@@ -28,26 +44,40 @@ export async function getAllCountry()
 
     if (countryList)
     {
-        for (let i = 0; i < countryList.length; i++)
-        {
-            console.log(countryList[i].title)
-        }
         return countryList
     }
     else
     {
+        addNewErrorMessage(`We can not get list of country`)
         return null
     }
 }
 
 export async function getCountryByFilter(filter: any)
 {
-    let countryList = await Country.find().select(`${filter}`)
-        .sort(
-            {
-                'createDate': -1
-            }
-        )
+    emptyMessageList()
+    if (!currentAuthType.IS_USER_ADMIN)
+    {
+        addNewErrorMessage('You are not admin. So you can`t access this part!')
+        return null
+    }
+
+    let countryList: any
+    if (filter)
+    {
+        countryList = await Country.find()
+            .select(`${filter}`)
+            .sort(
+                {
+                    'createDate': -1
+                }
+            );
+    }
+    else
+    {
+        addNewErrorMessage(`You have to enter a filter!`)
+        return null
+    }
 
     if (countryList)
     {
@@ -55,12 +85,20 @@ export async function getCountryByFilter(filter: any)
     }
     else
     {
+        addNewErrorMessage(`We can not get list of country`)
         return null
     }
 }
 
 export async function getCountryById(id: string)
 {
+    emptyMessageList()
+    if (idIsNotValid(id))
+    {
+        addNewErrorMessage(`The id ${id} is not valid!`)
+        return null
+    }
+
     let currentCountry = await Country.findById(id)
         .sort(
             {
@@ -74,12 +112,19 @@ export async function getCountryById(id: string)
     }
     else
     {
+        addNewErrorMessage(`We can not get current country`)
         return null
     }
 }
 
 export async function getCountryByIdAndFilter(id: string, filter: any)
 {
+    emptyMessageList()
+    if (!currentAuthType.IS_USER_ADMIN)
+    {
+        addNewErrorMessage('You are not admin. So you can`t access this part!')
+        return null
+    }
 
     let currentCountry: any
     if (filter)
@@ -103,12 +148,20 @@ export async function getCountryByIdAndFilter(id: string, filter: any)
     }
     else
     {
+        addNewErrorMessage(`We can not get current country`)
         return null
     }
 }
 
 export async function addNewCountry(entity: CountryAddVm): Promise<null | boolean>
 {
+    emptyMessageList()
+    if (!currentAuthType.IS_USER_ADMIN)
+    {
+        addNewErrorMessage('You are not admin. So you can`t access this part!')
+        return null
+    }
+
     let titleExist = await checkIfCountryWithTheSameTitleExist(entity.title)
     if (!titleExist)
     {
@@ -118,82 +171,93 @@ export async function addNewCountry(entity: CountryAddVm): Promise<null | boolea
         let result = await currentCountry.save()
         if (result)
         {
-            console.log(result)
+            addNewSuccessMessage(`Current country added successfully!`)
             return true
         }
         else
         {
+            addNewErrorMessage(`Something went wrong! The country can not be added!`)
             return false
         }
     }
     else
     {
+        addNewErrorMessage(`A country with the same properties exists`)
         return false
     }
-
-    // currentAddress.save()
-    //     .then(value =>
-    //     {
-    //         console.log(value)
-    //         return true
-    //     })
-    //     .catch(reason =>
-    //     {
-    //         console.log(reason)
-    //         return false
-    //     })
 }
 
 export async function updateExistCountry(entity: CountryUpdateVm)
 {
+    emptyMessageList()
+    if (!currentAuthType.IS_USER_ADMIN)
+    {
+        addNewErrorMessage('You are not admin. So you can`t access this part!')
+        return null
+    }
+
+    if (idIsNotValid(entity.id))
+    {
+        addNewErrorMessage(`The id ${entity.id} is not valid!`)
+        return null
+    }
+    await getCountryById(entity.id)
+
     let titleExist = await checkIfCountryWithTheSameTitleExist(entity.title)
     if (!titleExist)
     {
-        if (idIsNotValid(entity.id))
-        {
-            return null
-        }
-        let currentCountry = await Country.findByIdAndUpdate(
+        let result = await Country.findByIdAndUpdate(
             entity.id,
             {
                 title: entity.title,
                 updateDate: entity.updateDate
             }
         )
-        return !!currentCountry;
+        if (result)
+        {
+            addNewSuccessMessage(`Current country updated successfully!`)
+            return true
+        }
+        else
+        {
+            addNewErrorMessage(`Something went wrong! The country can not be updated!`)
+            return false
+        }
     }
     else
     {
+        addNewErrorMessage(`A country with the same properties exists`)
         return false
     }
 }
 
 export async function deleteExistCountry(entity: CountryDeleteVm)
 {
-    if (idIsNotValid(entity.id))
+    emptyMessageList()
+    if (!currentAuthType.IS_USER_ADMIN)
     {
+        addNewErrorMessage('You are not admin. So you can`t access this part!')
         return null
     }
+
+    if (idIsNotValid(entity.id))
+    {
+        addNewErrorMessage(`The id ${entity.id} is not valid!`)
+        return null
+    }
+    await getCountryById(entity.id)
+
     let result = await Country.findByIdAndRemove(entity.id)
-    return !!result;
-    // .then(value =>
-    // {
-    //     if (value)
-    //     {
-    //         console.log(value)
-    //         return true
-    //     }
-    //     else
-    //     {
-    //         console.log('Error while removing country!')
-    //         return false
-    //     }
-    // })
-    // .catch(reason =>
-    // {
-    //     console.log(reason)
-    //     return false
-    // })
+    if (result)
+    {
+        addNewSuccessMessage(`Current country deleted successfully!`)
+        return true
+    }
+    else
+    {
+        addNewErrorMessage(`Something went wrong! The country can not be deleted!`)
+        return false
+    }
 }
 
 async function checkIfCountryWithTheSameTitleExist(title: string)

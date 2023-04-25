@@ -1,7 +1,7 @@
 import express from 'express'
 import morgan from "morgan";
 import * as mongoose from "mongoose";
-import {error_handler} from "./utility/error_handler";
+import {errorHandler} from "./utility/handler/errorHandler";
 import {BEFORE_LINK_V1} from "./utility/constant";
 import {addressRouter} from "./router/address";
 import {countryRouter} from "./router/country";
@@ -25,7 +25,7 @@ import {salaryRouter} from "./router/salary";
 import {seniorityLevelRouter} from "./router/seniorityLevel";
 import {jobAdRouter} from "./router/jobAd";
 import {userRequestRouter} from "./router/request";
-import {authJwt} from "./utility/jwt/authJwt";
+import {authJwt} from "./utility/handler/authHandler/authJwt";
 import {userRouter} from "./router/user";
 
 const app = express()
@@ -46,7 +46,7 @@ app.use('/src/public/upload', express.static(__dirname + '/src/public/upload'));
 app.use(
     authJwt() // You have to use this method with parentheses like authJwt() not like authJwt
 )
-app.use(error_handler)
+app.use(errorHandler)
 
 app.use(`${BEFORE_LINK_V1}/address`, addressRouter)
 app.use(`${BEFORE_LINK_V1}/country`, countryRouter)

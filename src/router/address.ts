@@ -9,6 +9,7 @@ import {
 import {AddressAddVM, AddressDeleteVM, AddressUpdateVM} from "../utility/type/address";
 import {State} from "../mvc/model/state";
 import {Address} from "../mvc/model/address";
+import {getErrorMessageList, getSuccessMessageList} from "../utility/handler/messageHandler/messageMethod";
 
 export const addressRouter = express.Router()
 
@@ -23,9 +24,7 @@ addressRouter.get(
         }
         else
         {
-            return res.status(404).json({
-                Message: `No address found!`
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -41,33 +40,13 @@ addressRouter.get(
         }
         else
         {
-            return res.status(404).json({
-                Message: `No address found!`
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
 
 addressRouter.get(
-    `/:id`,
-    async (req, res) =>
-    {
-        let currentAddress = await getAddressById(req.params.id)
-        if (currentAddress != null)
-        {
-            return res.status(200).json(currentAddress)
-        }
-        else
-        {
-            return res.status(404).json({
-                Message: `No address found!`
-            })
-        }
-    }
-)
-
-addressRouter.get(
-    `/by_filter/:filter`,
+    `/by_filter/:filter?`,
     async (req, res) =>
     {
         let addressList = await getAddressByFilter(req.params.filter)
@@ -77,9 +56,7 @@ addressRouter.get(
         }
         else
         {
-            return res.status(404).json({
-                Message: `No address found!`
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -95,9 +72,23 @@ addressRouter.get(
         }
         else
         {
-            return res.status(404).json({
-                Message: `No address found!`
-            })
+            return res.status(404).json(getErrorMessageList())
+        }
+    }
+)
+
+addressRouter.get(
+    `/:id`,
+    async (req, res) =>
+    {
+        let currentAddress = await getAddressById(req.params.id)
+        if (currentAddress != null)
+        {
+            return res.status(200).json(currentAddress)
+        }
+        else
+        {
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -113,15 +104,11 @@ addressRouter.post(
         let result: boolean | null = await addNewAddress(currentAddressAddVm)
         if (result == true)
         {
-            return res.status(200).json({
-                Message: `Address Added Successfully!`
-            })
+            return res.status(200).json(getSuccessMessageList())
         }
         else
         {
-            return res.status(400).json({
-                Message: 'An error occurred!'
-            })
+            return res.status(400).json(getErrorMessageList())
         }
     }
 )
@@ -139,15 +126,11 @@ addressRouter.put(
         let result: null | boolean = await updateExistAddress(currentAddressUpdateVm)
         if (result == true)
         {
-            return res.status(200).json({
-                Message: `Current Address Updated Successfully!`
-            })
+            return res.status(200).json(getSuccessMessageList())
         }
         else
         {
-            return res.status(400).json({
-                Message: 'An error occurred!'
-            })
+            return res.status(400).json(getErrorMessageList())
         }
     }
 )
@@ -163,15 +146,11 @@ addressRouter.delete(
         let result: null | boolean = await deleteExistAddress(currentAddressDeleteVm)
         if (result == true)
         {
-            return res.status(200).json({
-                Message: `Address Deleted Successfully!`
-            })
+            return res.status(200).json(getSuccessMessageList())
         }
         else
         {
-            return res.status(400).json({
-                Message: 'An error occurred!'
-            })
+            return res.status(400).json(getErrorMessageList())
         }
     }
 )
