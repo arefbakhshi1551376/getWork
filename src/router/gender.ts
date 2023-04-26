@@ -7,7 +7,7 @@ import {
     getGenderByIdAndFilter, getGenderByTitle,
     updateExistGender
 } from "../utility/coreMethod/gender";
-import {defaultGenderMaker} from "../utility/maker";
+import {getErrorMessageList, getSuccessMessageList} from "../utility/handler/messageHandler/messageMethod";
 
 export const genderRouter = express.Router()
 
@@ -22,9 +22,7 @@ genderRouter.get(
         }
         else
         {
-            return res.status(404).json({
-                Message: `No gender found!`
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -40,33 +38,13 @@ genderRouter.get(
         }
         else
         {
-            return res.status(404).json({
-                Message: `No gender found!`
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
 
 genderRouter.get(
-    `/:id`,
-    async (req, res) =>
-    {
-        let currentGender = await getGenderById(req.params.id)
-        if (currentGender != null)
-        {
-            return res.status(200).json(currentGender)
-        }
-        else
-        {
-            return res.status(404).json({
-                Message: `No gender found!`
-            })
-        }
-    }
-)
-
-genderRouter.get(
-    `/by_filter/:filter`,
+    `/by_filter/:filter?`,
     async (req, res) =>
     {
         let genderList = await getGenderByFilter(req.params.filter)
@@ -76,15 +54,13 @@ genderRouter.get(
         }
         else
         {
-            return res.status(404).json({
-                Message: `No gender found!`
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
 
 genderRouter.get(
-    `/by_title/:title`,
+    `/by_title/:title?`,
     async (req, res) =>
     {
         let genderList = await getGenderByTitle(req.params.title)
@@ -94,9 +70,7 @@ genderRouter.get(
         }
         else
         {
-            return res.status(404).json({
-                Message: `No gender found!`
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -112,9 +86,23 @@ genderRouter.get(
         }
         else
         {
-            return res.status(404).json({
-                Message: `No gender found!`
-            })
+            return res.status(404).json(getErrorMessageList())
+        }
+    }
+)
+
+genderRouter.get(
+    `/:id`,
+    async (req, res) =>
+    {
+        let currentGender = await getGenderById(req.params.id)
+        if (currentGender != null)
+        {
+            return res.status(200).json(currentGender)
+        }
+        else
+        {
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -129,15 +117,11 @@ genderRouter.post(
         let result: boolean | null = await addNewGender(currentGenderAddVm)
         if (result == true)
         {
-            return res.status(200).json({
-                Message: `${currentGenderAddVm.title} Added Successfully!`
-            })
+            return res.status(200).json(getSuccessMessageList())
         }
         else
         {
-            return res.status(400).json({
-                Message: 'An error occurred!'
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -154,15 +138,11 @@ genderRouter.put(
         let result: null | boolean = await updateExistGender(currentGenderUpdateVm)
         if (result == true)
         {
-            return res.status(200).json({
-                Message: `${currentGenderUpdateVm.title} Updated Successfully!`
-            })
+            return res.status(200).json(getSuccessMessageList())
         }
         else
         {
-            return res.status(400).json({
-                Message: 'An error occurred!'
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -178,15 +158,11 @@ genderRouter.delete(
         let result: null | boolean = await deleteExistGender(currentGenderDeleteVm)
         if (result == true)
         {
-            return res.status(200).json({
-                Message: `Gender Deleted Successfully!`
-            })
+            return res.status(200).json(getSuccessMessageList())
         }
         else
         {
-            return res.status(400).json({
-                Message: 'An error occurred!'
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )

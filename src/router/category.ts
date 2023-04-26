@@ -8,6 +8,7 @@ import {
     getCountOfCategory, updateExistCategory
 } from "../utility/coreMethod/category";
 import {CategoryAddVm, CategoryDeleteVm, CategoryUpdateVm} from "../utility/type/category";
+import {getErrorMessageList, getSuccessMessageList} from "../utility/handler/messageHandler/messageMethod";
 
 export const categoryRouter = express.Router()
 
@@ -22,9 +23,7 @@ categoryRouter.get(
         }
         else
         {
-            return res.status(404).json({
-                Message: `No category found!`
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -40,33 +39,13 @@ categoryRouter.get(
         }
         else
         {
-            return res.status(404).json({
-                Message: `No category found!`
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
 
 categoryRouter.get(
-    `/:id`,
-    async (req, res) =>
-    {
-        let currentCategory = await getCategoryById(req.params.id)
-        if (currentCategory != null)
-        {
-            return res.status(200).json(currentCategory)
-        }
-        else
-        {
-            return res.status(404).json({
-                Message: `No category found!`
-            })
-        }
-    }
-)
-
-categoryRouter.get(
-    `/by_filter/:filter`,
+    `/by_filter/:filter?`,
     async (req, res) =>
     {
         let categoryList = await getCategoryByFilter(req.params.filter)
@@ -76,9 +55,7 @@ categoryRouter.get(
         }
         else
         {
-            return res.status(404).json({
-                Message: `No category found!`
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -94,9 +71,23 @@ categoryRouter.get(
         }
         else
         {
-            return res.status(404).json({
-                Message: `No category found!`
-            })
+            return res.status(404).json(getErrorMessageList())
+        }
+    }
+)
+
+categoryRouter.get(
+    `/:id`,
+    async (req, res) =>
+    {
+        let currentCategory = await getCategoryById(req.params.id)
+        if (currentCategory != null)
+        {
+            return res.status(200).json(currentCategory)
+        }
+        else
+        {
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -111,15 +102,11 @@ categoryRouter.post(
         let result: boolean | null = await addNewCategory(currentCategoryAddVm)
         if (result == true)
         {
-            return res.status(200).json({
-                Message: `${currentCategoryAddVm.title} Added Successfully!`
-            })
+            return res.status(200).json(getSuccessMessageList())
         }
         else
         {
-            return res.status(400).json({
-                Message: 'An error occurred!'
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -136,15 +123,11 @@ categoryRouter.put(
         let result: null | boolean = await updateExistCategory(currentCategoryUpdateVm)
         if (result == true)
         {
-            return res.status(200).json({
-                Message: `${currentCategoryUpdateVm.title} Updated Successfully!`
-            })
+            return res.status(200).json(getSuccessMessageList())
         }
         else
         {
-            return res.status(400).json({
-                Message: 'An error occurred!'
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -160,15 +143,11 @@ categoryRouter.delete(
         let result: null | boolean = await deleteExistCategory(currentCategoryDeleteVm)
         if (result == true)
         {
-            return res.status(200).json({
-                Message: `Category Deleted Successfully!`
-            })
+            return res.status(200).json(getSuccessMessageList())
         }
         else
         {
-            return res.status(400).json({
-                Message: 'An error occurred!'
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )

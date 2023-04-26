@@ -4,6 +4,7 @@ import {City} from "../../mvc/model/city";
 import {idIsNotValid} from "../validator";
 import {addNewErrorMessage, addNewSuccessMessage, emptyMessageList} from "../handler/messageHandler/messageMethod";
 import {currentAuthType} from "../constant";
+import {getCityById} from "./city";
 
 export async function getCountOfAddress()
 {
@@ -21,7 +22,7 @@ export async function getCountOfAddress()
     }
     else
     {
-        addNewErrorMessage('We can not get count of address!')
+        addNewErrorMessage(`We can not get count of address!`)
         return null
     }
 }
@@ -62,7 +63,7 @@ export async function getAllAddress()
     }
     else
     {
-        addNewErrorMessage('We can not get list of address!')
+        addNewErrorMessage(`We can not get list of address!`)
         return null
     }
 }
@@ -72,7 +73,7 @@ export async function getAddressById(id: string)
     emptyMessageList()
     if (idIsNotValid(id))
     {
-        addNewErrorMessage(`No address with id ${id} exists!`)
+        addNewErrorMessage(`Id ${id} is not valid!`)
         return null
     }
 
@@ -103,7 +104,59 @@ export async function getAddressById(id: string)
     }
     else
     {
-        addNewErrorMessage('We can not get current address!')
+        addNewErrorMessage(`We can not get current address!`)
+        return null
+    }
+}
+
+export async function getAddressByFilter(filter: any)
+{
+    emptyMessageList()
+    if (!currentAuthType.IS_USER_ADMIN)
+    {
+        addNewErrorMessage('You are not admin. So you can`t access this part!')
+        return null
+    }
+
+    let addressList: any
+
+    if (filter)
+    {
+        addressList = await Address.find()
+            .populate(
+                {
+                    path: 'city',
+                    select: 'title',
+                    populate: {
+                        path: 'state',
+                        select: 'title',
+                        populate: {
+                            path: 'country',
+                            select: 'title',
+                        }
+                    }
+                }
+            )
+            .select(`${filter}`)
+            .sort(
+                {
+                    'createDate': -1
+                }
+            );
+    }
+    else
+    {
+        addNewErrorMessage(`You have to enter a filter!`)
+        return null
+    }
+
+    if (addressList)
+    {
+        return addressList
+    }
+    else
+    {
+        addNewErrorMessage(`We can\`t get list of address!`)
         return null
     }
 }
@@ -164,69 +217,12 @@ export async function getAddressByIdAndFilter(id: string, filter: any)
     }
 }
 
-export async function getAddressByFilter(filter: any)
-{
-    emptyMessageList()
-    if (!currentAuthType.IS_USER_ADMIN)
-    {
-        addNewErrorMessage('You are not admin. So you can`t access this part!')
-        return null
-    }
-
-    let currentAddress: any
-
-    if (filter)
-    {
-        currentAddress = await Address.find()
-            .populate(
-                {
-                    path: 'city',
-                    select: 'title',
-                    populate: {
-                        path: 'state',
-                        select: 'title',
-                        populate: {
-                            path: 'country',
-                            select: 'title',
-                        }
-                    }
-                }
-            )
-            .select(`${filter}`)
-            .sort(
-                {
-                    'createDate': -1
-                }
-            );
-    }
-    else
-    {
-        addNewErrorMessage(`You have to enter a filter!`)
-        return null
-    }
-
-    if (currentAddress)
-    {
-        return currentAddress
-    }
-    else
-    {
-        addNewErrorMessage('We can`t get list of address!')
-        return null
-    }
-}
-
 export async function addNewAddress(entity: AddressAddVM): Promise<null | boolean>
 {
     emptyMessageList()
-    if (!currentAuthType.IS_USER_ADMIN)
-    {
-        addNewErrorMessage('You are not admin. So you can`t access this part!')
-        return null
-    }
 
-    let currentAddressExist = await checkIfAddressWithTheSamePropertiesExist(entity)
-    if (currentAddressExist)
+    let currentAddressExists = await checkIfAddressWithTheSamePropertiesExist(entity)
+    if (currentAddressExists)
     {
         addNewErrorMessage('An address with the same properties exists!')
         return null
@@ -238,7 +234,7 @@ export async function addNewAddress(entity: AddressAddVM): Promise<null | boolea
         return null
     }
 
-    let currentCity = await City.findById(entity.city)
+    let currentCity = await getCityById(entity.city)
     if (!currentCity)
     {
         addNewErrorMessage('No city with the same id exists! So we can not add any address with the city')
@@ -265,11 +261,6 @@ export async function addNewAddress(entity: AddressAddVM): Promise<null | boolea
 export async function updateExistAddress(entity: AddressUpdateVM)
 {
     emptyMessageList()
-    if (!currentAuthType.IS_USER_ADMIN)
-    {
-        addNewErrorMessage('You are not admin. So you can`t access this part!')
-        return null
-    }
 
     if (idIsNotValid(entity.id))
     {
@@ -279,8 +270,8 @@ export async function updateExistAddress(entity: AddressUpdateVM)
 
     await getAddressById(entity.id)
 
-    let currentAddressExist = await checkIfAddressWithTheSamePropertiesExist(entity)
-    if (currentAddressExist)
+    let currentAddressExists = await checkIfAddressWithTheSamePropertiesExist(entity)
+    if (currentAddressExists)
     {
         addNewErrorMessage('An address with the same properties exists!')
         return null
@@ -322,6 +313,7 @@ export async function updateExistAddress(entity: AddressUpdateVM)
 export async function deleteExistAddress(entity: AddressDeleteVM)
 {
     emptyMessageList()
+
     if (idIsNotValid(entity.id))
     {
         addNewErrorMessage(`The id ${entity.id} is invalid!`)
@@ -342,7 +334,6 @@ export async function deleteExistAddress(entity: AddressDeleteVM)
         return false
     }
 }
-
 
 async function checkIfAddressWithTheSamePropertiesExist(entity: AddressAddVM)
 {

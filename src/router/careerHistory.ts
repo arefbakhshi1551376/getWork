@@ -1,6 +1,4 @@
 import express from "express";
-import {showMessageForEveryThing} from "../utility/showResponseMessage";
-import {modelsName, whatHappened} from "../utility/constant";
 import {
     addNewCareerHistory,
     deleteExistCareerHistory,
@@ -10,6 +8,7 @@ import {
     getCountOfCareerHistory, updateExistCareerHistory
 } from "../utility/coreMethod/careerHistory";
 import {CareerHistoryAddVm, CareerHistoryDeleteVm, CareerHistoryUpdateVm} from "../utility/type/careerHistory";
+import {getErrorMessageList} from "../utility/handler/messageHandler/messageMethod";
 
 export const careerHistoryRouter = express.Router()
 
@@ -24,7 +23,7 @@ careerHistoryRouter.get(
         }
         else
         {
-            return showMessageForEveryThing(res, 404, modelsName.CareerHistory, whatHappened.Found)
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -40,29 +39,13 @@ careerHistoryRouter.get(
         }
         else
         {
-            return showMessageForEveryThing(res, 404, modelsName.CareerHistory, whatHappened.Found)
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
 
 careerHistoryRouter.get(
-    `/:id`,
-    async (req, res) =>
-    {
-        let currentCareerHistory = await getCareerHistoryById(req.params.id)
-        if (currentCareerHistory != null)
-        {
-            return res.status(200).json(currentCareerHistory)
-        }
-        else
-        {
-            return showMessageForEveryThing(res, 404, modelsName.CareerHistory, whatHappened.Found)
-        }
-    }
-)
-
-careerHistoryRouter.get(
-    `/by_filter/:filter`,
+    `/by_filter/:filter?`,
     async (req, res) =>
     {
         let careerHistoryList = await getCareerHistoryByFilter(req.params.filter)
@@ -72,7 +55,7 @@ careerHistoryRouter.get(
         }
         else
         {
-            return showMessageForEveryThing(res, 404, modelsName.CareerHistory, whatHappened.Found)
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -88,7 +71,23 @@ careerHistoryRouter.get(
         }
         else
         {
-            return showMessageForEveryThing(res, 404, modelsName.CareerHistory, whatHappened.Found)
+            return res.status(404).json(getErrorMessageList())
+        }
+    }
+)
+
+careerHistoryRouter.get(
+    `/:id`,
+    async (req, res) =>
+    {
+        let currentCareerHistory = await getCareerHistoryById(req.params.id)
+        if (currentCareerHistory != null)
+        {
+            return res.status(200).json(currentCareerHistory)
+        }
+        else
+        {
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -112,9 +111,7 @@ careerHistoryRouter.post(
         }
         else
         {
-            return res.status(400).json({
-                Message: 'An error occurred!'
-            })
+            return res.status(400).json(getErrorMessageList())
         }
     }
 )
@@ -142,9 +139,7 @@ careerHistoryRouter.put(
         }
         else
         {
-            return res.status(400).json({
-                Message: 'An error occurred!'
-            })
+            return res.status(400).json(getErrorMessageList())
         }
     }
 )
@@ -166,9 +161,7 @@ careerHistoryRouter.delete(
         }
         else
         {
-            return res.status(400).json({
-                Message: 'An error occurred!'
-            })
+            return res.status(400).json(getErrorMessageList())
         }
     }
 )

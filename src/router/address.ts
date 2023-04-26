@@ -7,8 +7,6 @@ import {
     getCountOfAddress, updateExistAddress
 } from "../utility/coreMethod/address";
 import {AddressAddVM, AddressDeleteVM, AddressUpdateVM} from "../utility/type/address";
-import {State} from "../mvc/model/state";
-import {Address} from "../mvc/model/address";
 import {getErrorMessageList, getSuccessMessageList} from "../utility/handler/messageHandler/messageMethod";
 
 export const addressRouter = express.Router()

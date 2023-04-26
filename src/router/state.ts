@@ -8,6 +8,7 @@ import {
     getStateByIdAndFilter, updateExistState
 } from "../utility/coreMethod/state";
 import {StateAddVm, StateDeleteVm, StateUpdateVm} from "../utility/type/state";
+import {getErrorMessageList, getSuccessMessageList} from "../utility/handler/messageHandler/messageMethod";
 
 export const stateRouter = express.Router()
 
@@ -22,9 +23,7 @@ stateRouter.get(
         }
         else
         {
-            return res.status(404).json({
-                Message: `No state found!`
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -40,33 +39,13 @@ stateRouter.get(
         }
         else
         {
-            return res.status(404).json({
-                Message: `No state found!`
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
 
 stateRouter.get(
-    `/:id`,
-    async (req, res) =>
-    {
-        let currentState = await getStateById(req.params.id)
-        if (currentState != null)
-        {
-            return res.status(200).json(currentState)
-        }
-        else
-        {
-            return res.status(404).json({
-                Message: `No state found!`
-            })
-        }
-    }
-)
-
-stateRouter.get(
-    `/by_filter/:filter`,
+    `/by_filter/:filter?`,
     async (req, res) =>
     {
         let stateList = await getStateByFilter(req.params.filter)
@@ -76,9 +55,7 @@ stateRouter.get(
         }
         else
         {
-            return res.status(404).json({
-                Message: `No state found!`
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -94,9 +71,23 @@ stateRouter.get(
         }
         else
         {
-            return res.status(404).json({
-                Message: `No state found!`
-            })
+            return res.status(404).json(getErrorMessageList())
+        }
+    }
+)
+
+stateRouter.get(
+    `/:id`,
+    async (req, res) =>
+    {
+        let currentState = await getStateById(req.params.id)
+        if (currentState != null)
+        {
+            return res.status(200).json(currentState)
+        }
+        else
+        {
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -112,15 +103,11 @@ stateRouter.post(
         let result: boolean | null = await addNewState(currentStateAddVm)
         if (result == true)
         {
-            return res.status(200).json({
-                Message: `${currentStateAddVm.title} Added Successfully!`
-            })
+            return res.status(200).json(getSuccessMessageList())
         }
         else
         {
-            return res.status(400).json({
-                Message: 'An error occurred!'
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -138,15 +125,11 @@ stateRouter.put(
         let result: null | boolean = await updateExistState(currentStateUpdateVm)
         if (result == true)
         {
-            return res.status(200).json({
-                Message: `${currentStateUpdateVm.title} Updated Successfully!`
-            })
+            return res.status(200).json(getSuccessMessageList())
         }
         else
         {
-            return res.status(400).json({
-                Message: 'An error occurred!'
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -162,15 +145,11 @@ stateRouter.delete(
         let result: null | boolean = await deleteExistState(currentStateDeleteVm)
         if (result == true)
         {
-            return res.status(200).json({
-                Message: `State Deleted Successfully!`
-            })
+            return res.status(200).json(getSuccessMessageList())
         }
         else
         {
-            return res.status(400).json({
-                Message: 'An error occurred!'
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )

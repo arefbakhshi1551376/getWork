@@ -1,10 +1,19 @@
 import {State} from "../../mvc/model/state";
 import {StateAddVm, StateDeleteVm, StateUpdateVm} from "../type/state";
-import {getCountryById} from "./country";
 import {idIsNotValid} from "../validator";
+import {addNewErrorMessage, addNewSuccessMessage, emptyMessageList} from "../handler/messageHandler/messageMethod";
+import {currentAuthType} from "../constant";
+import {Country} from "../../mvc/model/country";
 
 export async function getCountOfState()
 {
+    emptyMessageList()
+    if (!currentAuthType.IS_USER_ADMIN)
+    {
+        addNewErrorMessage('You are not admin. So you can`t access this part!')
+        return null
+    }
+
     let countOfState = await State.count()
     if (countOfState)
     {
@@ -12,41 +21,25 @@ export async function getCountOfState()
     }
     else
     {
+        addNewErrorMessage(`We can not get count of state!`)
         return null
     }
 }
 
 export async function getAllState()
 {
-    let stateList = await State.find()
-        .populate({
-            path: 'country',
-            select: 'title',
-        })
-        .sort(
-            {
-                'createDate': -1
-            }
-        )
-
-    if (stateList)
+    emptyMessageList()
+    if (!currentAuthType.IS_USER_ADMIN)
     {
-        return stateList
-    }
-    else
-    {
+        addNewErrorMessage('You are not admin. So you can`t access this part!')
         return null
     }
-}
 
-export async function getStateByFilter(filter: any)
-{
     let stateList = await State.find()
         .populate({
             path: 'country',
             select: 'title',
         })
-        .select(`${filter}`)
         .sort(
             {
                 'createDate': -1
@@ -59,12 +52,20 @@ export async function getStateByFilter(filter: any)
     }
     else
     {
+        addNewErrorMessage(`We can not get list of state!`)
         return null
     }
 }
 
 export async function getStateById(id: string)
 {
+    emptyMessageList()
+    if (idIsNotValid(id))
+    {
+        addNewErrorMessage(`Id ${id} is not valid!`)
+        return null
+    }
+
     let currentState = await State.findById(id)
         .populate({
             path: 'country',
@@ -82,12 +83,68 @@ export async function getStateById(id: string)
     }
     else
     {
+        addNewErrorMessage(`We can not get current state!`)
+        return null
+    }
+}
+
+export async function getStateByFilter(filter: any)
+{
+    emptyMessageList()
+    if (!currentAuthType.IS_USER_ADMIN)
+    {
+        addNewErrorMessage('You are not admin. So you can`t access this part!')
+        return null
+    }
+
+    let stateList: any
+    if (filter)
+    {
+        stateList = await State.find()
+            .populate({
+                path: 'country',
+                select: 'title',
+            })
+            .select(`${filter}`)
+            .sort(
+                {
+                    'createDate': -1
+                }
+            );
+    }
+    else
+    {
+        addNewErrorMessage(`You have to enter a filter!`)
+        return null
+    }
+
+
+    if (stateList)
+    {
+        return stateList
+    }
+    else
+    {
+        addNewErrorMessage(`We can\`t get list of state!`)
         return null
     }
 }
 
 export async function getStateByIdAndFilter(id: string, filter: any)
 {
+    emptyMessageList()
+    if (!currentAuthType.IS_USER_ADMIN)
+    {
+        addNewErrorMessage('You are not admin. So you can`t access this part!')
+        return null
+    }
+
+    if (idIsNotValid(id))
+    {
+        addNewErrorMessage(`No state with id ${id} exists!`)
+        return null
+    }
+
     let currentState: any
     if (filter)
     {
@@ -114,119 +171,149 @@ export async function getStateByIdAndFilter(id: string, filter: any)
     }
     else
     {
+        addNewErrorMessage(`We can not get current state!`)
         return null
     }
 }
 
 export async function addNewState(entity: StateAddVm): Promise<null | boolean>
 {
-    let titleExist = await checkIfStateWithTheSameTitleExist(entity.title)
-    if (!titleExist)
+    emptyMessageList()
+    if (!currentAuthType.IS_USER_ADMIN)
     {
-        if (idIsNotValid(entity.country))
-        {
-            return null
-        }
-        let currentCountry = await getCountryById(entity.country)
-        if (currentCountry)
-        {
-            let currentState = new State({
-                title: entity.title,
-                country: entity.country
-            })
-            let result = await currentState.save()
-            if (result)
-            {
-                console.log(result)
-                return true
-            }
-            else
-            {
-                return false
-            }
-        }
-        return false
+        addNewErrorMessage('You are not admin. So you can`t access this part!')
+        return null
+    }
+
+    let currentStateExists = await checkIfStateWithTheSameTitleExist(entity)
+    if (currentStateExists)
+    {
+        addNewErrorMessage('A state with the same properties exists!')
+        return null
+    }
+
+    if (idIsNotValid(entity.country))
+    {
+        addNewErrorMessage(`The id ${entity.country} is invalid and can not be belonged to any city!`)
+        return null
+    }
+
+    let currentCountry = await Country.findById(entity.country)
+    if (!currentCountry)
+    {
+        addNewErrorMessage('No country with the same id exists! So we can not add any state with the city')
+        return null
+    }
+
+    let currentState = new State({
+        title: entity.title,
+        country: entity.country
+    })
+    let result = await currentState.save()
+    if (result)
+    {
+        addNewSuccessMessage('State added successfully!')
+        return true
     }
     else
     {
+        addNewErrorMessage('Something went wrong! the state can not be saved!')
         return false
     }
-
-    // currentAddress.save()
-    //     .then(value =>
-    //     {
-    //         console.log(value)
-    //         return true
-    //     })
-    //     .catch(reason =>
-    //     {
-    //         console.log(reason)
-    //         return false
-    //     })
 }
 
 export async function updateExistState(entity: StateUpdateVm)
 {
-    let titleExist = await checkIfStateWithTheSameTitleExist(entity.title)
-    if (!titleExist)
+    emptyMessageList()
+    if (!currentAuthType.IS_USER_ADMIN)
     {
-        if (idIsNotValid(entity.id) || idIsNotValid(entity.country))
+        addNewErrorMessage('You are not admin. So you can`t access this part!')
+        return null
+    }
+
+    if (idIsNotValid(entity.id))
+    {
+        addNewErrorMessage(`The id ${entity.id} is invalid!`)
+        return null
+    }
+
+    await getStateById(entity.id)
+
+    let currentStateExists = await checkIfStateWithTheSameTitleExist(entity)
+    if (currentStateExists)
+    {
+        addNewErrorMessage('A state with the same properties exists!')
+        return null
+    }
+
+    if (idIsNotValid(entity.country))
+    {
+        addNewErrorMessage(`The id ${entity.country} is invalid and can not be belonged to any city!`)
+        return null
+    }
+
+    let currentCountry = await Country.findById(entity.country)
+    if (!currentCountry)
+    {
+        addNewErrorMessage('No country with the same id exists! So we can not add any state with the city')
+        return null
+    }
+
+    let result = await State.findByIdAndUpdate(
+        entity.id,
         {
-            return null
+            title: entity.title,
+            country: entity.country,
+            updateDate: entity.updateDate
         }
-        let currentCountry = await getCountryById(entity.country)
-        if (currentCountry)
-        {
-            let currentState = await State.findByIdAndUpdate(
-                entity.id,
-                {
-                    title: entity.title,
-                    country: entity.country,
-                    updateDate: entity.updateDate
-                }
-            )
-            return !!currentState;
-        }
-        return false
+    )
+    if (result)
+    {
+        addNewSuccessMessage('The state updated successfully!')
+        return true
     }
     else
     {
+        addNewErrorMessage('Something went wrong! the state can not be saved!')
         return false
     }
 }
 
 export async function deleteExistState(entity: StateDeleteVm)
 {
-    if (idIsNotValid(entity.id))
+    emptyMessageList()
+    if (!currentAuthType.IS_USER_ADMIN)
     {
+        addNewErrorMessage('You are not admin. So you can`t access this part!')
         return null
     }
+
+    if (idIsNotValid(entity.id))
+    {
+        addNewErrorMessage(`The id ${entity.id} is invalid!`)
+        return null
+    }
+
+    await getStateById(entity.id)
+
     let result = await State.findByIdAndRemove(entity.id)
-    return !!result;
-    // .then(value =>
-    // {
-    //     if (value)
-    //     {
-    //         console.log(value)
-    //         return true
-    //     }
-    //     else
-    //     {
-    //         console.log('Error while removing country!')
-    //         return false
-    //     }
-    // })
-    // .catch(reason =>
-    // {
-    //     console.log(reason)
-    //     return false
-    // })
+    if (result)
+    {
+        addNewSuccessMessage(`The state deleted successfully!`)
+        return true
+    }
+    else
+    {
+        addNewErrorMessage(`Something went wrong! The state can not be deleted!`)
+        return false
+    }
 }
 
-async function checkIfStateWithTheSameTitleExist(title: string)
+async function checkIfStateWithTheSameTitleExist(entity: StateAddVm)
 {
     let currentState = await State.findOne({
-        title: title
+        title: entity.title,
+        country: entity.country
     })
     return !!currentState;
 

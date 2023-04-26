@@ -10,6 +10,7 @@ import {
 import {CompanyAddVm, CompanyDeleteVm, CompanyGalleryUpdateVm, CompanyUpdateVm} from "../utility/type/company";
 import {uploadOptions} from "../utility/diskStorage";
 import {getUploadPath} from "../utility/constant";
+import {getErrorMessageList, getSuccessMessageList} from "../utility/handler/messageHandler/messageMethod";
 
 export const companyRouter = express.Router()
 
@@ -24,9 +25,7 @@ companyRouter.get(
         }
         else
         {
-            return res.status(404).json({
-                Message: `No company found!`
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -42,9 +41,40 @@ companyRouter.get(
         }
         else
         {
-            return res.status(404).json({
-                Message: `No company found!`
-            })
+            return res.status(404).json(getErrorMessageList())
+        }
+    }
+)
+
+companyRouter.get(
+    `/by_filter/:filter?`,
+    async (req, res) =>
+    {
+        let companyList = await getCompanyByFilter(req.params.filter)
+        if (companyList != null)
+        {
+            return res.status(200).json(companyList)
+        }
+        else
+        {
+            return res.status(404).json(getErrorMessageList())
+        }
+    }
+)
+
+companyRouter.get(
+    `/by_id_and_filter/:id/:filter?`,
+    async (req, res) =>
+    {
+        console.log(`Filter: ${req.params.filter}`)
+        let companyList = await getCompanyByIdAndFilter(req.params.id, req.params.filter)
+        if (companyList != null)
+        {
+            return res.status(200).json(companyList)
+        }
+        else
+        {
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -60,45 +90,7 @@ companyRouter.get(
         }
         else
         {
-            return res.status(404).json({
-                Message: `No company found!`
-            })
-        }
-    }
-)
-
-companyRouter.get(
-    `/by_filter/:filter`,
-    async (req, res) =>
-    {
-        let companyList = await getCompanyByFilter(req.params.filter)
-        if (companyList != null)
-        {
-            return res.status(200).json(companyList)
-        }
-        else
-        {
-            return res.status(404).json({
-                Message: `No company found!`
-            })
-        }
-    }
-)
-
-companyRouter.get(
-    `/by_id_and_filter/:id/:filter?`,
-    async (req, res) =>
-    {
-        let companyList = await getCompanyByIdAndFilter(req.params.id, req.params.filter)
-        if (companyList != null)
-        {
-            return res.status(200).json(companyList)
-        }
-        else
-        {
-            return res.status(404).json({
-                Message: `No company found!`
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -123,22 +115,14 @@ companyRouter.post(
             mainImage: `${getUploadPath(req)}${req.file?.filename}`,
             phoneNumber: req.body.phoneNumber
         }
-
-        // return res.status(200).json({
-        //     Message: currentCompanyAddVm
-        // })
         let result: boolean | null = await addNewCompany(currentCompanyAddVm)
         if (result == true)
         {
-            return res.status(200).json({
-                Message: `Current company Added Successfully!`
-            })
+            return res.status(200).json(getSuccessMessageList())
         }
         else
         {
-            return res.status(400).json({
-                Message: 'An error occurred!'
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -168,15 +152,11 @@ companyRouter.put(
         let result: null | boolean = await updateExistCompany(currentCompanyUpdateVm)
         if (result == true)
         {
-            return res.status(200).json({
-                Message: `Company Updated Successfully!`
-            })
+            return res.status(200).json(getSuccessMessageList())
         }
         else
         {
-            return res.status(400).json({
-                Message: 'An error occurred!'
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -188,7 +168,7 @@ companyRouter.put(
     {
         if (!req.files)
         {
-            res.json({
+            return res.json({
                 Message: 'Files does not exist!'
             })
         }
@@ -205,18 +185,14 @@ companyRouter.put(
                 albumImages: imagesPaths,
                 updateDate: new Date()
             }
-            let result: boolean = await updateGalleryOfExistCompany(currentCompanyGalleryUpdateVm)
+            let result = await updateGalleryOfExistCompany(currentCompanyGalleryUpdateVm)
             if (result)
             {
-                return res.status(200).json({
-                    Message: `Company Updated Successfully!`
-                })
+                return res.status(200).json(getSuccessMessageList())
             }
             else
             {
-                return res.status(400).json({
-                    Message: 'An error occurred!'
-                })
+                return res.status(404).json(getErrorMessageList())
             }
         }
     }
@@ -233,15 +209,11 @@ companyRouter.delete(
         let result: null | boolean = await deleteExistCompany(currentCompanyDeleteVm)
         if (result == true)
         {
-            return res.status(200).json({
-                Message: `Company Deleted Successfully!`
-            })
+            return res.status(200).json(getSuccessMessageList())
         }
         else
         {
-            return res.status(400).json({
-                Message: 'An error occurred!'
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )

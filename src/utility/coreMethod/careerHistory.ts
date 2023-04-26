@@ -1,9 +1,18 @@
 import {CareerHistory} from "../../mvc/model/careerHistory";
 import {CareerHistoryAddVm, CareerHistoryDeleteVm, CareerHistoryUpdateVm} from "../type/careerHistory";
 import {idIsNotValid} from "../validator";
+import {addNewErrorMessage, addNewSuccessMessage, emptyMessageList} from "../handler/messageHandler/messageMethod";
+import {currentAuthType} from "../constant";
 
 export async function getCountOfCareerHistory()
 {
+    emptyMessageList()
+    if (!currentAuthType.IS_USER_ADMIN)
+    {
+        addNewErrorMessage('You are not admin. So you can`t access this part!')
+        return null
+    }
+
     let countOfCareerHistory = await CareerHistory.count()
     if (countOfCareerHistory)
     {
@@ -11,32 +20,21 @@ export async function getCountOfCareerHistory()
     }
     else
     {
+        addNewErrorMessage(`We can not get count of career history!`)
         return null
     }
 }
 
 export async function getAllCareerHistory()
 {
-    let skillCareerHistory = await CareerHistory.find()
-        .sort(
-            {
-                'createDate': -1
-            }
-        )
-
-    if (skillCareerHistory)
+    emptyMessageList()
+    if (!currentAuthType.IS_USER_ADMIN)
     {
-        return skillCareerHistory
-    }
-    else
-    {
+        addNewErrorMessage('You are not admin. So you can`t access this part!')
         return null
     }
-}
 
-export async function getCareerHistoryByFilter(filter: any)
-{
-    let careerHistoryList = await CareerHistory.find().select(`${filter}`)
+    let careerHistoryList = await CareerHistory.find()
         .sort(
             {
                 'createDate': -1
@@ -49,12 +47,20 @@ export async function getCareerHistoryByFilter(filter: any)
     }
     else
     {
+        addNewErrorMessage(`We can not get list of career history!`)
         return null
     }
 }
 
 export async function getCareerHistoryById(id: string)
 {
+    emptyMessageList()
+    if (idIsNotValid(id))
+    {
+        addNewErrorMessage(`No career history with id ${id} exists!`)
+        return null
+    }
+
     let currentCareerHistory = await CareerHistory.findById(id)
         .sort(
             {
@@ -68,12 +74,63 @@ export async function getCareerHistoryById(id: string)
     }
     else
     {
+        addNewErrorMessage(`We can not get current career history!`)
+        return null
+    }
+}
+
+export async function getCareerHistoryByFilter(filter: any)
+{
+    emptyMessageList()
+    if (!currentAuthType.IS_USER_ADMIN)
+    {
+        addNewErrorMessage('You are not admin. So you can`t access this part!')
+        return null
+    }
+
+    let careerHistoryList: any
+
+    if (filter)
+    {
+        careerHistoryList = await CareerHistory.find().select(`${filter}`)
+            .sort(
+                {
+                    'createDate': -1
+                }
+            );
+    }
+    else
+    {
+        addNewErrorMessage(`You have to enter a filter!`)
+        return null
+    }
+
+    if (careerHistoryList)
+    {
+        return careerHistoryList
+    }
+    else
+    {
+        addNewErrorMessage(`We can\`t get list of career history!`)
         return null
     }
 }
 
 export async function getCareerHistoryByIdAndFilter(id: string, filter: any)
 {
+    emptyMessageList()
+    if (!currentAuthType.IS_USER_ADMIN)
+    {
+        addNewErrorMessage('You are not admin. So you can`t access this part!')
+        return null
+    }
+
+    if (idIsNotValid(id))
+    {
+        addNewErrorMessage(`No career history with id ${id} exists!`)
+        return null
+    }
+
     let currentCareerHistory: any
     if (filter)
     {
@@ -95,17 +152,27 @@ export async function getCareerHistoryByIdAndFilter(id: string, filter: any)
     }
     else
     {
+        addNewErrorMessage(`We can not get current career history!`)
         return null
     }
 }
 
 export async function addNewCareerHistory(entity: CareerHistoryAddVm): Promise<null | boolean>
 {
+    emptyMessageList()
+
+    if (entity.endWorkingYear < entity.startWorkingYear)
+    {
+        addNewErrorMessage('Your end working year must be greater than or equal to start working year!')
+        return null
+    }
+
     let currentCareerHistoryExist = await checkIfCareerHistoryWithTheSamePropertiesExist(entity)
     if (currentCareerHistoryExist)
     {
         return true
     }
+
     let currentCareerHistory = new CareerHistory({
         workPlace: entity.workPlace,
         startWorkingYear: entity.startWorkingYear,
@@ -115,39 +182,42 @@ export async function addNewCareerHistory(entity: CareerHistoryAddVm): Promise<n
     let result = await currentCareerHistory.save()
     if (result)
     {
-        console.log(result)
+        addNewSuccessMessage('Career history added successfully!')
         return true
     }
     else
     {
+        addNewErrorMessage('Something went wrong! the career history can not be saved!')
         return false
     }
-    // currentAddress.save()
-    //     .then(value =>
-    //     {
-    //         console.log(value)
-    //         return true
-    //     })
-    //     .catch(reason =>
-    //     {
-    //         console.log(reason)
-    //         return false
-    //     })
 }
 
 export async function updateExistCareerHistory(entity: CareerHistoryUpdateVm)
 {
-    let currentCareerHistoryExist = await checkIfCareerHistoryWithTheSamePropertiesExist(entity)
-    if (currentCareerHistoryExist)
+    emptyMessageList()
+
+    if (entity.endWorkingYear < entity.startWorkingYear)
     {
-        return true
+        addNewErrorMessage('Your end working year must be greater than or equal to start working year!')
+        return null
     }
 
     if (idIsNotValid(entity.id))
     {
+        addNewErrorMessage(`The id ${entity.id} is invalid!`)
         return null
     }
-    let currentCareerHistory = await CareerHistory.findByIdAndUpdate(
+
+    await getCareerHistoryById(entity.id)
+
+    let currentCareerHistoryExist = await checkIfCareerHistoryWithTheSamePropertiesExist(entity)
+    if (currentCareerHistoryExist)
+    {
+        addNewErrorMessage('A career history with the same properties exists!')
+        return null
+    }
+
+    let result = await CareerHistory.findByIdAndUpdate(
         entity.id,
         {
             workPlace: entity.workPlace,
@@ -157,35 +227,41 @@ export async function updateExistCareerHistory(entity: CareerHistoryUpdateVm)
             updateDate: entity.updateDate
         }
     )
-    return !!currentCareerHistory;
+    if (result)
+    {
+        addNewSuccessMessage(`The career history updated successfully!`)
+        return true
+    }
+    else
+    {
+        addNewErrorMessage(`Something went wrong! The career history can not be updated!`)
+        return false
+    }
 }
 
 export async function deleteExistCareerHistory(entity: CareerHistoryDeleteVm)
 {
+    emptyMessageList()
+
     if (idIsNotValid(entity.id))
     {
+        addNewErrorMessage(`The id ${entity.id} is invalid!`)
         return null
     }
+
+    await getCareerHistoryById(entity.id)
+
     let result = await CareerHistory.findByIdAndRemove(entity.id)
-    return !!result;
-    // .then(value =>
-    // {
-    //     if (value)
-    //     {
-    //         console.log(value)
-    //         return true
-    //     }
-    //     else
-    //     {
-    //         console.log('Error while removing country!')
-    //         return false
-    //     }
-    // })
-    // .catch(reason =>
-    // {
-    //     console.log(reason)
-    //     return false
-    // })
+    if (result)
+    {
+        addNewSuccessMessage(`The career history deleted successfully!`)
+        return true
+    }
+    else
+    {
+        addNewErrorMessage(`Something went wrong! The career history can not be deleted!`)
+        return false
+    }
 }
 
 async function checkIfCareerHistoryWithTheSamePropertiesExist(entity: CareerHistoryAddVm)
@@ -198,3 +274,4 @@ async function checkIfCareerHistoryWithTheSamePropertiesExist(entity: CareerHist
     })
     return !!currentCountry;
 }
+

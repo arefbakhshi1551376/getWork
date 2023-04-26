@@ -8,6 +8,7 @@ import {
     getDegreeByIdAndFilter, updateExistDegree
 } from "../utility/coreMethod/degree";
 import {DegreeAddVm, DegreeDeleteVm, DegreeUpdateVm} from "../utility/type/degree";
+import {getErrorMessageList, getSuccessMessageList} from "../utility/handler/messageHandler/messageMethod";
 
 export const degreeRouter = express.Router()
 
@@ -22,9 +23,7 @@ degreeRouter.get(
         }
         else
         {
-            return res.status(404).json({
-                Message: `No degree found!`
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -40,33 +39,13 @@ degreeRouter.get(
         }
         else
         {
-            return res.status(404).json({
-                Message: `No degree found!`
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
 
 degreeRouter.get(
-    `/:id`,
-    async (req, res) =>
-    {
-        let currentDegree = await getDegreeById(req.params.id)
-        if (currentDegree != null)
-        {
-            return res.status(200).json(currentDegree)
-        }
-        else
-        {
-            return res.status(404).json({
-                Message: `No degree found!`
-            })
-        }
-    }
-)
-
-degreeRouter.get(
-    `/by_filter/:filter`,
+    `/by_filter/:filter?`,
     async (req, res) =>
     {
         let degreeList = await getDegreeByFilter(req.params.filter)
@@ -76,9 +55,7 @@ degreeRouter.get(
         }
         else
         {
-            return res.status(404).json({
-                Message: `No degree found!`
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -94,9 +71,23 @@ degreeRouter.get(
         }
         else
         {
-            return res.status(404).json({
-                Message: `No degree found!`
-            })
+            return res.status(404).json(getErrorMessageList())
+        }
+    }
+)
+
+degreeRouter.get(
+    `/:id`,
+    async (req, res) =>
+    {
+        let currentDegree = await getDegreeById(req.params.id)
+        if (currentDegree != null)
+        {
+            return res.status(200).json(currentDegree)
+        }
+        else
+        {
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -113,15 +104,11 @@ degreeRouter.post(
         let result: boolean | null = await addNewDegree(currentDegreeAddVm)
         if (result == true)
         {
-            return res.status(200).json({
-                Message: `Current Degree Added Successfully!`
-            })
+            return res.status(200).json(getSuccessMessageList())
         }
         else
         {
-            return res.status(400).json({
-                Message: 'An error occurred!'
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -140,15 +127,11 @@ degreeRouter.put(
         let result: null | boolean = await updateExistDegree(currentDegreeUpdateVm)
         if (result == true)
         {
-            return res.status(200).json({
-                Message: `Current Degree Updated Successfully!`
-            })
+            return res.status(200).json(getSuccessMessageList())
         }
         else
         {
-            return res.status(400).json({
-                Message: 'An error occurred!'
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -164,15 +147,11 @@ degreeRouter.delete(
         let result: null | boolean = await deleteExistDegree(currentDegreeDeleteVm)
         if (result == true)
         {
-            return res.status(200).json({
-                Message: `Degree Deleted Successfully!`
-            })
+            return res.status(200).json(getSuccessMessageList())
         }
         else
         {
-            return res.status(400).json({
-                Message: 'An error occurred!'
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
