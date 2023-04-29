@@ -8,6 +8,8 @@ import {
     getSalaryByIdAndFilter, updateExistSalary
 } from "../utility/coreMethod/salary";
 import {SalaryAddVm, SalaryDeleteVm, SalaryUpdateVm} from "../utility/type/salary";
+import {getErrorMessageList, getSuccessMessageList} from "../utility/handler/messageHandler/messageMethod";
+import {currentAuthType} from "../utility/constant";
 
 export const salaryRouter = express.Router()
 
@@ -22,9 +24,7 @@ salaryRouter.get(
         }
         else
         {
-            return res.status(404).json({
-                Message: `No salary found!`
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -40,33 +40,13 @@ salaryRouter.get(
         }
         else
         {
-            return res.status(404).json({
-                Message: `No salary found!`
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
 
 salaryRouter.get(
-    `/:id`,
-    async (req, res) =>
-    {
-        let currentSalary = await getSalaryById(req.params.id)
-        if (currentSalary != null)
-        {
-            return res.status(200).json(currentSalary)
-        }
-        else
-        {
-            return res.status(404).json({
-                Message: `No salary found!`
-            })
-        }
-    }
-)
-
-salaryRouter.get(
-    `/by_filter/:filter`,
+    `/by_filter/:filter?`,
     async (req, res) =>
     {
         let salaryList = await getSalaryByFilter(req.params.filter)
@@ -76,9 +56,7 @@ salaryRouter.get(
         }
         else
         {
-            return res.status(404).json({
-                Message: `No salary found!`
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -94,9 +72,23 @@ salaryRouter.get(
         }
         else
         {
-            return res.status(404).json({
-                Message: `No salary found!`
-            })
+            return res.status(404).json(getErrorMessageList())
+        }
+    }
+)
+
+salaryRouter.get(
+    `/:id`,
+    async (req, res) =>
+    {
+        let currentSalary = await getSalaryById(req.params.id)
+        if (currentSalary != null)
+        {
+            return res.status(200).json(currentSalary)
+        }
+        else
+        {
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -106,21 +98,18 @@ salaryRouter.post(
     async (req, res) =>
     {
         let currentSalaryAddVm: SalaryAddVm = {
+            creator: currentAuthType.LOGIN_USER_ID,
             isAgreed: req.body.isAgreed,
             amount: req.body.amount
         }
         let result: boolean | null = await addNewSalary(currentSalaryAddVm)
         if (result == true)
         {
-            return res.status(200).json({
-                Message: `Current Salary Added Successfully!`
-            })
+            return res.status(200).json(getSuccessMessageList())
         }
         else
         {
-            return res.status(400).json({
-                Message: 'An error occurred!'
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -130,6 +119,7 @@ salaryRouter.put(
     async (req, res) =>
     {
         let currentSalaryUpdateVm: SalaryUpdateVm = {
+            updater: currentAuthType.LOGIN_USER_ID,
             id: req.params.id,
             isAgreed: req.body.isAgreed,
             amount: req.body.amount,
@@ -138,15 +128,11 @@ salaryRouter.put(
         let result: null | boolean = await updateExistSalary(currentSalaryUpdateVm)
         if (result == true)
         {
-            return res.status(200).json({
-                Message: `Current Salary Updated Successfully!`
-            })
+            return res.status(200).json(getSuccessMessageList())
         }
         else
         {
-            return res.status(400).json({
-                Message: 'An error occurred!'
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -162,15 +148,11 @@ salaryRouter.delete(
         let result: null | boolean = await deleteExistSalary(currentSalaryDeleteVm)
         if (result == true)
         {
-            return res.status(200).json({
-                Message: `Salary Deleted Successfully!`
-            })
+            return res.status(200).json(getSuccessMessageList())
         }
         else
         {
-            return res.status(400).json({
-                Message: 'An error occurred!'
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )

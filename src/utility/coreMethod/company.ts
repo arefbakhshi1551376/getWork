@@ -5,8 +5,6 @@ import {getAddressById} from "./address";
 import {getIntroductionById} from "./introduction";
 import {addNewErrorMessage, addNewSuccessMessage, emptyMessageList} from "../handler/messageHandler/messageMethod";
 import {currentAuthType} from "../constant";
-import {City} from "../../mvc/model/city";
-import {Introduction} from "../../mvc/model/introduction";
 
 export async function getCountOfCompany()
 {

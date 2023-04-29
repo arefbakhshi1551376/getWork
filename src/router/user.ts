@@ -22,9 +22,9 @@ import {
     UserDeleteVm,
     UserLoginVm,
     UserRegisterItselfVm, UserUpdateImageVm,
-    UserUpdateVm, UserVerifyEmailVm, UserVerifyPhoneNumberVm
+    UserVerifyEmailVm, UserVerifyPhoneNumberVm
 } from "../utility/type/user";
-import {getUploadPath} from "../utility/constant";
+import {currentAuthType, getUploadPath} from "../utility/constant";
 import {uploadOptions} from "../utility/diskStorage";
 import {
     addNewErrorMessage,
@@ -45,9 +45,7 @@ userRouter.get(
         }
         else
         {
-            return res.status(404).json({
-                Message: `No user found!`
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -63,9 +61,7 @@ userRouter.get(
         }
         else
         {
-            return res.status(404).json({
-                Message: `No user found!`
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -88,9 +84,7 @@ userRouter.post(
         }
         else
         {
-            return res.status(404).json({
-                Message: `You can\`t login!`
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -119,6 +113,7 @@ userRouter.post(
     async (req, res) =>
     {
         let currentUserAddVm: UserAddByAdminVm = {
+            creator: currentAuthType.LOGIN_USER_ID,
             city: req.body.city ? req.body.city : '',
             email: req.body.email ? req.body.email : '',
             family: req.body.family,
@@ -137,15 +132,11 @@ userRouter.post(
         let result: boolean | null = await addNewUserByAdmin(currentUserAddVm)
         if (result == true)
         {
-            return res.status(200).json({
-                Message: `Current User Added By Admin Successfully!`
-            })
+            return res.status(200).json(getSuccessMessageList())
         }
         else
         {
-            return res.status(400).json({
-                Message: 'An error occurred!'
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -170,15 +161,11 @@ userRouter.post(
         let result: boolean | null = await registerNewUserByItself(currentUserAddVm)
         if (result == true)
         {
-            return res.status(200).json({
-                Message: `Current User Added By Itself Successfully!`
-            })
+            return res.status(200).json(getSuccessMessageList())
         }
         else
         {
-            return res.status(400).json({
-                Message: 'An error occurred!'
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -197,15 +184,11 @@ userRouter.post(
         let result: boolean | null = await changeExistUserPassword(currentUserChangePasswordVm)
         if (result == true)
         {
-            return res.status(200).json({
-                Message: `Current User Password Updated Successfully!`
-            })
+            return res.status(200).json(getSuccessMessageList())
         }
         else
         {
-            return res.status(400).json({
-                Message: 'An error occurred!'
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -215,21 +198,18 @@ userRouter.post(
     async (req, res) =>
     {
         let currentUserChangeEnableStateVm: UserChangeEnableStateVm = {
+            updater: currentAuthType.LOGIN_USER_ID,
             id: req.params.id,
             updateDate: new Date()
         }
         let result: boolean | null = await changeExistUserEnableState(currentUserChangeEnableStateVm)
         if (result == true)
         {
-            return res.status(200).json({
-                Message: `Current User Enable State Updated Successfully!`
-            })
+            return res.status(200).json(getSuccessMessageList())
         }
         else
         {
-            return res.status(400).json({
-                Message: 'An error occurred!'
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -239,21 +219,18 @@ userRouter.post(
     async (req, res) =>
     {
         let currentUserChangeAdministrationStateVm: UserChangeAdministrationStateVm = {
+            updater: currentAuthType.LOGIN_USER_ID,
             id: req.params.id,
             updateDate: new Date()
         }
         let result: boolean | null = await changeExistUserAdministrationState(currentUserChangeAdministrationStateVm)
         if (result == true)
         {
-            return res.status(200).json({
-                Message: `Current User Administration State Updated Successfully!`
-            })
+            return res.status(200).json(getSuccessMessageList())
         }
         else
         {
-            return res.status(400).json({
-                Message: 'An error occurred!'
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -269,15 +246,11 @@ userRouter.post(
         let result: boolean | null = await updateExistUserVerifyEmail(currentUserVerifyEmailVm)
         if (result == true)
         {
-            return res.status(200).json({
-                Message: `Current User Email Verified Successfully!`
-            })
+            return res.status(200).json(getSuccessMessageList())
         }
         else
         {
-            return res.status(400).json({
-                Message: 'An error occurred!'
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -293,15 +266,11 @@ userRouter.post(
         let result: boolean | null = await updateExistUserVerifyPhoneNumber(currentUserVerifyPhoneNumberVm)
         if (result == true)
         {
-            return res.status(200).json({
-                Message: `Current User Phone Number Verified Successfully!`
-            })
+            return res.status(200).json(getSuccessMessageList())
         }
         else
         {
-            return res.status(400).json({
-                Message: 'An error occurred!'
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -324,39 +293,17 @@ userRouter.post(
         let result: boolean | null = await updateExistUserImage(currentUserUpdateImageVm)
         if (result == true)
         {
-            return res.status(200).json({
-                Message: `Current User Image Updated Successfully!`
-            })
+            return res.status(200).json(getSuccessMessageList())
         }
         else
         {
-            return res.status(400).json({
-                Message: 'An error occurred!'
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
 
 userRouter.get(
-    `/:id`,
-    async (req, res) =>
-    {
-        let currentUser = await getUserById(req.params.id)
-        if (currentUser != null)
-        {
-            return res.status(200).json(currentUser)
-        }
-        else
-        {
-            return res.status(404).json({
-                Message: `No user found!`
-            })
-        }
-    }
-)
-
-userRouter.get(
-    `/by_filter/:filter`,
+    `/by_filter/:filter?`,
     async (req, res) =>
     {
         let userList = await getUserByFilter(req.params.filter)
@@ -366,9 +313,7 @@ userRouter.get(
         }
         else
         {
-            return res.status(404).json({
-                Message: `No user found!`
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -384,9 +329,23 @@ userRouter.get(
         }
         else
         {
-            return res.status(404).json({
-                Message: `No user found!`
-            })
+            return res.status(404).json(getErrorMessageList())
+        }
+    }
+)
+
+userRouter.get(
+    `/:id`,
+    async (req, res) =>
+    {
+        let currentUser = await getUserById(req.params.id)
+        if (currentUser != null)
+        {
+            return res.status(200).json(currentUser)
+        }
+        else
+        {
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -401,15 +360,11 @@ userRouter.delete(
         let result: null | boolean = await deleteExistUser(currentUserDeleteVm)
         if (result == true)
         {
-            return res.status(200).json({
-                Message: `User Deleted Successfully!`
-            })
+            return res.status(200).json(getSuccessMessageList())
         }
         else
         {
-            return res.status(400).json({
-                Message: 'An error occurred!'
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )

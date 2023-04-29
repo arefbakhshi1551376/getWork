@@ -11,10 +11,20 @@ export const statusSchema = new Schema({
         required: true,
         default: Date.now
     },
+    creator: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
+    },
     updateDate: {
         type: Date,
         required: true,
         default: Date.now
+    },
+    updater: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: false
     },
 })
 

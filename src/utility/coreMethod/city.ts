@@ -201,7 +201,7 @@ export async function addNewCity(entity: CityAddVm): Promise<null | boolean>
         return null
     }
 
-    let currentCityExists = await checkIfCityWithTheSameTitleExist(entity)
+    let currentCityExists = await checkIfCityWithTheSameTitleExist(entity.title, entity.state)
     if (currentCityExists)
     {
         addNewErrorMessage('An city with the same properties exists!')
@@ -255,7 +255,7 @@ export async function updateExistCity(entity: CityUpdateVm)
 
     await getCityById(entity.id)
 
-    let currentCityExists = await checkIfCityWithTheSameTitleExist(entity)
+    let currentCityExists = await checkIfCityWithTheSameTitleExist(entity.title, entity.state)
     if (currentCityExists)
     {
         addNewErrorMessage('A city with the same properties exists!')
@@ -325,11 +325,14 @@ export async function deleteExistCity(entity: CityDeleteVm)
     }
 }
 
-async function checkIfCityWithTheSameTitleExist(entity:CityAddVm)
+async function checkIfCityWithTheSameTitleExist(
+    title: string,
+    state: string
+)
 {
     let currentCity = await City.findOne({
-        title: entity.title,
-        state: entity.state
+        title: title,
+        state: state
     })
     return !!currentCity;
 }

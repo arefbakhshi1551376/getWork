@@ -8,6 +8,8 @@ import {
     getJobPlaceByIdAndFilter, updateExistJobPlace
 } from "../utility/coreMethod/jobPlace";
 import {JobPlaceAddVm, JobPlaceDeleteVm, JobPlaceUpdateVm} from "../utility/type/jobPlace";
+import {getErrorMessageList, getSuccessMessageList} from "../utility/handler/messageHandler/messageMethod";
+import {currentAuthType} from "../utility/constant";
 
 export const jobPlaceRouter = express.Router()
 
@@ -22,9 +24,7 @@ jobPlaceRouter.get(
         }
         else
         {
-            return res.status(404).json({
-                Message: `No job place found!`
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -40,33 +40,13 @@ jobPlaceRouter.get(
         }
         else
         {
-            return res.status(404).json({
-                Message: `No job place found!`
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
 
 jobPlaceRouter.get(
-    `/:id`,
-    async (req, res) =>
-    {
-        let currentJobPlace = await getJobPlaceById(req.params.id)
-        if (currentJobPlace != null)
-        {
-            return res.status(200).json(currentJobPlace)
-        }
-        else
-        {
-            return res.status(404).json({
-                Message: `No job place found!`
-            })
-        }
-    }
-)
-
-jobPlaceRouter.get(
-    `/by_filter/:filter`,
+    `/by_filter/:filter?`,
     async (req, res) =>
     {
         let jobPlaceList = await getJobPlaceByFilter(req.params.filter)
@@ -76,9 +56,7 @@ jobPlaceRouter.get(
         }
         else
         {
-            return res.status(404).json({
-                Message: `No job place found!`
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -94,9 +72,23 @@ jobPlaceRouter.get(
         }
         else
         {
-            return res.status(404).json({
-                Message: `No job place found!`
-            })
+            return res.status(404).json(getErrorMessageList())
+        }
+    }
+)
+
+jobPlaceRouter.get(
+    `/:id`,
+    async (req, res) =>
+    {
+        let currentJobPlace = await getJobPlaceById(req.params.id)
+        if (currentJobPlace != null)
+        {
+            return res.status(200).json(currentJobPlace)
+        }
+        else
+        {
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -106,20 +98,17 @@ jobPlaceRouter.post(
     async (req, res) =>
     {
         let currentJobPlaceAddVm: JobPlaceAddVm = {
+            creator: currentAuthType.LOGIN_USER_ID,
             title: req.body.title
         }
         let result: boolean | null = await addNewJobPlace(currentJobPlaceAddVm)
         if (result == true)
         {
-            return res.status(200).json({
-                Message: `${currentJobPlaceAddVm.title} Added Successfully!`
-            })
+            return res.status(200).json(getSuccessMessageList())
         }
         else
         {
-            return res.status(400).json({
-                Message: 'An error occurred!'
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -129,6 +118,7 @@ jobPlaceRouter.put(
     async (req, res) =>
     {
         let currentJobPlaceUpdateVm: JobPlaceUpdateVm = {
+            updater: currentAuthType.LOGIN_USER_ID,
             id: req.params.id,
             title: req.body.title,
             updateDate: new Date()
@@ -136,15 +126,11 @@ jobPlaceRouter.put(
         let result: null | boolean = await updateExistJobPlace(currentJobPlaceUpdateVm)
         if (result == true)
         {
-            return res.status(200).json({
-                Message: `${currentJobPlaceUpdateVm.title} Updated Successfully!`
-            })
+            return res.status(200).json(getSuccessMessageList())
         }
         else
         {
-            return res.status(400).json({
-                Message: 'An error occurred!'
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -160,15 +146,11 @@ jobPlaceRouter.delete(
         let result: null | boolean = await deleteExistJobPlace(currentJobPlaceDeleteVm)
         if (result == true)
         {
-            return res.status(200).json({
-                Message: `JobPlace Deleted Successfully!`
-            })
+            return res.status(200).json(getSuccessMessageList())
         }
         else
         {
-            return res.status(400).json({
-                Message: 'An error occurred!'
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )

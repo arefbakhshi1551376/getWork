@@ -9,9 +9,12 @@ import {getSeniorityLevelById} from "./seniorityLevel";
 import {getIntroductionById} from "./introduction";
 import {getCompanyById} from "./company";
 import {getSalaryById} from "./salary";
+import {addNewErrorMessage, addNewSuccessMessage, emptyMessageList} from "../handler/messageHandler/messageMethod";
+import {currentAuthType} from "../constant";
 
 export async function getCountOfJobAd()
 {
+    emptyMessageList()
     let countOfJobAd = await JobAd.count()
     if (countOfJobAd)
     {
@@ -19,79 +22,14 @@ export async function getCountOfJobAd()
     }
     else
     {
+        addNewErrorMessage(`We can not get count of job ad!`)
         return null
     }
 }
 
 export async function getAllJobAd()
 {
-    let jobAdList = await JobAd.find() // TODO: Check if it works!
-        .populate({
-            path: 'introduction',
-            select: 'title description'
-        })
-        .populate({
-            path: 'company',
-            populate: [
-                {
-                    path: 'introduction',
-                    select: 'title description'
-                },
-                {
-                    path: 'address',
-                    populate: {
-                        path: 'city',
-                        select: 'title',
-                        populate: {
-                            path: 'state',
-                            select: 'title',
-                            populate: {
-                                path: 'country',
-                                select: 'title'
-                            }
-                        }
-                    }
-                },
-            ]
-        })
-        .populate({
-            path: 'salary',
-            select: 'isAgreed amount'
-        })
-        .populate({
-            path: 'gender',
-            select: 'title'
-        })
-        .populate({
-            path: 'jobTime',
-            select: 'title'
-        })
-        .populate({
-            path: 'jobPlace',
-            select: 'title'
-        })
-        .populate({
-            path: 'seniorityLevel',
-            select: 'title'
-        })
-        .sort(
-            {
-                'createDate': -1
-            }
-        )
-
-    if (jobAdList)
-    {
-        return jobAdList
-    }
-    else
-    {
-        return null
-    }
-}
-
-export async function getJobAdByFilter(filter: any)
-{
+    emptyMessageList()
     let jobAdList = await JobAd.find()
         .populate({
             path: 'introduction',
@@ -141,7 +79,6 @@ export async function getJobAdByFilter(filter: any)
             path: 'seniorityLevel',
             select: 'title'
         })
-        .select(`${filter}`)
         .sort(
             {
                 'createDate': -1
@@ -154,12 +91,20 @@ export async function getJobAdByFilter(filter: any)
     }
     else
     {
+        addNewErrorMessage(`We can not get list of job ad!`)
         return null
     }
 }
 
 export async function getJobAdById(id: string)
 {
+    emptyMessageList()
+    if (idIsNotValid(id))
+    {
+        addNewErrorMessage(`Id ${id} is not valid!`)
+        return null
+    }
+
     let currentJobAd = await JobAd.findById(id)
         .populate({
             path: 'introduction',
@@ -221,12 +166,99 @@ export async function getJobAdById(id: string)
     }
     else
     {
+        addNewErrorMessage(`We can not get count of job ad!`)
+        return null
+    }
+}
+
+export async function getJobAdByFilter(filter: any)
+{
+    emptyMessageList()
+    let jobAdList: any
+    if (filter)
+    {
+        jobAdList = await JobAd.find()
+            .populate({
+                path: 'introduction',
+                select: 'title description'
+            })
+            .populate({
+                path: 'company',
+                populate: [
+                    {
+                        path: 'introduction',
+                        select: 'title description'
+                    },
+                    {
+                        path: 'address',
+                        populate: {
+                            path: 'city',
+                            select: 'title',
+                            populate: {
+                                path: 'state',
+                                select: 'title',
+                                populate: {
+                                    path: 'country',
+                                    select: 'title'
+                                }
+                            }
+                        }
+                    },
+                ]
+            })
+            .populate({
+                path: 'salary',
+                select: 'isAgreed amount'
+            })
+            .populate({
+                path: 'gender',
+                select: 'title'
+            })
+            .populate({
+                path: 'jobTime',
+                select: 'title'
+            })
+            .populate({
+                path: 'jobPlace',
+                select: 'title'
+            })
+            .populate({
+                path: 'seniorityLevel',
+                select: 'title'
+            })
+            .select(`${filter}`)
+            .sort(
+                {
+                    'createDate': -1
+                }
+            );
+    }
+    else
+    {
+        addNewErrorMessage(`You have to enter a filter!`)
+        return null
+    }
+
+    if (jobAdList)
+    {
+        return jobAdList
+    }
+    else
+    {
+        addNewErrorMessage(`We can not get list of job ad!`)
         return null
     }
 }
 
 export async function getJobAdByIdAndFilter(id: string, filter: any)
 {
+    emptyMessageList()
+    if (idIsNotValid(id))
+    {
+        addNewErrorMessage(`No job ad with id ${id} exists!`)
+        return null
+    }
+
     let currentJobAd: any
     if (filter)
     {
@@ -297,156 +329,117 @@ export async function getJobAdByIdAndFilter(id: string, filter: any)
     }
     else
     {
+        addNewErrorMessage(`We can not get current job ad!`)
         return null
     }
 }
 
-// export async function addNewRequestToJobAd(entity: JobAdAddNewRequestVm)
-// {
-//     if (
-//         idIsNotValid(entity.id) ||
-//         idIsNotValid(entity.request)
-//     )
-//     {
-//         return null
-//     }
-//
-//     let currentJobAdRequestList = await getRequestIdListByJobAdId(entity.id) as string[]
-//     let finalCurrentJobAdRequestList: string[] = []
-//     finalCurrentJobAdRequestList.push(entity.request)
-//     if (currentJobAdRequestList && currentJobAdRequestList.length > 0)
-//     {
-//         for (let i = 0; i < currentJobAdRequestList.length; i++)
-//         {
-//             finalCurrentJobAdRequestList.push(currentJobAdRequestList[i])
-//         }
-//     }
-//
-//     let currentJobAd = await JobAd.findByIdAndUpdate(
-//         entity.id,
-//         {
-//             request: finalCurrentJobAdRequestList,
-//             updateDate: entity.updateDate
-//         }
-//     )
-//
-//     return !!currentJobAd;
-// }
-
 export async function addNewJobAd(entity: JobAdAddVm): Promise<null | boolean>
 {
-    if (
-        idIsNotValid(entity.introduction) ||
-        idIsNotValid(entity.company) ||
-        idIsNotValid(entity.salary)
-    )
+    emptyMessageList()
+
+    if (idIsNotValid(entity.introduction))
     {
-        console.log('Introduction id or company id or salary id is wrong!')
+        addNewErrorMessage(`The id ${entity.introduction} is invalid!`)
         return null
     }
 
     let currentIntroduction = await getIntroductionById(entity.introduction)
     if (!currentIntroduction)
     {
-        console.log('Introduction is not exists!')
+        addNewErrorMessage('No introduction with the same id exists!')
+        return null
+    }
+
+    if (idIsNotValid(entity.company))
+    {
+        addNewErrorMessage(`The id ${entity.company} is invalid!`)
         return null
     }
 
     let currentCompany = await getCompanyById(entity.company)
     if (!currentCompany)
     {
-        console.log('Company is not exists!')
+        addNewErrorMessage('No company with the same id exists!')
+        return null
+    }
+
+    if (idIsNotValid(entity.salary))
+    {
+        addNewErrorMessage(`The id ${entity.salary} is invalid!`)
         return null
     }
 
     let currentSalary = await getSalaryById(entity.salary)
     if (!currentSalary)
     {
-        console.log('Salary is not exists!')
+        addNewErrorMessage('No salary with the same id exists!')
         return null
     }
 
-
-    for (let i = 0; i < entity.gender.length; i++)
+    entity.gender.map(async g =>
     {
-        if (
-            idIsNotValid(entity.gender[i])
-        )
+        if (idIsNotValid(g))
         {
-            console.log('Gender id is wrong!')
+            addNewErrorMessage(`The id ${g} is invalid!`)
             return null
         }
-        else
-        {
-            let currentGender = await getGenderById(entity.gender[i])
-            if (!currentGender)
-            {
-                console.log('Gender is not exists!')
-                return null
-            }
-        }
-    }
 
-
-    for (let i = 0; i < entity.jobTime.length; i++)
-    {
-        if (
-            idIsNotValid(entity.jobTime[i])
-        )
+        let currentGender = await getGenderById(g)
+        if (!currentGender)
         {
-            console.log('Job time id is wrong!')
+            addNewErrorMessage('No gender with the same id exists!')
             return null
         }
-        else
-        {
-            let currentJobTime = await getJobTimeById(entity.jobTime[i])
-            if (!currentJobTime)
-            {
-                console.log('Job time is not exists!')
-                return null
-            }
-        }
-    }
+    })
 
-    for (let i = 0; i < entity.jobPlace.length; i++)
+    entity.jobTime.map(async jT =>
     {
-        if (
-            idIsNotValid(entity.jobPlace[i])
-        )
+        if (idIsNotValid(jT))
         {
-            console.log('Job place id is wrong!')
+            addNewErrorMessage(`The id ${jT} is invalid!`)
             return null
         }
-        else
-        {
-            let currentJobPlace = await getJobPlaceById(entity.jobPlace[i])
-            if (!currentJobPlace)
-            {
-                console.log('Job time is not exists!')
-                return null
-            }
-        }
-    }
 
-    for (let i = 0; i < entity.seniorityLevel.length; i++)
-    {
-        if (
-            idIsNotValid(entity.seniorityLevel[i])
-        )
+        let currentJobTime = await getJobTimeById(jT)
+        if (!currentJobTime)
         {
-            console.log('Seniority level id is wrong!')
+            addNewErrorMessage('No job time with the same id exists!')
             return null
         }
-        else
+    })
+
+    entity.jobPlace.map(async jP =>
+    {
+        if (idIsNotValid(jP))
         {
-            let currentSeniorityLevel = await getSeniorityLevelById(entity.seniorityLevel[i])
-            if (!currentSeniorityLevel)
-            {
-                console.log('Seniority level is not exists!')
-                return null
-            }
+            addNewErrorMessage(`The id ${jP} is invalid!`)
+            return null
         }
-    }
+
+        let currentJobPlace = await getJobPlaceById(jP)
+        if (!currentJobPlace)
+        {
+            addNewErrorMessage('No job place with the same id exists!')
+            return null
+        }
+    })
+
+    entity.seniorityLevel.map(async sL =>
+    {
+        if (idIsNotValid(sL))
+        {
+            addNewErrorMessage(`The id ${sL} is invalid!`)
+            return null
+        }
+
+        let currentSeniorityLevel = await getSeniorityLevelById(sL)
+        if (!currentSeniorityLevel)
+        {
+            addNewErrorMessage('No seniority level with the same id exists!')
+            return null
+        }
+    })
 
     let nowDate = new Date()
     let sixtyDaysLater = nowDate.setDate(nowDate.getDate() + 60)
@@ -465,122 +458,147 @@ export async function addNewJobAd(entity: JobAdAddVm): Promise<null | boolean>
         requiredWorkExperience: entity.requiredWorkExperience,
         isEnable: entity.isEnable,
         expireDate: sixtyDaysLater,
+        creator: entity.creator
     })
     let result = await currentJobAd.save()
     if (result)
     {
-        console.log(result)
+        addNewSuccessMessage('Job Ad added successfully!')
         return true
     }
     else
     {
+        addNewErrorMessage('Something went wrong! the job ad can not be saved!')
         return false
     }
 }
 
 export async function updateExistJobAd(entity: JobAdUpdateVm)
 {
+    emptyMessageList()
+
+    if (idIsNotValid(entity.id))
+    {
+        addNewErrorMessage(`The id ${entity.id} is invalid!`)
+        return null
+    }
+
+    let currentJobAd: any = await getJobAdById(entity.id)
+
     if (
-        idIsNotValid(entity.introduction) ||
-        idIsNotValid(entity.company) ||
-        idIsNotValid(entity.salary)
+        !currentAuthType.IS_USER_ADMIN &&
+        currentJobAd.company.creator.id != currentAuthType.LOGIN_USER_ID &&
+        currentJobAd.creator.id != currentAuthType.LOGIN_USER_ID
     )
     {
+        addNewErrorMessage('You can not access this part!')
+        return null
+    }
+
+    if (idIsNotValid(entity.introduction))
+    {
+        addNewErrorMessage(`The id ${entity.introduction} is invalid!`)
         return null
     }
 
     let currentIntroduction = await getIntroductionById(entity.introduction)
     if (!currentIntroduction)
     {
+        addNewErrorMessage('No introduction with the same id exists!')
+        return null
+    }
+
+    if (idIsNotValid(entity.company))
+    {
+        addNewErrorMessage(`The id ${entity.company} is invalid!`)
         return null
     }
 
     let currentCompany = await getCompanyById(entity.company)
     if (!currentCompany)
     {
+        addNewErrorMessage('No company with the same id exists!')
+        return null
+    }
+
+    if (idIsNotValid(entity.salary))
+    {
+        addNewErrorMessage(`The id ${entity.salary} is invalid!`)
         return null
     }
 
     let currentSalary = await getSalaryById(entity.salary)
     if (!currentSalary)
     {
+        addNewErrorMessage('No salary with the same id exists!')
         return null
     }
 
-    for (let i = 0; i < entity.gender.length; i++)
+    entity.gender.map(async g =>
     {
-        if (
-            idIsNotValid(entity.gender[i])
-        )
+        if (idIsNotValid(g))
         {
+            addNewErrorMessage(`The id ${g} is invalid!`)
             return null
         }
-        else
-        {
-            let currentGender = await getGenderById(entity.gender[i])
-            if (!currentGender)
-            {
-                return null
-            }
-        }
-    }
 
-
-    for (let i = 0; i < entity.jobTime.length; i++)
-    {
-        if (
-            idIsNotValid(entity.jobTime[i])
-        )
+        let currentGender = await getGenderById(g)
+        if (!currentGender)
         {
+            addNewErrorMessage('No gender with the same id exists!')
             return null
         }
-        else
-        {
-            let currentJobTime = await getJobTimeById(entity.jobTime[i])
-            if (!currentJobTime)
-            {
-                return null
-            }
-        }
-    }
+    })
 
-    for (let i = 0; i < entity.jobPlace.length; i++)
+    entity.jobTime.map(async jT =>
     {
-        if (
-            idIsNotValid(entity.jobPlace[i])
-        )
+        if (idIsNotValid(jT))
         {
+            addNewErrorMessage(`The id ${jT} is invalid!`)
             return null
         }
-        else
-        {
-            let currentJobPlace = await getJobPlaceById(entity.jobPlace[i])
-            if (!currentJobPlace)
-            {
-                return null
-            }
-        }
-    }
 
-    for (let i = 0; i < entity.seniorityLevel.length; i++)
-    {
-        if (
-            idIsNotValid(entity.seniorityLevel[i])
-        )
+        let currentJobTime = await getJobTimeById(jT)
+        if (!currentJobTime)
         {
+            addNewErrorMessage('No job time with the same id exists!')
             return null
         }
-        else
-        {
-            let currentSeniorityLevel = await getSeniorityLevelById(entity.seniorityLevel[i])
-            if (!currentSeniorityLevel)
-            {
-                return null
-            }
-        }
-    }
+    })
 
-    let currentJobAd = await JobAd.findByIdAndUpdate(
+    entity.jobPlace.map(async jP =>
+    {
+        if (idIsNotValid(jP))
+        {
+            addNewErrorMessage(`The id ${jP} is invalid!`)
+            return null
+        }
+
+        let currentJobPlace = await getJobPlaceById(jP)
+        if (!currentJobPlace)
+        {
+            addNewErrorMessage('No job place with the same id exists!')
+            return null
+        }
+    })
+
+    entity.seniorityLevel.map(async sL =>
+    {
+        if (idIsNotValid(sL))
+        {
+            addNewErrorMessage(`The id ${sL} is invalid!`)
+            return null
+        }
+
+        let currentSeniorityLevel = await getSeniorityLevelById(sL)
+        if (!currentSeniorityLevel)
+        {
+            addNewErrorMessage('No seniority level with the same id exists!')
+            return null
+        }
+    })
+
+    let result = await JobAd.findByIdAndUpdate(
         entity.id,
         {
             introduction: entity.introduction,
@@ -597,25 +615,49 @@ export async function updateExistJobAd(entity: JobAdUpdateVm)
             updateDate: entity.updateDate
         }
     )
-    return !!currentJobAd;
+    if (result)
+    {
+        addNewSuccessMessage('Job Ad updated successfully!')
+        return true
+    }
+    else
+    {
+        addNewErrorMessage('Something went wrong! the job ad can not be updated!')
+        return false
+    }
 }
 
 export async function deleteExistJobAd(entity: UserDeleteVm)
 {
+    emptyMessageList()
+
     if (idIsNotValid(entity.id))
     {
+        addNewErrorMessage(`The id ${entity.id} is invalid!`)
         return null
     }
+
+    let currentJobAd: any = await getJobAdById(entity.id)
+
+    if (
+        !currentAuthType.IS_USER_ADMIN &&
+        currentJobAd.company.creator.id != currentAuthType.LOGIN_USER_ID &&
+        currentJobAd.creator.id != currentAuthType.LOGIN_USER_ID
+    )
+    {
+        addNewErrorMessage('You can not access this part!')
+        return null
+    }
+
     let result = await JobAd.findByIdAndRemove(entity.id)
-    return !!result;
-    // let deleteExistRequestByJobAdResult = await deleteExistRequestByJobAd(entity.id)
-    // if (deleteExistRequestByJobAdResult)
-    // {
-    //     let result = await JobAd.findByIdAndRemove(entity.id)
-    //     return !!result;
-    // }
-    // else
-    // {
-    //     return null
-    // }
+    if (result)
+    {
+        addNewSuccessMessage(`The job ad deleted successfully!`)
+        return true
+    }
+    else
+    {
+        addNewErrorMessage(`Something went wrong! The job ad can not be deleted!`)
+        return false
+    }
 }

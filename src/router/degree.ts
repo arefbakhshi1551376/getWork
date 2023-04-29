@@ -9,6 +9,7 @@ import {
 } from "../utility/coreMethod/degree";
 import {DegreeAddVm, DegreeDeleteVm, DegreeUpdateVm} from "../utility/type/degree";
 import {getErrorMessageList, getSuccessMessageList} from "../utility/handler/messageHandler/messageMethod";
+import {currentAuthType} from "../utility/constant";
 
 export const degreeRouter = express.Router()
 
@@ -97,6 +98,7 @@ degreeRouter.post(
     async (req, res) =>
     {
         let currentDegreeAddVm: DegreeAddVm = {
+            creator: currentAuthType.LOGIN_USER_ID,
             dateOfIssue: req.body.dateOfIssue,
             instituteName: req.body.instituteName,
             trainingCourse: req.body.trainingCourse
@@ -118,6 +120,7 @@ degreeRouter.put(
     async (req, res) =>
     {
         let currentDegreeUpdateVm: DegreeUpdateVm = {
+            updater: currentAuthType.LOGIN_USER_ID,
             id: req.params.id,
             dateOfIssue: req.body.dateOfIssue,
             instituteName: req.body.instituteName,

@@ -88,10 +88,20 @@ export const userSchema = new Schema({
         required: true,
         default: Date.now
     },
+    creator: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: false
+    },
     updateDate: {
         type: Date,
         required: true,
         default: Date.now
+    },
+    updater: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: false
     },
 })
 

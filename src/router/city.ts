@@ -9,6 +9,7 @@ import {
 } from "../utility/coreMethod/city";
 import {CityAddVm, CityDeleteVm, CityUpdateVm} from "../utility/type/city";
 import {getErrorMessageList, getSuccessMessageList} from "../utility/handler/messageHandler/messageMethod";
+import {currentAuthType} from "../utility/constant";
 
 export const cityRouter = express.Router()
 
@@ -97,8 +98,9 @@ cityRouter.post(
     async (req, res) =>
     {
         let currentCityAddVm: CityAddVm = {
+            creator: currentAuthType.LOGIN_USER_ID,
             state: req.body.state,
-            title: req.body.title,
+            title: req.body.title
         }
         let result: boolean | null = await addNewCity(currentCityAddVm)
         if (result == true)
@@ -117,6 +119,7 @@ cityRouter.put(
     async (req, res) =>
     {
         let currentCityUpdateVm: CityUpdateVm = {
+            updater: currentAuthType.LOGIN_USER_ID,
             id: req.params.id,
             state: req.body.state,
             title: req.body.title,

@@ -8,6 +8,7 @@ import {
 } from "../utility/coreMethod/country";
 import {CountryAddVm, CountryDeleteVm, CountryUpdateVm} from "../utility/type/country";
 import {getErrorMessageList, getSuccessMessageList} from "../utility/handler/messageHandler/messageMethod";
+import {currentAuthType} from "../utility/constant";
 
 export const countryRouter = express.Router()
 
@@ -96,6 +97,7 @@ countryRouter.post(
     async (req, res) =>
     {
         let currentCountryAddVm: CountryAddVm = {
+            creator: currentAuthType.LOGIN_USER_ID,
             title: req.body.title
         }
         let result: boolean | null = await addNewCountry(currentCountryAddVm)
@@ -115,6 +117,7 @@ countryRouter.put(
     async (req, res) =>
     {
         let currentCountryUpdateVm: CountryUpdateVm = {
+            updater: currentAuthType.LOGIN_USER_ID,
             id: req.params.id,
             title: req.body.title,
             updateDate: new Date()

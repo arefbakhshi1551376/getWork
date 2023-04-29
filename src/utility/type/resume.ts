@@ -20,7 +20,9 @@ export type Resume = {
     favoriteJob: Category[],
     expectedSalary: Salary,
     isShowToOthers: boolean,
+    creator: User,
     createDate: Date,
+    updater?: User,
     updateDate: Date
 }
 

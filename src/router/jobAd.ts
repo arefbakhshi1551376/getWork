@@ -8,6 +8,8 @@ import {
     getJobAdByIdAndFilter, updateExistJobAd
 } from "../utility/coreMethod/jobAd";
 import {JobAdAddVm, JobAdDeleteVm, JobAdUpdateVm} from "../utility/type/jobAd";
+import {getErrorMessageList, getSuccessMessageList} from "../utility/handler/messageHandler/messageMethod";
+import {currentAuthType} from "../utility/constant";
 
 export const jobAdRouter = express.Router()
 
@@ -22,9 +24,7 @@ jobAdRouter.get(
         }
         else
         {
-            return res.status(404).json({
-                Message: `No jobAd found!`
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -40,33 +40,13 @@ jobAdRouter.get(
         }
         else
         {
-            return res.status(404).json({
-                Message: `No jobAd found!`
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
 
 jobAdRouter.get(
-    `/:id`,
-    async (req, res) =>
-    {
-        let currentJobAd = await getJobAdById(req.params.id)
-        if (currentJobAd != null)
-        {
-            return res.status(200).json(currentJobAd)
-        }
-        else
-        {
-            return res.status(404).json({
-                Message: `No jobAd found!`
-            })
-        }
-    }
-)
-
-jobAdRouter.get(
-    `/by_filter/:filter`,
+    `/by_filter/:filter?`,
     async (req, res) =>
     {
         let jobAdList = await getJobAdByFilter(req.params.filter)
@@ -76,9 +56,7 @@ jobAdRouter.get(
         }
         else
         {
-            return res.status(404).json({
-                Message: `No jobAd found!`
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -94,9 +72,23 @@ jobAdRouter.get(
         }
         else
         {
-            return res.status(404).json({
-                Message: `No jobAd found!`
-            })
+            return res.status(404).json(getErrorMessageList())
+        }
+    }
+)
+
+jobAdRouter.get(
+    `/:id`,
+    async (req, res) =>
+    {
+        let currentJobAd = await getJobAdById(req.params.id)
+        if (currentJobAd != null)
+        {
+            return res.status(200).json(currentJobAd)
+        }
+        else
+        {
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -106,6 +98,7 @@ jobAdRouter.post(
     async (req, res) =>
     {
         let currentJobAdAddVm: JobAdAddVm = {
+            creator: currentAuthType.LOGIN_USER_ID,
             company: req.body.company,
             gender: req.body.gender,
             introduction: req.body.introduction,
@@ -121,15 +114,11 @@ jobAdRouter.post(
         let result: boolean | null = await addNewJobAd(currentJobAdAddVm)
         if (result == true)
         {
-            return res.status(200).json({
-                Message: `Current Job Ad Added Successfully!`
-            })
+            return res.status(200).json(getSuccessMessageList())
         }
         else
         {
-            return res.status(400).json({
-                Message: 'An error occurred!'
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -139,6 +128,7 @@ jobAdRouter.put(
     async (req, res) =>
     {
         let currentJobAdUpdateVm: JobAdUpdateVm = {
+            updater: currentAuthType.LOGIN_USER_ID,
             id: req.params.id,
             company: req.body.company,
             gender: req.body.gender,
@@ -156,15 +146,11 @@ jobAdRouter.put(
         let result: null | boolean = await updateExistJobAd(currentJobAdUpdateVm)
         if (result == true)
         {
-            return res.status(200).json({
-                Message: `Current Job Ad Updated Successfully!`
-            })
+            return res.status(200).json(getSuccessMessageList())
         }
         else
         {
-            return res.status(400).json({
-                Message: 'An error occurred!'
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -180,15 +166,11 @@ jobAdRouter.delete(
         let result: null | boolean = await deleteExistJobAd(currentJobAdDeleteVm)
         if (result == true)
         {
-            return res.status(200).json({
-                Message: `JobAd Deleted Successfully!`
-            })
+            return res.status(200).json(getSuccessMessageList())
         }
         else
         {
-            return res.status(400).json({
-                Message: 'An error occurred!'
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )

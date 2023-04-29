@@ -7,6 +7,8 @@ import {
     getSkillLevelById, getSkillLevelByIdAndFilter, updateExistSkillLevel
 } from "../utility/coreMethod/skillLevel";
 import {SkillLevelAddVm, SkillLevelDeleteVm, SkillLevelUpdateVm} from "../utility/type/skillLevel";
+import {getErrorMessageList, getSuccessMessageList} from "../utility/handler/messageHandler/messageMethod";
+import {currentAuthType} from "../utility/constant";
 
 export const skillLevelRouter = express.Router()
 
@@ -21,9 +23,7 @@ skillLevelRouter.get(
         }
         else
         {
-            return res.status(404).json({
-                Message: `No languageLeve found!`
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -39,33 +39,13 @@ skillLevelRouter.get(
         }
         else
         {
-            return res.status(404).json({
-                Message: `No skill level found!`
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
 
 skillLevelRouter.get(
-    `/:id`,
-    async (req, res) =>
-    {
-        let currentSkillLevel = await getSkillLevelById(req.params.id)
-        if (currentSkillLevel != null)
-        {
-            return res.status(200).json(currentSkillLevel)
-        }
-        else
-        {
-            return res.status(404).json({
-                Message: `No skill level found!`
-            })
-        }
-    }
-)
-
-skillLevelRouter.get(
-    `/by_filter/:filter`,
+    `/by_filter/:filter?`,
     async (req, res) =>
     {
         let skillLevelList = await getSkillLevelByFilter(req.params.filter)
@@ -75,9 +55,7 @@ skillLevelRouter.get(
         }
         else
         {
-            return res.status(404).json({
-                Message: `No skill level found!`
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -93,9 +71,23 @@ skillLevelRouter.get(
         }
         else
         {
-            return res.status(404).json({
-                Message: `No skill level found!`
-            })
+            return res.status(404).json(getErrorMessageList())
+        }
+    }
+)
+
+skillLevelRouter.get(
+    `/:id`,
+    async (req, res) =>
+    {
+        let currentSkillLevel = await getSkillLevelById(req.params.id)
+        if (currentSkillLevel != null)
+        {
+            return res.status(200).json(currentSkillLevel)
+        }
+        else
+        {
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -105,21 +97,18 @@ skillLevelRouter.post(
     async (req, res) =>
     {
         let currentSkillLevelAddVm: SkillLevelAddVm = {
+            creator: currentAuthType.LOGIN_USER_ID,
             skill: req.body.skill,
             level: req.body.level
         }
         let result: boolean | null = await addNewSkillLevel(currentSkillLevelAddVm)
         if (result == true)
         {
-            return res.status(200).json({
-                Message: `Current Skill Level Added Successfully!`
-            })
+            return res.status(200).json(getSuccessMessageList())
         }
         else
         {
-            return res.status(400).json({
-                Message: 'An error occurred!'
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -129,6 +118,7 @@ skillLevelRouter.put(
     async (req, res) =>
     {
         let currentSkillLevelUpdateVm: SkillLevelUpdateVm = {
+            updater: currentAuthType.LOGIN_USER_ID,
             id: req.params.id,
             skill: req.body.skill,
             level: req.body.level,
@@ -137,15 +127,11 @@ skillLevelRouter.put(
         let result: null | boolean = await updateExistSkillLevel(currentSkillLevelUpdateVm)
         if (result == true)
         {
-            return res.status(200).json({
-                Message: `Current Skill Level Updated Successfully!`
-            })
+            return res.status(200).json(getSuccessMessageList())
         }
         else
         {
-            return res.status(400).json({
-                Message: 'An error occurred!'
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -161,15 +147,11 @@ skillLevelRouter.delete(
         let result: null | boolean = await deleteExistSkillLevel(currentSkillLevelDeleteVm)
         if (result == true)
         {
-            return res.status(200).json({
-                Message: `Skill Level Deleted Successfully!`
-            })
+            return res.status(200).json(getSuccessMessageList())
         }
         else
         {
-            return res.status(400).json({
-                Message: 'An error occurred!'
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )

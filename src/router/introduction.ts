@@ -12,6 +12,7 @@ import {
     getErrorMessageList,
     getSuccessMessageList
 } from "../utility/handler/messageHandler/messageMethod";
+import {currentAuthType} from "../utility/constant";
 
 export const introductionRouter = express.Router()
 
@@ -100,6 +101,7 @@ introductionRouter.post(
     async (req, res) =>
     {
         let currentIntroductionAddVm: IntroductionAddVm = {
+            creator: currentAuthType.LOGIN_USER_ID,
             description: req.body.description,
             title: req.body.title
         }
@@ -121,6 +123,7 @@ introductionRouter.put(
     async (req, res) =>
     {
         let currentIntroductionUpdateVm: IntroductionUpdateVm = {
+            updater: currentAuthType.LOGIN_USER_ID,
             id: req.params.id,
             title: req.body.title,
             description: req.body.description,

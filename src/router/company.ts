@@ -9,7 +9,7 @@ import {
 } from "../utility/coreMethod/company";
 import {CompanyAddVm, CompanyDeleteVm, CompanyGalleryUpdateVm, CompanyUpdateVm} from "../utility/type/company";
 import {uploadOptions} from "../utility/diskStorage";
-import {getUploadPath} from "../utility/constant";
+import {currentAuthType, getUploadPath} from "../utility/constant";
 import {getErrorMessageList, getSuccessMessageList} from "../utility/handler/messageHandler/messageMethod";
 
 export const companyRouter = express.Router()
@@ -107,6 +107,7 @@ companyRouter.post(
             })
         }
         let currentCompanyAddVm: CompanyAddVm = {
+            creator: currentAuthType.LOGIN_USER_ID,
             address: req.body.address,
             albumImage: [],
             email: req.body.email,
@@ -139,6 +140,7 @@ companyRouter.put(
             })
         }
         let currentCompanyUpdateVm: CompanyUpdateVm = {
+            updater: currentAuthType.LOGIN_USER_ID,
             id: req.params.id,
             address: req.body.address,
             albumImage: [],
@@ -181,6 +183,7 @@ companyRouter.put(
                 imagesPaths.push(`${getUploadPath(req)}${file.filename}`)
             })
             let currentCompanyGalleryUpdateVm: CompanyGalleryUpdateVm = {
+                updater: currentAuthType.LOGIN_USER_ID,
                 id: req.params.id,
                 albumImages: imagesPaths,
                 updateDate: new Date()

@@ -7,6 +7,8 @@ import {
     getLanguageLevelById, getLanguageLevelByIdAndFilter, updateExistLanguageLevel
 } from "../utility/coreMethod/languageLevel";
 import {LanguageLevelAddVm, LanguageLevelDeleteVm, LanguageLevelUpdateVm} from "../utility/type/languageLevel";
+import {getErrorMessageList, getSuccessMessageList} from "../utility/handler/messageHandler/messageMethod";
+import {currentAuthType} from "../utility/constant";
 
 export const languageLevelRouter = express.Router()
 
@@ -21,9 +23,7 @@ languageLevelRouter.get(
         }
         else
         {
-            return res.status(404).json({
-                Message: `No language level found!`
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -39,33 +39,13 @@ languageLevelRouter.get(
         }
         else
         {
-            return res.status(404).json({
-                Message: `No language level found!`
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
 
 languageLevelRouter.get(
-    `/:id`,
-    async (req, res) =>
-    {
-        let currentLanguageLevel = await getLanguageLevelById(req.params.id)
-        if (currentLanguageLevel != null)
-        {
-            return res.status(200).json(currentLanguageLevel)
-        }
-        else
-        {
-            return res.status(404).json({
-                Message: `No language level found!`
-            })
-        }
-    }
-)
-
-languageLevelRouter.get(
-    `/by_filter/:filter`,
+    `/by_filter/:filter?`,
     async (req, res) =>
     {
         let languageLevelList = await getLanguageLevelByFilter(req.params.filter)
@@ -75,9 +55,7 @@ languageLevelRouter.get(
         }
         else
         {
-            return res.status(404).json({
-                Message: `No language level found!`
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -93,9 +71,23 @@ languageLevelRouter.get(
         }
         else
         {
-            return res.status(404).json({
-                Message: `No language level found!`
-            })
+            return res.status(404).json(getErrorMessageList())
+        }
+    }
+)
+
+languageLevelRouter.get(
+    `/:id`,
+    async (req, res) =>
+    {
+        let currentLanguageLevel = await getLanguageLevelById(req.params.id)
+        if (currentLanguageLevel != null)
+        {
+            return res.status(200).json(currentLanguageLevel)
+        }
+        else
+        {
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -105,21 +97,18 @@ languageLevelRouter.post(
     async (req, res) =>
     {
         let currentLanguageLevelAddVm: LanguageLevelAddVm = {
+            creator: currentAuthType.LOGIN_USER_ID,
             language: req.body.language,
             level: req.body.level
         }
         let result: boolean | null = await addNewLanguageLevel(currentLanguageLevelAddVm)
         if (result == true)
         {
-            return res.status(200).json({
-                Message: `Current Language Level Added Successfully!`
-            })
+            return res.status(200).json(getSuccessMessageList())
         }
         else
         {
-            return res.status(400).json({
-                Message: 'An error occurred!'
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -129,6 +118,7 @@ languageLevelRouter.put(
     async (req, res) =>
     {
         let currentLanguageLevelUpdateVm: LanguageLevelUpdateVm = {
+            updater: currentAuthType.LOGIN_USER_ID,
             id: req.params.id,
             language: req.body.language,
             level: req.body.level,
@@ -137,15 +127,11 @@ languageLevelRouter.put(
         let result: null | boolean = await updateExistLanguageLevel(currentLanguageLevelUpdateVm)
         if (result == true)
         {
-            return res.status(200).json({
-                Message: `Current Language Level Updated Successfully!`
-            })
+            return res.status(200).json(getSuccessMessageList())
         }
         else
         {
-            return res.status(400).json({
-                Message: 'An error occurred!'
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -161,15 +147,11 @@ languageLevelRouter.delete(
         let result: null | boolean = await deleteExistLanguageLevel(currentLanguageLevelDeleteVm)
         if (result == true)
         {
-            return res.status(200).json({
-                Message: `LanguageLevel Deleted Successfully!`
-            })
+            return res.status(200).json(getSuccessMessageList())
         }
         else
         {
-            return res.status(400).json({
-                Message: 'An error occurred!'
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )

@@ -167,7 +167,12 @@ export async function addNewCareerHistory(entity: CareerHistoryAddVm): Promise<n
         return null
     }
 
-    let currentCareerHistoryExist = await checkIfCareerHistoryWithTheSamePropertiesExist(entity)
+    let currentCareerHistoryExist = await checkIfCareerHistoryWithTheSamePropertiesExist(
+        entity.workPlace,
+        entity.startWorkingYear,
+        entity.endWorkingYear,
+        entity.isWorkingYet
+    )
     if (currentCareerHistoryExist)
     {
         return true
@@ -210,7 +215,12 @@ export async function updateExistCareerHistory(entity: CareerHistoryUpdateVm)
 
     await getCareerHistoryById(entity.id)
 
-    let currentCareerHistoryExist = await checkIfCareerHistoryWithTheSamePropertiesExist(entity)
+    let currentCareerHistoryExist = await checkIfCareerHistoryWithTheSamePropertiesExist(
+        entity.workPlace,
+        entity.startWorkingYear,
+        entity.endWorkingYear,
+        entity.isWorkingYet
+    )
     if (currentCareerHistoryExist)
     {
         addNewErrorMessage('A career history with the same properties exists!')
@@ -264,13 +274,18 @@ export async function deleteExistCareerHistory(entity: CareerHistoryDeleteVm)
     }
 }
 
-async function checkIfCareerHistoryWithTheSamePropertiesExist(entity: CareerHistoryAddVm)
+async function checkIfCareerHistoryWithTheSamePropertiesExist(
+    workPlace: string,
+    startWorkingYear: number,
+    endWorkingYear: number,
+    isWorkingYet: boolean
+)
 {
     let currentCountry = await CareerHistory.findOne({
-        workPlace: entity.workPlace,
-        startWorkingYear: entity.startWorkingYear,
-        endWorkingYear: entity.endWorkingYear,
-        isWorkingYet: entity.isWorkingYet,
+        workPlace: workPlace,
+        startWorkingYear: startWorkingYear,
+        endWorkingYear: endWorkingYear,
+        isWorkingYet: isWorkingYet,
     })
     return !!currentCountry;
 }

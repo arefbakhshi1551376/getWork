@@ -8,6 +8,8 @@ import {
     getRequestByIdAndFilter, updateExistRequest
 } from "../utility/coreMethod/request";
 import {RequestAddVm, RequestDeleteVm, RequestUpdateVm} from "../utility/type/request";
+import {getErrorMessageList, getSuccessMessageList} from "../utility/handler/messageHandler/messageMethod";
+import {currentAuthType} from "../utility/constant";
 
 export const userRequestRouter = express.Router()
 
@@ -22,9 +24,7 @@ userRequestRouter.get(
         }
         else
         {
-            return res.status(404).json({
-                Message: `No request found!`
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -40,33 +40,13 @@ userRequestRouter.get(
         }
         else
         {
-            return res.status(404).json({
-                Message: `No request found!`
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
 
 userRequestRouter.get(
-    `/:id`,
-    async (req, res) =>
-    {
-        let currentRequest = await getRequestById(req.params.id)
-        if (currentRequest != null)
-        {
-            return res.status(200).json(currentRequest)
-        }
-        else
-        {
-            return res.status(404).json({
-                Message: `No request found!`
-            })
-        }
-    }
-)
-
-userRequestRouter.get(
-    `/by_filter/:filter`,
+    `/by_filter/:filter?`,
     async (req, res) =>
     {
         let requestList = await getRequestByFilter(req.params.filter)
@@ -76,9 +56,7 @@ userRequestRouter.get(
         }
         else
         {
-            return res.status(404).json({
-                Message: `No request found!`
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -94,9 +72,23 @@ userRequestRouter.get(
         }
         else
         {
-            return res.status(404).json({
-                Message: `No request found!`
-            })
+            return res.status(404).json(getErrorMessageList())
+        }
+    }
+)
+
+userRequestRouter.get(
+    `/:id`,
+    async (req, res) =>
+    {
+        let currentRequest = await getRequestById(req.params.id)
+        if (currentRequest != null)
+        {
+            return res.status(200).json(currentRequest)
+        }
+        else
+        {
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -106,21 +98,17 @@ userRequestRouter.post(
     async (req, res) =>
     {
         let currentRequestAddVm: RequestAddVm = {
-            jobAd: req.body.jobAd,
-            user: req.body.user // TODO: You have to pass login user id
+            jobAd: req.body.jobAd, creator: "",
+            user: currentAuthType.LOGIN_USER_ID
         }
         let result: boolean | null = await addNewRequest(currentRequestAddVm)
         if (result == true)
         {
-            return res.status(200).json({
-                Message: `Current Request Added Successfully!`
-            })
+            return res.status(200).json(getSuccessMessageList())
         }
         else
         {
-            return res.status(400).json({
-                Message: 'An error occurred!'
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -133,21 +121,17 @@ userRequestRouter.put(
             status: req.body.status, // TODO: when admin see a request, status must be changed. You have to write new method just for update status of request
             id: req.params.id,
             jobAd: req.body.jobAd,
-            user: req.body.user, // TODO: You have to pass login user id
+            user: currentAuthType.LOGIN_USER_ID,
             updateDate: new Date()
         }
         let result: null | boolean = await updateExistRequest(currentRequestUpdateVm)
         if (result == true)
         {
-            return res.status(200).json({
-                Message: `Current Request Updated Successfully!`
-            })
+            return res.status(200).json(getSuccessMessageList())
         }
         else
         {
-            return res.status(400).json({
-                Message: 'An error occurred!'
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -163,15 +147,11 @@ userRequestRouter.delete(
         let result: null | boolean = await deleteExistRequest(currentRequestDeleteVm)
         if (result == true)
         {
-            return res.status(200).json({
-                Message: `Request Deleted Successfully!`
-            })
+            return res.status(200).json(getSuccessMessageList())
         }
         else
         {
-            return res.status(400).json({
-                Message: 'An error occurred!'
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )

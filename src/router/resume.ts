@@ -8,6 +8,8 @@ import {
     getResumeByIdAndFilter, updateExistResume
 } from "../utility/coreMethod/resume";
 import {ResumeAddVm, ResumeDeleteVm, ResumeUpdateVm} from "../utility/type/resume";
+import {getErrorMessageList, getSuccessMessageList} from "../utility/handler/messageHandler/messageMethod";
+import {currentAuthType} from "../utility/constant";
 
 export const resumeRouter = express.Router()
 
@@ -22,9 +24,7 @@ resumeRouter.get(
         }
         else
         {
-            return res.status(404).json({
-                Message: `No resume found!`
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -40,33 +40,13 @@ resumeRouter.get(
         }
         else
         {
-            return res.status(404).json({
-                Message: `No resume found!`
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
 
 resumeRouter.get(
-    `/:id`,
-    async (req, res) =>
-    {
-        let currentResume = await getResumeById(req.params.id)
-        if (currentResume != null)
-        {
-            return res.status(200).json(currentResume)
-        }
-        else
-        {
-            return res.status(404).json({
-                Message: `No resume found!`
-            })
-        }
-    }
-)
-
-resumeRouter.get(
-    `/by_filter/:filter`,
+    `/by_filter/:filter?`,
     async (req, res) =>
     {
         let resumeList = await getResumeByFilter(req.params.filter)
@@ -76,9 +56,7 @@ resumeRouter.get(
         }
         else
         {
-            return res.status(404).json({
-                Message: `No resume found!`
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -94,9 +72,23 @@ resumeRouter.get(
         }
         else
         {
-            return res.status(404).json({
-                Message: `No resume found!`
-            })
+            return res.status(404).json(getErrorMessageList())
+        }
+    }
+)
+
+resumeRouter.get(
+    `/:id`,
+    async (req, res) =>
+    {
+        let currentResume = await getResumeById(req.params.id)
+        if (currentResume != null)
+        {
+            return res.status(200).json(currentResume)
+        }
+        else
+        {
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -116,20 +108,16 @@ resumeRouter.post(
             languageLevel: req.body.languageLevel,
             link: req.body.link,
             skillLevel: req.body.skillLevel,
-            user: req.body.user // TODO: User must be filled with login user id
+            user: currentAuthType.LOGIN_USER_ID
         }
         let result: boolean | null = await addNewResume(currentResumeAddVm)
         if (result == true)
         {
-            return res.status(200).json({
-                Message: `Current Job Ad Added Successfully!`
-            })
+            return res.status(200).json(getSuccessMessageList())
         }
         else
         {
-            return res.status(400).json({
-                Message: 'An error occurred!'
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -150,21 +138,17 @@ resumeRouter.put(
             languageLevel: req.body.languageLevel,
             link: req.body.link,
             skillLevel: req.body.skillLevel,
-            user: req.body.user, // TODO: User must be filled with login user id,
+            user: currentAuthType.LOGIN_USER_ID,
             updateDate: new Date()
         }
         let result: null | boolean = await updateExistResume(currentResumeUpdateVm)
         if (result == true)
         {
-            return res.status(200).json({
-                Message: `Current Job Ad Updated Successfully!`
-            })
+            return res.status(200).json(getSuccessMessageList())
         }
         else
         {
-            return res.status(400).json({
-                Message: 'An error occurred!'
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -180,15 +164,11 @@ resumeRouter.delete(
         let result: null | boolean = await deleteExistResume(currentResumeDeleteVm)
         if (result == true)
         {
-            return res.status(200).json({
-                Message: `Resume Deleted Successfully!`
-            })
+            return res.status(200).json(getSuccessMessageList())
         }
         else
         {
-            return res.status(400).json({
-                Message: 'An error occurred!'
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )

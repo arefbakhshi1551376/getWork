@@ -8,6 +8,7 @@ import {
     updateExistGender
 } from "../utility/coreMethod/gender";
 import {getErrorMessageList, getSuccessMessageList} from "../utility/handler/messageHandler/messageMethod";
+import {currentAuthType} from "../utility/constant";
 
 export const genderRouter = express.Router()
 
@@ -112,6 +113,7 @@ genderRouter.post(
     async (req, res) =>
     {
         let currentGenderAddVm: GenderAddVm = {
+            creator: currentAuthType.LOGIN_USER_ID,
             title: req.body.title
         }
         let result: boolean | null = await addNewGender(currentGenderAddVm)
@@ -131,6 +133,7 @@ genderRouter.put(
     async (req, res) =>
     {
         let currentGenderUpdateVm: GenderUpdateVm = {
+            updater: currentAuthType.LOGIN_USER_ID,
             id: req.params.id,
             title: req.body.title,
             updateDate: new Date()

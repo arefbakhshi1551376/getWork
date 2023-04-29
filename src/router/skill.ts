@@ -1,6 +1,4 @@
 import express from "express";
-import {showMessageForEveryThing} from "../utility/showResponseMessage";
-import {modelsName, whatHappened} from "../utility/constant";
 import {
     addNewSkill, deleteExistSkill,
     getAllSkill,
@@ -9,6 +7,8 @@ import {
     getSkillByIdAndFilter, updateExistSkill
 } from "../utility/coreMethod/skill";
 import {SkillAddVm, SkillDeleteVm, SkillUpdateVm} from "../utility/type/skill";
+import {getErrorMessageList, getSuccessMessageList} from "../utility/handler/messageHandler/messageMethod";
+import {currentAuthType} from "../utility/constant";
 
 export const skillRouter = express.Router()
 
@@ -23,7 +23,7 @@ skillRouter.get(
         }
         else
         {
-            return showMessageForEveryThing(res, 404, modelsName.Skill, whatHappened.Found)
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -39,29 +39,13 @@ skillRouter.get(
         }
         else
         {
-            return showMessageForEveryThing(res, 404, modelsName.Skill, whatHappened.Found)
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
 
 skillRouter.get(
-    `/:id`,
-    async (req, res) =>
-    {
-        let skillList = await getSkillById(req.params.id)
-        if (skillList != null)
-        {
-            return res.status(200).json(skillList)
-        }
-        else
-        {
-            return showMessageForEveryThing(res, 404, modelsName.Skill, whatHappened.Found)
-        }
-    }
-)
-
-skillRouter.get(
-    `/by_filter/:filter`,
+    `/by_filter/:filter?`,
     async (req, res) =>
     {
         let skillList = await getSkillByFilter(req.params.filter)
@@ -71,7 +55,7 @@ skillRouter.get(
         }
         else
         {
-            return showMessageForEveryThing(res, 404, modelsName.Skill, whatHappened.Found)
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -87,7 +71,23 @@ skillRouter.get(
         }
         else
         {
-            return showMessageForEveryThing(res, 404, modelsName.Skill, whatHappened.Found)
+            return res.status(404).json(getErrorMessageList())
+        }
+    }
+)
+
+skillRouter.get(
+    `/:id`,
+    async (req, res) =>
+    {
+        let skillList = await getSkillById(req.params.id)
+        if (skillList != null)
+        {
+            return res.status(200).json(skillList)
+        }
+        else
+        {
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -97,20 +97,17 @@ skillRouter.post(
     async (req, res) =>
     {
         let currentSkillAddVm: SkillAddVm = {
+            creator: currentAuthType.LOGIN_USER_ID,
             title: req.body.title
         }
         let result: boolean | null = await addNewSkill(currentSkillAddVm)
         if (result == true)
         {
-            return res.status(200).json({
-                Message: `${currentSkillAddVm.title} Added Successfully!`
-            })
+            return res.status(200).json(getSuccessMessageList())
         }
         else
         {
-            return res.status(400).json({
-                Message: 'An error occurred!'
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -120,6 +117,7 @@ skillRouter.put(
     async (req, res) =>
     {
         let currentSkillUpdateVm: SkillUpdateVm = {
+            updater: currentAuthType.LOGIN_USER_ID,
             id: req.params.id,
             title: req.body.title,
             updateDate: new Date()
@@ -127,15 +125,11 @@ skillRouter.put(
         let result: null | boolean = await updateExistSkill(currentSkillUpdateVm)
         if (result == true)
         {
-            return res.status(200).json({
-                Message: `${currentSkillUpdateVm.title} Updated Successfully!`
-            })
+            return res.status(200).json(getSuccessMessageList())
         }
         else
         {
-            return res.status(400).json({
-                Message: 'An error occurred!'
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -150,15 +144,11 @@ skillRouter.delete(
         let result: null | boolean = await deleteExistSkill(currentSkillDeleteVm)
         if (result == true)
         {
-            return res.status(200).json({
-                Message: `Skill Deleted Successfully!`
-            })
+            return res.status(200).json(getSuccessMessageList())
         }
         else
         {
-            return res.status(400).json({
-                Message: 'An error occurred!'
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )

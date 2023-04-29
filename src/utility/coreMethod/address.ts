@@ -221,7 +221,7 @@ export async function addNewAddress(entity: AddressAddVM): Promise<null | boolea
 {
     emptyMessageList()
 
-    let currentAddressExists = await checkIfAddressWithTheSamePropertiesExist(entity)
+    let currentAddressExists = await checkIfAddressWithTheSamePropertiesExist(entity.city, entity.restOfAddress)
     if (currentAddressExists)
     {
         addNewErrorMessage('An address with the same properties exists!')
@@ -244,6 +244,7 @@ export async function addNewAddress(entity: AddressAddVM): Promise<null | boolea
     let currentAddress = new Address({
         city: entity.city,
         restOfAddress: entity.restOfAddress,
+        creator: currentAuthType.LOGIN_USER_ID
     })
     let result = await currentAddress.save()
     if (result)
@@ -270,7 +271,7 @@ export async function updateExistAddress(entity: AddressUpdateVM)
 
     await getAddressById(entity.id)
 
-    let currentAddressExists = await checkIfAddressWithTheSamePropertiesExist(entity)
+    let currentAddressExists = await checkIfAddressWithTheSamePropertiesExist(entity.city, entity.restOfAddress)
     if (currentAddressExists)
     {
         addNewErrorMessage('An address with the same properties exists!')
@@ -295,6 +296,7 @@ export async function updateExistAddress(entity: AddressUpdateVM)
         {
             city: entity.city,
             restOfAddress: entity.restOfAddress,
+            updater: entity.updater,
             updateDate: entity.updateDate
         }
     )
@@ -335,12 +337,14 @@ export async function deleteExistAddress(entity: AddressDeleteVM)
     }
 }
 
-async function checkIfAddressWithTheSamePropertiesExist(entity: AddressAddVM)
+async function checkIfAddressWithTheSamePropertiesExist(
+    city: string,
+    restOfAddress: string
+)
 {
     let currentAddress = await Address.findOne({
-        city: entity.city,
-        restOfAddress: entity.restOfAddress
+        city: city,
+        restOfAddress: restOfAddress
     })
     return !!currentAddress;
-
 }

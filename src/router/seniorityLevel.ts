@@ -6,6 +6,8 @@ import {
     getSeniorityLevelById, getSeniorityLevelByIdAndFilter, getSeniorityLevelByTitle, updateExistSeniorityLevel
 } from "../utility/coreMethod/seniorityLevel";
 import {SeniorityLevelAddVm, SeniorityLevelDeleteVm, SeniorityLevelUpdateVm} from "../utility/type/seniorityLevel";
+import {getErrorMessageList, getSuccessMessageList} from "../utility/handler/messageHandler/messageMethod";
+import {currentAuthType} from "../utility/constant";
 
 export const seniorityLevelRouter = express.Router()
 
@@ -20,9 +22,7 @@ seniorityLevelRouter.get(
         }
         else
         {
-            return res.status(404).json({
-                Message: `No seniority level found!`
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -38,33 +38,13 @@ seniorityLevelRouter.get(
         }
         else
         {
-            return res.status(404).json({
-                Message: `No seniority level found!`
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
 
 seniorityLevelRouter.get(
-    `/:id`,
-    async (req, res) =>
-    {
-        let currentSeniorityLevel = await getSeniorityLevelById(req.params.id)
-        if (currentSeniorityLevel != null)
-        {
-            return res.status(200).json(currentSeniorityLevel)
-        }
-        else
-        {
-            return res.status(404).json({
-                Message: `No seniority level found!`
-            })
-        }
-    }
-)
-
-seniorityLevelRouter.get(
-    `/by_filter/:filter`,
+    `/by_filter/:filter?`,
     async (req, res) =>
     {
         let seniorityLevelList = await getSeniorityLevelByFilter(req.params.filter)
@@ -74,15 +54,13 @@ seniorityLevelRouter.get(
         }
         else
         {
-            return res.status(404).json({
-                Message: `No seniority level found!`
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
 
 seniorityLevelRouter.get(
-    `/by_title/:title`,
+    `/by_title/:title?`,
     async (req, res) =>
     {
         let seniorityLevelList = await getSeniorityLevelByTitle(req.params.title)
@@ -92,9 +70,7 @@ seniorityLevelRouter.get(
         }
         else
         {
-            return res.status(404).json({
-                Message: `No seniority level found!`
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -110,9 +86,23 @@ seniorityLevelRouter.get(
         }
         else
         {
-            return res.status(404).json({
-                Message: `No seniority level found!`
-            })
+            return res.status(404).json(getErrorMessageList())
+        }
+    }
+)
+
+seniorityLevelRouter.get(
+    `/:id`,
+    async (req, res) =>
+    {
+        let currentSeniorityLevel = await getSeniorityLevelById(req.params.id)
+        if (currentSeniorityLevel != null)
+        {
+            return res.status(200).json(currentSeniorityLevel)
+        }
+        else
+        {
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -122,20 +112,17 @@ seniorityLevelRouter.post(
     async (req, res) =>
     {
         let currentSeniorityLevelAddVm: SeniorityLevelAddVm = {
+            creator: currentAuthType.LOGIN_USER_ID,
             title: req.body.title
         }
         let result: boolean | null = await addNewSeniorityLevel(currentSeniorityLevelAddVm)
         if (result == true)
         {
-            return res.status(200).json({
-                Message: `${currentSeniorityLevelAddVm.title} Added Successfully!`
-            })
+            return res.status(200).json(getSuccessMessageList())
         }
         else
         {
-            return res.status(400).json({
-                Message: 'An error occurred!'
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )
@@ -145,16 +132,15 @@ seniorityLevelRouter.put(
     async (req, res) =>
     {
         let currentSeniorityLevelUpdateVm: SeniorityLevelUpdateVm = {
+            updater: currentAuthType.LOGIN_USER_ID,
             id: req.params.id,
             title: req.body.title,
             updateDate: new Date()
         }
-        let result: null | boolean = await updateExistSeniorityLevel(currentSeniorityLevelUpdateVm)
-        if (result == true)
+        let result: boolean = await updateExistSeniorityLevel(currentSeniorityLevelUpdateVm)
+        if (result)
         {
-            return res.status(200).json({
-                Message: `${currentSeniorityLevelUpdateVm.title} Updated Successfully!`
-            })
+            return res.status(200).json(getSuccessMessageList())
         }
         else
         {
@@ -176,15 +162,11 @@ seniorityLevelRouter.delete(
         let result: null | boolean = await deleteExistSeniorityLevel(currentSeniorityLevelDeleteVm)
         if (result == true)
         {
-            return res.status(200).json({
-                Message: `SeniorityLevel Deleted Successfully!`
-            })
+            return res.status(200).json(getSuccessMessageList())
         }
         else
         {
-            return res.status(400).json({
-                Message: 'An error occurred!'
-            })
+            return res.status(404).json(getErrorMessageList())
         }
     }
 )

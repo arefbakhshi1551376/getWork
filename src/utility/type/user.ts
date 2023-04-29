@@ -1,7 +1,6 @@
 import {Introduction} from "./introduction";
 import {Gender} from "./gender";
 import {City} from "./city";
-import {Request} from "./request";
 
 export type User = {
     name: string,
@@ -21,7 +20,9 @@ export type User = {
     gender?: Gender,
     city?: City,
     lastLoginDate?: Date,
+    creator?: User,
     createDate: Date,
+    updater?: User,
     updateDate: Date
 }
 
@@ -36,12 +37,14 @@ export type UserUpdateVm = {
     introduction?: string,
     gender?: string,
     city?: string,
+    updater?: string,
     updateDate: Date
 }
 
 export type UserUpdateImageVm = {
     id: string,
     image: string,
+    updater?: string,
     updateDate: Date
 }
 
@@ -86,7 +89,8 @@ export type UserAddByAdminVm = {
     isVerifiedPhoneNumber?: boolean,
     introduction?: string,
     gender?: string,
-    city?: string
+    city?: string,
+    creator: string
 }
 
 export type UserRegisterItselfVm = {
@@ -107,16 +111,19 @@ export type UserChangePasswordVm = {
     oldPassword: string,
     newPassword: string,
     repeatNewPassword: string,
+    updater?: string,
     updateDate: Date
 }
 
 export type UserChangeEnableStateVm = {
     id: string,
+    updater: string,
     updateDate: Date
 }
 
 export type UserChangeAdministrationStateVm = {
     id: string,
+    updater: string,
     updateDate: Date
 }
 

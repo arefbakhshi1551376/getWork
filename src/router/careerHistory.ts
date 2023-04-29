@@ -9,6 +9,7 @@ import {
 } from "../utility/coreMethod/careerHistory";
 import {CareerHistoryAddVm, CareerHistoryDeleteVm, CareerHistoryUpdateVm} from "../utility/type/careerHistory";
 import {getErrorMessageList} from "../utility/handler/messageHandler/messageMethod";
+import {currentAuthType} from "../utility/constant";
 
 export const careerHistoryRouter = express.Router()
 
@@ -97,6 +98,7 @@ careerHistoryRouter.post(
     async (req, res) =>
     {
         let currentCareerHistoryAddVm: CareerHistoryAddVm = {
+            creator: currentAuthType.LOGIN_USER_ID,
             endWorkingYear: req.body.endWorkingYear,
             isWorkingYet: req.body.isWorkingYet,
             startWorkingYear: req.body.startWorkingYear,
@@ -121,6 +123,7 @@ careerHistoryRouter.put(
     async (req, res) =>
     {
         let currentCareerHistoryUpdateVm: CareerHistoryUpdateVm = {
+            updater: currentAuthType.LOGIN_USER_ID,
             endWorkingYear: req.body.endWorkingYear,
             id: req.params.id,
             isWorkingYet: req.body.isWorkingYet,

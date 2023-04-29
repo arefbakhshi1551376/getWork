@@ -5,7 +5,7 @@ import {Gender} from "./gender";
 import {JobTime} from "./jobTime";
 import {JobPlace} from "./jobPlace";
 import {SeniorityLevel} from "./seniorityLevel";
-import {Request} from "./request";
+import {User} from "./user";
 
 export type JobAd = {
     introduction: Introduction,
@@ -20,7 +20,9 @@ export type JobAd = {
     requiredWorkExperience: number,
     isEnable: boolean,
     expireDate: Date,
+    creator: User,
     createDate: Date,
+    updater?: User,
     updateDate: Date
 }
 
@@ -36,6 +38,7 @@ export type JobAdAddVm = {
     seniorityLevel: string[],
     requiredWorkExperience: number,
     isEnable: boolean,
+    creator: string,
 }
 
 export type JobAdUpdateVm = {
@@ -51,12 +54,7 @@ export type JobAdUpdateVm = {
     seniorityLevel: string[],
     requiredWorkExperience: number,
     isEnable: boolean,
-    updateDate: Date
-}
-
-export type JobAdAddNewRequestVm = {
-    id: string,
-    request: string,
+    updater: string,
     updateDate: Date
 }
 

@@ -105,7 +105,7 @@ export async function getStatusByIdAndFilter(id: string, filter: any)
     }
 }
 
-export async function getStatusByTitle(title: string)
+export async function getStatusByTitle(title: any)
 {
     let currentStatus = await Status.findOne({
         title: title

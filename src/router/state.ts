@@ -9,6 +9,7 @@ import {
 } from "../utility/coreMethod/state";
 import {StateAddVm, StateDeleteVm, StateUpdateVm} from "../utility/type/state";
 import {getErrorMessageList, getSuccessMessageList} from "../utility/handler/messageHandler/messageMethod";
+import {currentAuthType} from "../utility/constant";
 
 export const stateRouter = express.Router()
 
@@ -97,6 +98,7 @@ stateRouter.post(
     async (req, res) =>
     {
         let currentStateAddVm: StateAddVm = {
+            creator: currentAuthType.LOGIN_USER_ID,
             country: req.body.country,
             title: req.body.title
         }
@@ -117,6 +119,7 @@ stateRouter.put(
     async (req, res) =>
     {
         let currentStateUpdateVm: StateUpdateVm = {
+            updater: currentAuthType.LOGIN_USER_ID,
             id: req.params.id,
             country: req.body.country,
             title: req.body.title,

@@ -8,6 +8,7 @@ import {
 } from "../utility/coreMethod/address";
 import {AddressAddVM, AddressDeleteVM, AddressUpdateVM} from "../utility/type/address";
 import {getErrorMessageList, getSuccessMessageList} from "../utility/handler/messageHandler/messageMethod";
+import {currentAuthType} from "../utility/constant";
 
 export const addressRouter = express.Router()
 
@@ -96,6 +97,7 @@ addressRouter.post(
     async (req, res) =>
     {
         let currentAddressAddVm: AddressAddVM = {
+            creator: currentAuthType.LOGIN_USER_ID,
             city: req.body.city,
             restOfAddress: req.body.restOfAddress
         }
@@ -116,6 +118,7 @@ addressRouter.put(
     async (req, res) =>
     {
         let currentAddressUpdateVm: AddressUpdateVM = {
+            updater: currentAuthType.LOGIN_USER_ID,
             updateDate: new Date(),
             id: req.params.id,
             city: req.body.city,

@@ -6,7 +6,9 @@ export type Request = {
     user: User,
     jobAd: JobAd,
     status: Status[],
+    creator: User,
     createDate: Date,
+    updater?: User,
     updateDate: Date
 }
 
@@ -26,6 +28,7 @@ export type RequestUpdateVm = {
 export type RequestUpdateStatusVm = {
     id: string,
     status: string,
+    updater: string,
     updateDate: Date
 }
 

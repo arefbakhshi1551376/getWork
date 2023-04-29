@@ -185,7 +185,10 @@ export async function addNewState(entity: StateAddVm): Promise<null | boolean>
         return null
     }
 
-    let currentStateExists = await checkIfStateWithTheSameTitleExist(entity)
+    let currentStateExists = await checkIfStateWithTheSameTitleExist(
+        entity.title,
+        entity.country
+    )
     if (currentStateExists)
     {
         addNewErrorMessage('A state with the same properties exists!')
@@ -239,7 +242,10 @@ export async function updateExistState(entity: StateUpdateVm)
 
     await getStateById(entity.id)
 
-    let currentStateExists = await checkIfStateWithTheSameTitleExist(entity)
+    let currentStateExists = await checkIfStateWithTheSameTitleExist(
+        entity.title,
+        entity.country
+    )
     if (currentStateExists)
     {
         addNewErrorMessage('A state with the same properties exists!')
@@ -309,11 +315,14 @@ export async function deleteExistState(entity: StateDeleteVm)
     }
 }
 
-async function checkIfStateWithTheSameTitleExist(entity: StateAddVm)
+async function checkIfStateWithTheSameTitleExist(
+    title: string,
+    country: string
+)
 {
     let currentState = await State.findOne({
-        title: entity.title,
-        country: entity.country
+        title: title,
+        country: country
     })
     return !!currentState;
 
