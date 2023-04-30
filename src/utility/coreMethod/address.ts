@@ -244,7 +244,7 @@ export async function addNewAddress(entity: AddressAddVM): Promise<null | boolea
     let currentAddress = new Address({
         city: entity.city,
         restOfAddress: entity.restOfAddress,
-        creator: currentAuthType.LOGIN_USER_ID
+        creator: entity.creator
     })
     let result = await currentAddress.save()
     if (result)

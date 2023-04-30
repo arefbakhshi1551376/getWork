@@ -6,7 +6,7 @@ import {
     getRequestByFilter,
     getRequestById,
     getRequestByIdAndFilter, updateExistRequest
-} from "../utility/coreMethod/request";
+} from "../utility/coreMethod/userRequest";
 import {RequestAddVm, RequestDeleteVm, RequestUpdateVm} from "../utility/type/request";
 import {getErrorMessageList, getSuccessMessageList} from "../utility/handler/messageHandler/messageMethod";
 import {currentAuthType} from "../utility/constant";

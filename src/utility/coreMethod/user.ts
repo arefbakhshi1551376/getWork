@@ -316,7 +316,9 @@ export async function changeExistUserPassword(entity: UserChangePasswordVm)
                 let currentUser = await User.findByIdAndUpdate(
                     previousUser.id,
                     {
-                        password: bcrypt.hashSync(entity.newPassword, 10)
+                        password: bcrypt.hashSync(entity.newPassword, 10),
+                        updater: entity.updater ? entity.updater : null,
+                        updateDate: entity.updateDate
                     }
                 )
                 return !!currentUser
@@ -358,6 +360,7 @@ export async function changeExistUserEnableState(entity: UserChangeEnableStateVm
             previousUser.id,
             {
                 isEnabled: !previousUser.isEnabled,
+                updater: entity.updater,
                 updateDate: entity.updateDate
             }
         )
@@ -387,6 +390,7 @@ export async function changeExistUserAdministrationState(entity: UserChangeAdmin
             previousUser.id,
             {
                 isAdmin: !previousUser.isAdmin,
+                updater: entity.updater,
                 updateDate: entity.updateDate
             }
         )
@@ -604,7 +608,8 @@ export async function addNewUserByAdmin(entity: UserAddByAdminVm): Promise<null 
             isVerifiedPhoneNumber: entity.isVerifiedPhoneNumber,
             gender: currentGender.id,
             city: currentCity.id,
-            introduction: currentIntroduction.id
+            introduction: currentIntroduction.id,
+            creator: entity.creator
         })
         let result = await currentUser.save()
         if (result)
@@ -725,6 +730,7 @@ export async function updateExistUser(entity: UserUpdateVm)
                 gender: currentGender.id,
                 city: currentCity.id,
                 lastLoginDate: currentAuthType.LOGIN_USER_ID == entity.id ? new Date() : null,
+                updater: entity.updater ? entity.updater : null,
                 updateDate: entity.updateDate
             }
         )
@@ -758,7 +764,8 @@ export async function updateExistUserVerifyEmail(entity: UserVerifyEmailVm)
             let currentUser = User.findByIdAndUpdate(
                 previousUser.id,
                 {
-                    isVerifiedEmail: true
+                    isVerifiedEmail: true,
+                    updateDate: entity.updateDate
                 }
             )
             return !!currentUser
@@ -789,7 +796,8 @@ export async function updateExistUserVerifyPhoneNumber(entity: UserVerifyPhoneNu
             let currentUser = User.findByIdAndUpdate(
                 previousUser.id,
                 {
-                    isVerifiedPhoneNumber: true
+                    isVerifiedPhoneNumber: true,
+                    updateDate: entity.updateDate
                 }
             )
             return !!currentUser
@@ -821,7 +829,9 @@ export async function updateExistUserImage(entity: UserUpdateImageVm)
         let currentUser = User.findByIdAndUpdate(
             entity.id,
             {
-                image: entity.image
+                image: entity.image,
+                updater: entity.updater ? entity.updater : null,
+                updateDate: entity.updateDate
             }
         )
         return !!currentUser

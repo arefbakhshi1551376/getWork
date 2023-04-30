@@ -164,6 +164,7 @@ export async function addNewDegree(entity: DegreeAddVm): Promise<null | boolean>
         instituteName: entity.instituteName,
         trainingCourse: entity.trainingCourse,
         dateOfIssue: entity.dateOfIssue,
+        creator: entity.creator
     })
     let result = await currentDegree.save()
     if (result)
@@ -196,6 +197,7 @@ export async function updateExistDegree(entity: DegreeUpdateVm)
             instituteName: entity.instituteName,
             trainingCourse: entity.trainingCourse,
             dateOfIssue: entity.dateOfIssue,
+            updater: entity.updater,
             updateDate: entity.updateDate
         }
     )

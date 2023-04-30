@@ -165,7 +165,8 @@ export async function addNewJobTime(entity: JobTimeAddVm): Promise<null | boolea
     }
 
     let currentJobTime = new JobTime({
-        title: entity.title
+        title: entity.title,
+        creator: entity.creator
     })
     let result = await currentJobTime.save()
     if (result)
@@ -203,6 +204,7 @@ export async function updateExistJobTime(entity: JobTimeUpdateVm)
         entity.id,
         {
             title: entity.title,
+            updater: entity.updater,
             updateDate: entity.updateDate
         }
     )

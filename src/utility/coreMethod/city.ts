@@ -223,7 +223,8 @@ export async function addNewCity(entity: CityAddVm): Promise<null | boolean>
 
     let currentCity = new City({
         title: entity.title,
-        state: entity.state
+        state: entity.state,
+        creator: entity.creator
     })
     let result = await currentCity.save()
     if (result)
@@ -280,6 +281,7 @@ export async function updateExistCity(entity: CityUpdateVm)
         {
             title: entity.title,
             state: entity.state,
+            updater: entity.updater,
             updateDate: entity.updateDate
         }
     )

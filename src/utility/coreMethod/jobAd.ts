@@ -612,6 +612,7 @@ export async function updateExistJobAd(entity: JobAdUpdateVm)
             seniorityLevel: entity.seniorityLevel,
             requiredWorkExperience: entity.requiredWorkExperience,
             isEnable: entity.isEnable,
+            updater: entity.updater,
             updateDate: entity.updateDate
         }
     )

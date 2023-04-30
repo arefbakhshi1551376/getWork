@@ -183,6 +183,7 @@ export async function addNewCareerHistory(entity: CareerHistoryAddVm): Promise<n
         startWorkingYear: entity.startWorkingYear,
         endWorkingYear: entity.endWorkingYear,
         isWorkingYet: entity.isWorkingYet,
+        creator: entity.creator
     })
     let result = await currentCareerHistory.save()
     if (result)
@@ -234,6 +235,7 @@ export async function updateExistCareerHistory(entity: CareerHistoryUpdateVm)
             startWorkingYear: entity.startWorkingYear,
             endWorkingYear: entity.endWorkingYear,
             isWorkingYet: entity.isWorkingYet,
+            updater: entity.updater,
             updateDate: entity.updateDate
         }
     )

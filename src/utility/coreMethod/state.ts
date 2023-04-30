@@ -210,7 +210,8 @@ export async function addNewState(entity: StateAddVm): Promise<null | boolean>
 
     let currentState = new State({
         title: entity.title,
-        country: entity.country
+        country: entity.country,
+        creator: entity.creator
     })
     let result = await currentState.save()
     if (result)
@@ -270,6 +271,7 @@ export async function updateExistState(entity: StateUpdateVm)
         {
             title: entity.title,
             country: entity.country,
+            updater: entity.updater,
             updateDate: entity.updateDate
         }
     )

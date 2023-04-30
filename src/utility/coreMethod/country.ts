@@ -53,6 +53,33 @@ export async function getAllCountry()
     }
 }
 
+export async function getCountryById(id: string)
+{
+    emptyMessageList()
+    if (idIsNotValid(id))
+    {
+        addNewErrorMessage(`The id ${id} is not valid!`)
+        return null
+    }
+
+    let currentCountry = await Country.findById(id)
+        .sort(
+            {
+                'createDate': -1
+            }
+        )
+
+    if (currentCountry)
+    {
+        return currentCountry
+    }
+    else
+    {
+        addNewErrorMessage(`We can not get current country`)
+        return null
+    }
+}
+
 export async function getCountryByFilter(filter: any)
 {
     emptyMessageList()
@@ -90,39 +117,18 @@ export async function getCountryByFilter(filter: any)
     }
 }
 
-export async function getCountryById(id: string)
-{
-    emptyMessageList()
-    if (idIsNotValid(id))
-    {
-        addNewErrorMessage(`The id ${id} is not valid!`)
-        return null
-    }
-
-    let currentCountry = await Country.findById(id)
-        .sort(
-            {
-                'createDate': -1
-            }
-        )
-
-    if (currentCountry)
-    {
-        return currentCountry
-    }
-    else
-    {
-        addNewErrorMessage(`We can not get current country`)
-        return null
-    }
-}
-
 export async function getCountryByIdAndFilter(id: string, filter: any)
 {
     emptyMessageList()
     if (!currentAuthType.IS_USER_ADMIN)
     {
         addNewErrorMessage('You are not admin. So you can`t access this part!')
+        return null
+    }
+
+    if (idIsNotValid(id))
+    {
+        addNewErrorMessage(`The id ${id} is not valid!`)
         return null
     }
 
@@ -162,27 +168,26 @@ export async function addNewCountry(entity: CountryAddVm): Promise<null | boolea
         return null
     }
 
-    let titleExist = await checkIfCountryWithTheSameTitleExist(entity.title)
-    if (!titleExist)
+    let currentCountryExists = await checkIfCountryWithTheSameTitleExist(entity.title)
+    if (currentCountryExists)
     {
-        let currentCountry = new Country({
-            title: entity.title
-        })
-        let result = await currentCountry.save()
-        if (result)
-        {
-            addNewSuccessMessage(`Current country added successfully!`)
-            return true
-        }
-        else
-        {
-            addNewErrorMessage(`Something went wrong! The country can not be added!`)
-            return false
-        }
+        addNewErrorMessage(`The country with the same properties exists!`)
+        return null
+    }
+
+    let currentCountry = new Country({
+        title: entity.title,
+        creator: entity.creator
+    })
+    let result = await currentCountry.save()
+    if (result)
+    {
+        addNewSuccessMessage(`Current country added successfully!`)
+        return true
     }
     else
     {
-        addNewErrorMessage(`A country with the same properties exists`)
+        addNewErrorMessage(`Something went wrong! The country can not be added!`)
         return false
     }
 }
@@ -201,32 +206,32 @@ export async function updateExistCountry(entity: CountryUpdateVm)
         addNewErrorMessage(`The id ${entity.id} is not valid!`)
         return null
     }
+
     await getCountryById(entity.id)
 
-    let titleExist = await checkIfCountryWithTheSameTitleExist(entity.title)
-    if (!titleExist)
+    let currentCountryExists = await checkIfCountryWithTheSameTitleExist(entity.title)
+    if (currentCountryExists)
     {
-        let result = await Country.findByIdAndUpdate(
-            entity.id,
-            {
-                title: entity.title,
-                updateDate: entity.updateDate
-            }
-        )
-        if (result)
+        addNewErrorMessage(`The country with the same properties exists!`)
+        return null
+    }
+
+    let result = await Country.findByIdAndUpdate(
+        entity.id,
         {
-            addNewSuccessMessage(`Current country updated successfully!`)
-            return true
+            title: entity.title,
+            updater: entity.updater,
+            updateDate: entity.updateDate
         }
-        else
-        {
-            addNewErrorMessage(`Something went wrong! The country can not be updated!`)
-            return false
-        }
+    )
+    if (result)
+    {
+        addNewSuccessMessage(`Current country updated successfully!`)
+        return true
     }
     else
     {
-        addNewErrorMessage(`A country with the same properties exists`)
+        addNewErrorMessage(`Something went wrong! The country can not be updated!`)
         return false
     }
 }
@@ -245,6 +250,7 @@ export async function deleteExistCountry(entity: CountryDeleteVm)
         addNewErrorMessage(`The id ${entity.id} is not valid!`)
         return null
     }
+
     await getCountryById(entity.id)
 
     let result = await Country.findByIdAndRemove(entity.id)

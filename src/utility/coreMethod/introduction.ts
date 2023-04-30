@@ -170,7 +170,8 @@ export async function addNewIntroduction(entity: IntroductionAddVm): Promise<nul
 
     let currentIntroduction = new Introduction({
         title: entity.title,
-        description: entity.description
+        description: entity.description,
+        creator: entity.creator
     })
     let result = await currentIntroduction.save()
     if (result)
@@ -217,6 +218,7 @@ export async function updateExistIntroduction(entity: IntroductionUpdateVm)
         {
             title: entity.title,
             description: entity.description,
+            updater: entity.updater,
             updateDate: entity.updateDate
         }
     )

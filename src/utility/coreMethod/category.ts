@@ -173,7 +173,8 @@ export async function addNewCategory(entity: CategoryAddVm): Promise<null | bool
     }
 
     let currentCategory = new Category({
-        title: entity.title
+        title: entity.title,
+        creator: entity.creator
     })
     let result = await currentCategory.save()
     if (result)
@@ -216,6 +217,7 @@ export async function updateExistCategory(entity: CategoryUpdateVm)
         entity.id,
         {
             title: entity.title,
+            updater: entity.updater,
             updateDate: entity.updateDate
         }
     )

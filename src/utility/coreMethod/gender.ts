@@ -205,7 +205,8 @@ export async function addNewGender(entity: GenderAddVm): Promise<null | boolean>
     }
 
     let currentGender = new Gender({
-        title: entity.title
+        title: entity.title,
+        creator: entity.creator
     })
     let result = await currentGender.save()
     if (result)
@@ -248,6 +249,7 @@ export async function updateExistGender(entity: GenderUpdateVm)
         entity.id,
         {
             title: entity.title,
+            updater: entity.updater,
             updateDate: entity.updateDate
         }
     )

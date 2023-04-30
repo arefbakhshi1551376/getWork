@@ -165,7 +165,8 @@ export async function addNewJobPlace(entity: JobPlaceAddVm): Promise<null | bool
     }
 
     let currentJobPlace = new JobPlace({
-        title: entity.title
+        title: entity.title,
+        creator: entity.creator
     })
     let result = await currentJobPlace.save()
     if (result)
@@ -203,6 +204,7 @@ export async function updateExistJobPlace(entity: JobPlaceUpdateVm)
         entity.id,
         {
             title: entity.title,
+            updater: entity.updater,
             updateDate: entity.updateDate
         }
     )

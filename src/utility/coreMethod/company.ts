@@ -275,6 +275,7 @@ export async function addNewCompany(entity: CompanyAddVm): Promise<null | boolea
         mainImage: entity.mainImage,
         albumImage: entity.albumImage,
         establishYear: entity.establishYear,
+        creator: entity.creator
     })
     let result = await currentCompany.save()
     if (result)
@@ -336,6 +337,7 @@ export async function updateExistCompany(entity: CompanyUpdateVm)
             phoneNumber: entity.phoneNumber,
             mainImage: entity.mainImage,
             establishYear: entity.establishYear,
+            updater: entity.updater,
             updateDate: entity.updateDate
         }
     )

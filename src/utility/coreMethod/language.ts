@@ -159,7 +159,8 @@ export async function addNewLanguage(entity: LanguageAddVm): Promise<null | bool
     }
 
     let currentLanguage = new Language({
-        title: entity.title
+        title: entity.title,
+        creator: entity.creator
     })
     let result = await currentLanguage.save()
     if (result)
@@ -197,6 +198,7 @@ export async function updateExistLanguage(entity: LanguageUpdateVm)
         entity.id,
         {
             title: entity.title,
+            updater: entity.updater,
             updateDate: entity.updateDate
         }
     )
