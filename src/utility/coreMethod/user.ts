@@ -17,13 +17,19 @@ import {
 } from "../constant";
 import {getVerifyUserEmailByToken} from "./verifyUserEmail";
 import {getVerifyUserPhoneNumberByToken} from "./verifyUserPhoneNumber";
-import {addNewErrorMessage, emptyMessageList} from "../handler/messageHandler/messageMethod";
+import {addNewErrorMessage, addNewSuccessMessage, emptyMessageList} from "../handler/messageHandler/messageMethod";
 import {addNewUserToken, getUserTokenByUserIdAndTokenUniqueCode, updateExistUserTokenIsWorkingYet} from "./userToken";
 import {userAuthUniqueTokenMaker} from "../maker";
 
 export async function getCountOfUser()
 {
     emptyMessageList()
+    if (!currentAuthType.IS_USER_ADMIN)
+    {
+        addNewErrorMessage('You are not admin. So you can`t access this part!')
+        return null
+    }
+
     let countOfUser = await User.count()
     if (countOfUser)
     {
@@ -39,6 +45,12 @@ export async function getCountOfUser()
 export async function getAllUser()
 {
     emptyMessageList()
+    if (!currentAuthType.IS_USER_ADMIN)
+    {
+        addNewErrorMessage('You are not admin. So you can`t access this part!')
+        return null
+    }
+
     let userList = await User.find()
         .populate({
             path: 'introduction',
@@ -77,51 +89,21 @@ export async function getAllUser()
     }
 }
 
-export async function getUserByFilter(filter: any)
-{
-    emptyMessageList()
-    let userList = await User.find()
-        .populate({
-            path: 'introduction',
-            select: 'title description'
-        })
-        .populate({
-            path: 'gender',
-            select: 'title'
-        })
-        .populate({
-            path: 'city',
-            select: 'title',
-            populate: {
-                path: 'state',
-                select: 'title',
-                populate: {
-                    path: 'country',
-                    populate: 'title'
-                }
-            }
-        })
-        .select(`${filter}`)
-        .sort(
-            {
-                'createDate': -1
-            }
-        )
-
-    if (userList)
-    {
-        return userList
-    }
-    else
-    {
-        addNewErrorMessage('Sorry! We can`t get list of users!')
-        return null
-    }
-}
-
 export async function getUserById(id: string)
 {
     emptyMessageList()
+    if (!currentAuthType.IS_USER_ADMIN)
+    {
+        addNewErrorMessage('You are not admin. So you can`t access this part!')
+        return null
+    }
+
+    if (idIsNotValid(id))
+    {
+        addNewErrorMessage(`Id ${id} is not valid!`)
+        return null
+    }
+
     let currentUser = await User.findById(id)
         .populate({
             path: 'introduction',
@@ -160,37 +142,112 @@ export async function getUserById(id: string)
     }
 }
 
-export async function getUserByEmail(email: string)
+export async function getUserByFilter(filter: any)
 {
     emptyMessageList()
-    let currentUser = await User.find({
-        email: email
-    })
-        .populate({
-            path: 'introduction',
-            select: 'title description'
-        })
-        .populate({
-            path: 'gender',
-            select: 'title'
-        })
-        .populate({
-            path: 'city',
-            select: 'title',
-            populate: {
-                path: 'state',
+    if (!currentAuthType.IS_USER_ADMIN)
+    {
+        addNewErrorMessage('You are not admin. So you can`t access this part!')
+        return null
+    }
+
+    let userList: any
+
+    if (filter)
+    {
+        userList = await User.find()
+            .populate({
+                path: 'introduction',
+                select: 'title description'
+            })
+            .populate({
+                path: 'gender',
+                select: 'title'
+            })
+            .populate({
+                path: 'city',
                 select: 'title',
                 populate: {
-                    path: 'country',
-                    populate: 'title'
+                    path: 'state',
+                    select: 'title',
+                    populate: {
+                        path: 'country',
+                        populate: 'title'
+                    }
                 }
-            }
+            })
+            .select(`${filter}`)
+            .sort(
+                {
+                    'createDate': -1
+                }
+            );
+    }
+    else
+    {
+        addNewErrorMessage(`You have to enter a filter!`)
+        return null
+    }
+
+    if (userList)
+    {
+        return userList
+    }
+    else
+    {
+        addNewErrorMessage('Sorry! We can`t get list of users!')
+        return null
+    }
+}
+
+
+export async function getUserByEmail(email: any)
+{
+    emptyMessageList()
+    if (!currentAuthType.IS_USER_ADMIN)
+    {
+        addNewErrorMessage('You are not admin. So you can`t access this part!')
+        return null
+    }
+
+    let currentUser: any
+
+    if (email)
+    {
+        currentUser = await User.findOne({
+            email: email
         })
-        .sort(
-            {
-                'createDate': -1
-            }
-        )
+            .populate({
+                path: 'introduction',
+                select: 'title description'
+            })
+            .populate({
+                path: 'gender',
+                select: 'title'
+            })
+            .populate({
+                path: 'city',
+                select: 'title',
+                populate: {
+                    path: 'state',
+                    select: 'title',
+                    populate: {
+                        path: 'country',
+                        populate: 'title'
+                    }
+                }
+            })
+            .sort(
+                {
+                    'createDate': -1
+                }
+            );
+    }
+    else
+    {
+        addNewErrorMessage(`You have to enter an email!`)
+        return null
+    }
 
     if (currentUser)
     {
@@ -198,7 +255,7 @@ export async function getUserByEmail(email: string)
     }
     else
     {
-        addNewErrorMessage('Sorry! We can`t get list of users!')
+        addNewErrorMessage('Sorry! We can`t get current user!')
         return null
     }
 }
@@ -206,34 +263,50 @@ export async function getUserByEmail(email: string)
 export async function getUserByPhoneNumber(phoneNumber: string)
 {
     emptyMessageList()
-    let currentUser = await User.find({
-        phoneNumber: phoneNumber
-    })
-        .populate({
-            path: 'introduction',
-            select: 'title description'
+    if (!currentAuthType.IS_USER_ADMIN)
+    {
+        addNewErrorMessage('You are not admin. So you can`t access this part!')
+        return null
+    }
+
+    let currentUser: any
+
+    if (phoneNumber)
+    {
+        currentUser = await User.findOne({
+            phoneNumber: phoneNumber
         })
-        .populate({
-            path: 'gender',
-            select: 'title'
-        })
-        .populate({
-            path: 'city',
-            select: 'title',
-            populate: {
-                path: 'state',
+            .populate({
+                path: 'introduction',
+                select: 'title description'
+            })
+            .populate({
+                path: 'gender',
+                select: 'title'
+            })
+            .populate({
+                path: 'city',
                 select: 'title',
                 populate: {
-                    path: 'country',
-                    populate: 'title'
+                    path: 'state',
+                    select: 'title',
+                    populate: {
+                        path: 'country',
+                        populate: 'title'
+                    }
                 }
-            }
-        })
-        .sort(
-            {
-                'createDate': -1
-            }
-        )
+            })
+            .sort(
+                {
+                    'createDate': -1
+                }
+            );
+    }
+    else
+    {
+        addNewErrorMessage(`You have to enter a phone number!`)
+        return null
+    }
 
     if (currentUser)
     {
@@ -241,7 +314,7 @@ export async function getUserByPhoneNumber(phoneNumber: string)
     }
     else
     {
-        addNewErrorMessage('Sorry! We can`t get list of users!')
+        addNewErrorMessage('Sorry! We can`t get current user!')
         return null
     }
 }
@@ -249,7 +322,20 @@ export async function getUserByPhoneNumber(phoneNumber: string)
 export async function getUserByIdAndFilter(id: string, filter: any)
 {
     emptyMessageList()
+    if (!currentAuthType.IS_USER_ADMIN)
+    {
+        addNewErrorMessage('You are not admin. So you can`t access this part!')
+        return null
+    }
+
+    if (idIsNotValid(id))
+    {
+        addNewErrorMessage(`Id ${id} is not valid!`)
+        return null
+    }
+
     let currentUser: any
+
     if (filter)
     {
         currentUser = await User.findById(id)
@@ -296,9 +382,15 @@ export async function getUserByIdAndFilter(id: string, filter: any)
     }
 }
 
-export async function changeExistUserPassword(entity: UserChangePasswordVm)
+export async function updateExistUserPassword(entity: UserChangePasswordVm)
 {
     emptyMessageList()
+    if (!currentAuthType.IS_USER_ADMIN)
+    {
+        addNewErrorMessage('You are not admin. So you can`t access this part!')
+        return null
+    }
+
     if (idIsNotValid(entity.id))
     {
         addNewErrorMessage(`the id ${entity.id} is not valid!`)
@@ -306,46 +398,58 @@ export async function changeExistUserPassword(entity: UserChangePasswordVm)
     }
 
     let previousUser: any = await getUserById(entity.id)
-
-    if (previousUser)
+    if (!previousUser)
     {
-        if (bcrypt.compareSync(entity.oldPassword, previousUser.password))
+        addNewErrorMessage(`No user with id ${entity.id} exists!`)
+        return null
+    }
+
+    if (bcrypt.compareSync(entity.oldPassword, previousUser.password))
+    {
+        if (entity.newPassword == entity.repeatNewPassword)
         {
-            if (entity.newPassword == entity.repeatNewPassword)
+            let result = await User.findByIdAndUpdate(
+                previousUser.id,
+                {
+                    password: bcrypt.hashSync(entity.newPassword, 10),
+                    updater: entity.updater ? entity.updater : null,
+                    updateDate: entity.updateDate
+                }
+            )
+            if (result)
             {
-                let currentUser = await User.findByIdAndUpdate(
-                    previousUser.id,
-                    {
-                        password: bcrypt.hashSync(entity.newPassword, 10),
-                        updater: entity.updater ? entity.updater : null,
-                        updateDate: entity.updateDate
-                    }
-                )
-                return !!currentUser
+                addNewSuccessMessage(`The address updated successfully!`)
+                return true
             }
             else
             {
-                addNewErrorMessage('You have to repeat new password correctly!')
-                return null
+                addNewErrorMessage(`Something went wrong! The address can not be updated!`)
+                return false
             }
         }
         else
         {
-
-            addNewErrorMessage('Sorry! Your old password is wrong!')
+            addNewErrorMessage('You have to repeat new password correctly!')
             return null
         }
     }
     else
     {
-        addNewErrorMessage(`No user with id ${entity.id} exists!`)
+        addNewErrorMessage('Sorry! Your old password is wrong!')
         return null
     }
+
 }
 
-export async function changeExistUserEnableState(entity: UserChangeEnableStateVm)
+export async function updateExistUserEnableState(entity: UserChangeEnableStateVm)
 {
     emptyMessageList()
+    if (!currentAuthType.IS_USER_ADMIN)
+    {
+        addNewErrorMessage('You are not admin. So you can`t access this part!')
+        return null
+    }
+
     if (idIsNotValid(entity.id))
     {
         addNewErrorMessage(`the id ${entity.id} is not valid!`)
@@ -353,29 +457,41 @@ export async function changeExistUserEnableState(entity: UserChangeEnableStateVm
     }
 
     let previousUser: any = await getUserById(entity.id)
-
-    if (previousUser)
-    {
-        let currentUser = await User.findByIdAndUpdate(
-            previousUser.id,
-            {
-                isEnabled: !previousUser.isEnabled,
-                updater: entity.updater,
-                updateDate: entity.updateDate
-            }
-        )
-        return !!currentUser
-    }
-    else
+    if (!previousUser)
     {
         addNewErrorMessage(`No user with id ${entity.id} exists!`)
         return null
     }
+
+    let result = await User.findByIdAndUpdate(
+        previousUser.id,
+        {
+            isEnabled: !previousUser.isEnabled,
+            updater: entity.updater,
+            updateDate: entity.updateDate
+        }
+    )
+    if (result)
+    {
+        addNewSuccessMessage(`The address updated successfully!`)
+        return true
+    }
+    else
+    {
+        addNewErrorMessage(`Something went wrong! The address can not be updated!`)
+        return false
+    }
 }
 
-export async function changeExistUserAdministrationState(entity: UserChangeAdministrationStateVm)
+export async function updateExistUserAdministrationState(entity: UserChangeAdministrationStateVm)
 {
     emptyMessageList()
+    if (!currentAuthType.IS_USER_ADMIN)
+    {
+        addNewErrorMessage('You are not admin. So you can`t access this part!')
+        return null
+    }
+
     if (idIsNotValid(entity.id))
     {
         addNewErrorMessage(`the id ${entity.id} is not valid!`)
@@ -383,133 +499,154 @@ export async function changeExistUserAdministrationState(entity: UserChangeAdmin
     }
 
     let previousUser: any = await getUserById(entity.id)
-
-    if (previousUser)
+    if (!previousUser)
     {
-        let currentUser = await User.findByIdAndUpdate(
-            previousUser.id,
-            {
-                isAdmin: !previousUser.isAdmin,
-                updater: entity.updater,
-                updateDate: entity.updateDate
-            }
-        )
-        return !!currentUser
+
+        addNewErrorMessage(`No user with id ${entity.id} exists!`)
+        return null
+    }
+
+    let result = await User.findByIdAndUpdate(
+        previousUser.id,
+        {
+            isAdmin: !previousUser.isAdmin,
+            updater: entity.updater,
+            updateDate: entity.updateDate
+        }
+    )
+    if (result)
+    {
+        addNewSuccessMessage(`The address updated successfully!`)
+        return true
     }
     else
     {
-        addNewErrorMessage(`No user with id ${entity.id} exists!`)
-        return null
+        addNewErrorMessage(`Something went wrong! The address can not be updated!`)
+        return false
     }
 }
 
 export async function registerNewUserByItself(entity: UserRegisterItselfVm)
 {
     emptyMessageList()
-    let userNameExist = await checkIfUserWithTheSameUserNameExist(entity.userName)
 
-    let emailExist: boolean = false
+    if (currentAuthType.LOGIN_USER_ID && currentAuthType.LOGIN_USER_ID != '')
+    {
+        addNewErrorMessage('You are log in and can not login again!')
+        return null
+    }
+
+    let currentUserWithUserNameExists = await checkIfUserWithTheSameUserNameExist(entity.userName)
+    if (currentUserWithUserNameExists)
+    {
+        addNewErrorMessage(`The user with user name ${entity.userName} exists!`)
+        return null
+    }
+
+    let currentUserWithEmailExists: boolean = false
     if (entity.email)
     {
-        emailExist = await checkIfUserWithTheSameEmailExist(entity.email);
+        currentUserWithEmailExists = await checkIfUserWithTheSameEmailExist(entity.email);
+        if (currentUserWithEmailExists)
+        {
+            addNewErrorMessage(`The user with email ${entity.email} exists!`)
+            return null
+        }
     }
 
-    let phoneNumberExist: boolean = false;
+    let currentUserWithPhoneNumberExists: boolean = false;
     if (entity.phoneNumber)
     {
-        phoneNumberExist = await checkIfUserWithTheSamePhoneNumberExist(entity.phoneNumber);
+        currentUserWithPhoneNumberExists = await checkIfUserWithTheSamePhoneNumberExist(entity.phoneNumber);
+        if (currentUserWithPhoneNumberExists)
+        {
+            addNewErrorMessage(`The user with phone number ${entity.phoneNumber} exists!`)
+            return null
+        }
     }
 
-    if (!userNameExist && !emailExist && !phoneNumberExist)
+    let currentGender: any
+    if (entity.gender)
     {
-        let currentGender: any
-        if (entity.gender)
+        if (idIsNotValid(entity.gender))
         {
-            if (idIsNotValid(entity.gender))
-            {
-                addNewErrorMessage('Gender id exists but it is not valid!' +
-                    'So we set it manually!')
-                currentGender = await getGenderByTitle('Not Detected')
-                return null
-            }
-            else
-            {
-                currentGender = await getGenderById(entity.gender)
-            }
-        }
-        else
-        {
-            addNewErrorMessage('Gender id does not exist!' +
+            addNewErrorMessage('Gender id exists but it is not valid!' +
                 'So we set it manually!')
             currentGender = await getGenderByTitle('Not Detected')
             return null
         }
-
-        let currentCity: any
-        if (entity.city)
-        {
-            if (idIsNotValid(entity.city))
-            {
-                addNewErrorMessage('City id exists but it is not valid!')
-                return null
-            }
-            else
-            {
-                currentCity = await getCityById(entity.city)
-            }
-        }
         else
         {
-            addNewErrorMessage('City id does not exist')
-            return null
-        }
-
-        let currentIntroduction: any
-        if (entity.introduction)
-        {
-            if (idIsNotValid(entity.introduction))
-            {
-                addNewErrorMessage('Introduction id exists but it is not valid!')
-                return null
-            }
-            else
-            {
-                currentIntroduction = await getIntroductionById(entity.introduction)
-            }
-        }
-        else
-        {
-            addNewErrorMessage('Introduction id does not exist')
-            return null
-        }
-
-        let currentUser = new User({
-            name: entity.name,
-            family: entity.family,
-            userName: entity.userName,
-            email: entity.email,
-            phoneNumber: entity.phoneNumber,
-            image: entity.image,
-            password: bcrypt.hashSync(entity.password),
-            gender: currentGender.id,
-            city: currentCity.id,
-            introduction: currentIntroduction.id
-        })
-        let result = await currentUser.save()
-        if (result)
-        {
-            console.log(result)
-            return true
-        }
-        else
-        {
-            addNewErrorMessage('we can not save the user! something went wrong!')
-            return false
+            currentGender = await getGenderById(entity.gender)
         }
     }
     else
     {
-        addNewErrorMessage('An user with this properties exists!')
+        addNewErrorMessage('Gender id does not exist!' +
+            'So we set it manually!')
+        currentGender = await getGenderByTitle('Not Detected')
+        return null
+    }
+
+    let currentCity: any
+    if (entity.city)
+    {
+        if (idIsNotValid(entity.city))
+        {
+            addNewErrorMessage('City id exists but it is not valid!')
+            return null
+        }
+        else
+        {
+            currentCity = await getCityById(entity.city)
+        }
+    }
+    else
+    {
+        addNewErrorMessage('City id does not exist')
+        return null
+    }
+
+    let currentIntroduction: any
+    if (entity.introduction)
+    {
+        if (idIsNotValid(entity.introduction))
+        {
+            addNewErrorMessage('Introduction id exists but it is not valid!')
+            return null
+        }
+        else
+        {
+            currentIntroduction = await getIntroductionById(entity.introduction)
+        }
+    }
+    else
+    {
+        addNewErrorMessage('Introduction id does not exist')
+        return null
+    }
+
+    let currentUser = new User({
+        name: entity.name,
+        family: entity.family,
+        userName: entity.userName,
+        email: entity.email,
+        phoneNumber: entity.phoneNumber,
+        image: entity.image,
+        password: bcrypt.hashSync(entity.password),
+        gender: currentGender.id,
+        city: currentCity.id,
+        introduction: currentIntroduction.id
+    })
+    let result = await currentUser.save()
+    if (result)
+    {
+        addNewSuccessMessage('You registered successfully!')
+        return true
+    }
+    else
+    {
+        addNewErrorMessage('we can not save your data! something went wrong!')
         return false
     }
 }
@@ -517,115 +654,129 @@ export async function registerNewUserByItself(entity: UserRegisterItselfVm)
 export async function addNewUserByAdmin(entity: UserAddByAdminVm): Promise<null | boolean>
 {
     emptyMessageList()
-    let userNameExist = await checkIfUserWithTheSameUserNameExist(entity.userName)
+    if (!currentAuthType.IS_USER_ADMIN)
+    {
+        addNewErrorMessage('You are not admin. So you can`t access this part!')
+        return null
+    }
 
-    let emailExist: boolean = false
+    let currentUserWithUserNameExists = await checkIfUserWithTheSameUserNameExist(entity.userName)
+    if (currentUserWithUserNameExists)
+    {
+        addNewErrorMessage(`The user with user name ${entity.userName} exists!`)
+        return null
+    }
+
+    let currentUserWithEmailExists: boolean = false
     if (entity.email)
     {
-        emailExist = await checkIfUserWithTheSameEmailExist(entity.email);
+        currentUserWithEmailExists = await checkIfUserWithTheSameEmailExist(entity.email);
+        if (currentUserWithEmailExists)
+        {
+            addNewErrorMessage(`The user with email ${entity.email} exists!`)
+            return null
+        }
     }
 
-    let phoneNumberExist: boolean = false;
+    let currentUserWithPhoneNumberExists: boolean = false;
     if (entity.phoneNumber)
     {
-        phoneNumberExist = await checkIfUserWithTheSamePhoneNumberExist(entity.phoneNumber);
+        currentUserWithPhoneNumberExists = await checkIfUserWithTheSamePhoneNumberExist(entity.phoneNumber);
+        if (currentUserWithPhoneNumberExists)
+        {
+            addNewErrorMessage(`The user with phone number ${entity.phoneNumber} exists!`)
+            return null
+        }
     }
 
-    if (!userNameExist && !emailExist && !phoneNumberExist)
+
+    let currentGender: any
+    if (entity.gender)
     {
-        let currentGender: any
-        if (entity.gender)
+        if (idIsNotValid(entity.gender))
         {
-            if (idIsNotValid(entity.gender))
-            {
-                addNewErrorMessage('Gender id exists but it is not valid!' +
-                    'So we set it manually!')
-                currentGender = await getGenderByTitle('Not Detected')
-                return null
-            }
-            else
-            {
-                currentGender = await getGenderById(entity.gender)
-            }
-        }
-        else
-        {
-            addNewErrorMessage('Gender id does not exist!' +
+            addNewErrorMessage('Gender id exists but it is not valid!' +
                 'So we set it manually!')
             currentGender = await getGenderByTitle('Not Detected')
             return null
         }
-
-        let currentCity: any
-        if (entity.city)
-        {
-            if (idIsNotValid(entity.city))
-            {
-                addNewErrorMessage('City id exists but it is not valid!')
-                return null
-            }
-            else
-            {
-                currentCity = await getCityById(entity.city)
-            }
-        }
         else
         {
-            addNewErrorMessage('City id does not exist')
-            return null
-        }
-
-        let currentIntroduction: any
-        if (entity.introduction)
-        {
-            if (idIsNotValid(entity.introduction))
-            {
-                addNewErrorMessage('Introduction id exists but it is not valid!')
-                return null
-            }
-            else
-            {
-                currentIntroduction = await getIntroductionById(entity.introduction)
-            }
-        }
-        else
-        {
-            addNewErrorMessage('Introduction id does not exist')
-            return null
-        }
-
-        let currentUser = new User({
-            name: entity.name,
-            family: entity.family,
-            userName: entity.userName,
-            email: entity.email,
-            phoneNumber: entity.phoneNumber,
-            image: entity.image,
-            password: bcrypt.hashSync(entity.password),
-            isEnabled: entity.isEnabled,
-            isAdmin: entity.isAdmin,
-            isVerifiedEmail: entity.isVerifiedEmail,
-            isVerifiedPhoneNumber: entity.isVerifiedPhoneNumber,
-            gender: currentGender.id,
-            city: currentCity.id,
-            introduction: currentIntroduction.id,
-            creator: entity.creator
-        })
-        let result = await currentUser.save()
-        if (result)
-        {
-            console.log(result)
-            return true
-        }
-        else
-        {
-            addNewErrorMessage('This user can not be added!')
-            return false
+            currentGender = await getGenderById(entity.gender)
         }
     }
     else
     {
-        addNewErrorMessage('An user with this properties exists!')
+        addNewErrorMessage('Gender id does not exist!' +
+            'So we set it manually!')
+        currentGender = await getGenderByTitle('Not Detected')
+        return null
+    }
+
+    let currentCity: any
+    if (entity.city)
+    {
+        if (idIsNotValid(entity.city))
+        {
+            addNewErrorMessage('City id exists but it is not valid!')
+            return null
+        }
+        else
+        {
+            currentCity = await getCityById(entity.city)
+        }
+    }
+    else
+    {
+        addNewErrorMessage('City id does not exist')
+        return null
+    }
+
+    let currentIntroduction: any
+    if (entity.introduction)
+    {
+        if (idIsNotValid(entity.introduction))
+        {
+            addNewErrorMessage('Introduction id exists but it is not valid!')
+            return null
+        }
+        else
+        {
+            currentIntroduction = await getIntroductionById(entity.introduction)
+        }
+    }
+    else
+    {
+        addNewErrorMessage('Introduction id does not exist')
+        return null
+    }
+
+    let currentUser = new User({
+        name: entity.name,
+        family: entity.family,
+        userName: entity.userName,
+        email: entity.email,
+        phoneNumber: entity.phoneNumber,
+        image: entity.image,
+        password: bcrypt.hashSync(entity.password),
+        isEnabled: entity.isEnabled,
+        isAdmin: entity.isAdmin,
+        isVerifiedEmail: entity.isVerifiedEmail,
+        isVerifiedPhoneNumber: entity.isVerifiedPhoneNumber,
+        gender: currentGender.id,
+        city: currentCity.id,
+        introduction: currentIntroduction.id,
+        creator: entity.creator
+    })
+    let result = await currentUser.save()
+    if (result)
+    {
+        addNewSuccessMessage('the user added successfully!')
+        return true
+    }
+    else
+    {
+        addNewErrorMessage('we can not save the user! something went wrong!')
         return false
     }
 }
@@ -761,14 +912,23 @@ export async function updateExistUserVerifyEmail(entity: UserVerifyEmailVm)
         let previousUser: any = await getUserByEmail(currentUserEmail)
         if (previousUser)
         {
-            let currentUser = User.findByIdAndUpdate(
+            let result = User.findByIdAndUpdate(
                 previousUser.id,
                 {
                     isVerifiedEmail: true,
                     updateDate: entity.updateDate
                 }
             )
-            return !!currentUser
+            if (result)
+            {
+                addNewSuccessMessage('Your email verified successfully!')
+                return true
+            }
+            else
+            {
+                addNewErrorMessage('Something went wrong!')
+                return false
+            }
         }
         else
         {
@@ -786,21 +946,30 @@ export async function updateExistUserVerifyEmail(entity: UserVerifyEmailVm)
 export async function updateExistUserVerifyPhoneNumber(entity: UserVerifyPhoneNumberVm)
 {
     emptyMessageList()
-    let currentVerifyUserPhoneNumber: any = await getVerifyUserPhoneNumberByToken(entity.token)
+    let currentVerifyUserPhoneNumber: any = await getVerifyUserPhoneNumberByToken(entity.verificationCode)
     if (currentVerifyUserPhoneNumber)
     {
         let currentUserPhoneNumber = currentVerifyUserPhoneNumber.phoneNumber
         let previousUser: any = await getUserByPhoneNumber(currentUserPhoneNumber)
         if (previousUser)
         {
-            let currentUser = User.findByIdAndUpdate(
+            let result = User.findByIdAndUpdate(
                 previousUser.id,
                 {
                     isVerifiedPhoneNumber: true,
                     updateDate: entity.updateDate
                 }
             )
-            return !!currentUser
+            if (result)
+            {
+                addNewSuccessMessage('Your phone number verified successfully!')
+                return true
+            }
+            else
+            {
+                addNewErrorMessage('Something went wrong!')
+                return false
+            }
         }
         else
         {
@@ -810,7 +979,7 @@ export async function updateExistUserVerifyPhoneNumber(entity: UserVerifyPhoneNu
     }
     else
     {
-        addNewErrorMessage('The link for phone number verification is invalid')
+        addNewErrorMessage('The code for phone number verification is invalid')
         return null
     }
 }
@@ -823,10 +992,11 @@ export async function updateExistUserImage(entity: UserUpdateImageVm)
         addNewErrorMessage(`The id ${entity.id} is not valid!`)
         return null
     }
+
     let previousUser: any = await getUserById(entity.id)
     if (previousUser)
     {
-        let currentUser = User.findByIdAndUpdate(
+        let result = User.findByIdAndUpdate(
             entity.id,
             {
                 image: entity.image,
@@ -834,7 +1004,16 @@ export async function updateExistUserImage(entity: UserUpdateImageVm)
                 updateDate: entity.updateDate
             }
         )
-        return !!currentUser
+        if (result)
+        {
+            addNewSuccessMessage('User image updated successfully!')
+            return true
+        }
+        else
+        {
+            addNewErrorMessage('Something went wrong!')
+            return false
+        }
     }
     else
     {
@@ -860,6 +1039,13 @@ export async function logoutExistUser()
 export async function loginExistUser(entity: UserLoginVm)
 {
     emptyMessageList()
+
+    if (currentAuthType.LOGIN_USER_ID && currentAuthType.LOGIN_USER_ID != '')
+    {
+        addNewErrorMessage('You are log in and can not login again!')
+        return null
+    }
+
     let currentUser: any = null
 
     if (entity.email)
@@ -942,13 +1128,28 @@ export async function loginExistUser(entity: UserLoginVm)
 
 export async function deleteExistUser(entity: UserDeleteVm)
 {
+    emptyMessageList()
+
     if (idIsNotValid(entity.id))
     {
         addNewErrorMessage(`The id ${entity.id} is not valid!`)
         return null
     }
+
+    await getUserById(entity.id)
+
     let result = await User.findByIdAndRemove(entity.id)
-    return !!result;
+
+    if (result)
+    {
+        addNewSuccessMessage(`The address deleted successfully!`)
+        return true
+    }
+    else
+    {
+        addNewErrorMessage(`Something went wrong! The address can not be deleted!`)
+        return false
+    }
 }
 
 export async function isAnyUserLogin()

@@ -1,6 +1,5 @@
 import {UserRequest} from "../../mvc/model/userRequest";
 import {idIsNotValid} from "../validator";
-import {JobAd} from "../../mvc/model/jobAd";
 import {RequestAddVm, RequestDeleteVm, RequestUpdateVm} from "../type/request";
 import {getJobAdById} from "./jobAd";
 import {getStatusById, getStatusByTitle} from "./status";
@@ -463,7 +462,7 @@ export async function deleteExistRequestByJobAd(jobAdId: string)
         addNewErrorMessage(`The id ${jobAdId} is invalid!`)
         return null
     }
-    let result = UserRequest.deleteMany({
+    let result = await UserRequest.deleteMany({
         jobAd: jobAdId
     })
     if (result)

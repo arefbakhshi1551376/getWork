@@ -5,6 +5,7 @@ import {addNewStatus, getStatusById, getStatusByTitle} from "./coreMethod/status
 import {StatusAddVm} from "./type/status";
 import {addNewSeniorityLevel, getSeniorityLevelByTitle} from "./coreMethod/seniorityLevel";
 import {SeniorityLevelAddVm} from "./type/seniorityLevel";
+import {currentAuthType} from "./constant";
 
 export function nameMaker(numberOfCharacters: number = 10): string
 {
@@ -76,6 +77,7 @@ export async function defaultGenderMaker()
     {
         console.log('Female is not exists')
         let genderAddMaleVm: GenderAddVm = {
+            creator: currentAuthType.LOGIN_USER_ID,
             title: 'Male'
         }
         await addNewGender(genderAddMaleVm)
@@ -85,6 +87,7 @@ export async function defaultGenderMaker()
     {
         console.log('Male is not exists')
         let genderAddFemaleVm: GenderAddVm = {
+            creator: currentAuthType.LOGIN_USER_ID,
             title: 'Female'
         }
         await addNewGender(genderAddFemaleVm)
@@ -94,6 +97,7 @@ export async function defaultGenderMaker()
     {
         console.log('NotDetected is not exists')
         let genderAddNotDetectedVm: GenderAddVm = {
+            creator: currentAuthType.LOGIN_USER_ID,
             title: 'Not Detected'
         }
         await addNewGender(genderAddNotDetectedVm)
@@ -109,6 +113,7 @@ export async function defaultStatusMaker()
     if (!seenStatus)
     {
         let seenStatusAddVm: StatusAddVm = {
+            creator: currentAuthType.LOGIN_USER_ID,
             title: 'Seen'
         }
         await addNewStatus(seenStatusAddVm)
@@ -117,6 +122,7 @@ export async function defaultStatusMaker()
     if (!verifyExpectedStatus)
     {
         let verifyExpectedStatusAddVm: StatusAddVm = {
+            creator: currentAuthType.LOGIN_USER_ID,
             title: 'Verify Expected'
         }
         await addNewStatus(verifyExpectedStatusAddVm)
@@ -125,6 +131,7 @@ export async function defaultStatusMaker()
     if (!deniedStatus)
     {
         let deniedStatusAddVm: StatusAddVm = {
+            creator: currentAuthType.LOGIN_USER_ID,
             title: 'Denied'
         }
         await addNewStatus(deniedStatusAddVm)
@@ -141,6 +148,7 @@ export async function defaultSeniorityLevelMaker()
     if (!internSeniorityLevel)
     {
         let internSeniorityLevelAddVm: SeniorityLevelAddVm = {
+            creator: currentAuthType.LOGIN_USER_ID,
             title: 'Intern'
         }
         await addNewSeniorityLevel(internSeniorityLevelAddVm)
@@ -149,6 +157,7 @@ export async function defaultSeniorityLevelMaker()
     if (!juniorSeniorityLevel)
     {
         let juniorSeniorityLevelAddVm: SeniorityLevelAddVm = {
+            creator: currentAuthType.LOGIN_USER_ID,
             title: 'Junior'
         }
         await addNewSeniorityLevel(juniorSeniorityLevelAddVm)
@@ -157,6 +166,7 @@ export async function defaultSeniorityLevelMaker()
     if (!seniorSeniorityLevel)
     {
         let seniorSeniorityLevelAddVm: SeniorityLevelAddVm = {
+            creator: currentAuthType.LOGIN_USER_ID,
             title: 'Senior'
         }
         await addNewSeniorityLevel(seniorSeniorityLevelAddVm)
@@ -165,6 +175,7 @@ export async function defaultSeniorityLevelMaker()
     if (!midLevelSeniorityLevel)
     {
         let midLevelSeniorityLevelAddVm: SeniorityLevelAddVm = {
+            creator: currentAuthType.LOGIN_USER_ID,
             title: 'MidLevel'
         }
         await addNewSeniorityLevel(midLevelSeniorityLevelAddVm)

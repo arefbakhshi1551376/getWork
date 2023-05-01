@@ -1,9 +1,9 @@
 import express from "express";
 import {
     addNewUserByAdmin,
-    changeExistUserAdministrationState,
-    changeExistUserEnableState,
-    changeExistUserPassword,
+    updateExistUserAdministrationState,
+    updateExistUserEnableState,
+    updateExistUserPassword,
     deleteExistUser,
     getAllUser,
     getCountOfUser,
@@ -181,7 +181,7 @@ userRouter.post(
             repeatNewPassword: req.body.repeatNewPassword,
             updateDate: new Date()
         }
-        let result: boolean | null = await changeExistUserPassword(currentUserChangePasswordVm)
+        let result: boolean | null = await updateExistUserPassword(currentUserChangePasswordVm)
         if (result == true)
         {
             return res.status(200).json(getSuccessMessageList())
@@ -202,7 +202,7 @@ userRouter.post(
             id: req.params.id,
             updateDate: new Date()
         }
-        let result: boolean | null = await changeExistUserEnableState(currentUserChangeEnableStateVm)
+        let result: boolean | null = await updateExistUserEnableState(currentUserChangeEnableStateVm)
         if (result == true)
         {
             return res.status(200).json(getSuccessMessageList())
@@ -223,7 +223,7 @@ userRouter.post(
             id: req.params.id,
             updateDate: new Date()
         }
-        let result: boolean | null = await changeExistUserAdministrationState(currentUserChangeAdministrationStateVm)
+        let result: boolean | null = await updateExistUserAdministrationState(currentUserChangeAdministrationStateVm)
         if (result == true)
         {
             return res.status(200).json(getSuccessMessageList())
@@ -260,7 +260,7 @@ userRouter.post(
     async (req, res) =>
     {
         let currentUserVerifyPhoneNumberVm: UserVerifyPhoneNumberVm = {
-            token: req.body.token,
+            verificationCode: req.body.token,
             updateDate: new Date()
         }
         let result: boolean | null = await updateExistUserVerifyPhoneNumber(currentUserVerifyPhoneNumberVm)

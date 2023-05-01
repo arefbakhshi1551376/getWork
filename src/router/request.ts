@@ -98,7 +98,7 @@ userRequestRouter.post(
     async (req, res) =>
     {
         let currentRequestAddVm: RequestAddVm = {
-            jobAd: req.body.jobAd, creator: "",
+            jobAd: req.body.jobAd,
             user: currentAuthType.LOGIN_USER_ID
         }
         let result: boolean | null = await addNewRequest(currentRequestAddVm)

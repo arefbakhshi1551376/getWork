@@ -137,7 +137,7 @@ seniorityLevelRouter.put(
             title: req.body.title,
             updateDate: new Date()
         }
-        let result: boolean = await updateExistSeniorityLevel(currentSeniorityLevelUpdateVm)
+        let result: null | boolean = await updateExistSeniorityLevel(currentSeniorityLevelUpdateVm)
         if (result)
         {
             return res.status(200).json(getSuccessMessageList())

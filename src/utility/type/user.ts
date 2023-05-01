@@ -54,7 +54,7 @@ export type UserVerifyEmailVm = {
 }
 
 export type UserVerifyPhoneNumberVm = {
-    token: string,
+    verificationCode: string,
     updateDate: Date
 }
 

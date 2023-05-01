@@ -1,7 +1,9 @@
 import {UserToken} from "../../mvc/model/userToken";
-import {addNewErrorMessage, emptyMessageList} from "../handler/messageHandler/messageMethod";
+import {addNewErrorMessage, addNewSuccessMessage, emptyMessageList} from "../handler/messageHandler/messageMethod";
 import {currentAuthType} from "../constant";
 import {UserTokenAddVm, UserTokenChangeIsWorkingYetVm} from "../type/userToken";
+import {idIsNotValid} from "../validator";
+import {getUserById} from "./user";
 
 export async function getCountOfUserToken()
 {
@@ -190,6 +192,20 @@ export async function addNewUserToken(entity: UserTokenAddVm): Promise<null | bo
 export async function updateExistUserTokenIsWorkingYet(entity: UserTokenChangeIsWorkingYetVm): Promise<null | boolean>
 {
     emptyMessageList()
+
+    if (idIsNotValid(entity.userId))
+    {
+        addNewErrorMessage(`The id ${entity.userId} is invalid!`)
+        return null
+    }
+
+    await getUserById(entity.userId)
+    if (entity.userId == currentAuthType.LOGIN_USER_ID)
+    {
+        addNewErrorMessage('You can not disable yourself')
+        return null
+    }
+
     let currentUserToken = await getUserTokenByUserIdAndTokenUniqueCode(entity.userId, entity.uniqueCode)
     if (!currentUserToken)
     {
@@ -208,6 +224,7 @@ export async function updateExistUserTokenIsWorkingYet(entity: UserTokenChangeIs
     })
     if (result)
     {
+        addNewSuccessMessage('The user disabled successfully')
         return true
     }
     else
