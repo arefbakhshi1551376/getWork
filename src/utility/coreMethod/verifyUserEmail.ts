@@ -1,5 +1,7 @@
 import {VerifyUserEmail} from "../../mvc/model/verifyUserEmail";
 import {VerifyUserEmailAddVm, VerifyUserEmailUpdateVm} from "../type/verifyUserEmail";
+import {getProtocolAndHost} from "../constant";
+import {verifyEmailOrMobileNumberTokenMaker} from "../maker";
 
 export async function getCountOfVerifyUserEmail()
 {
@@ -73,7 +75,7 @@ export async function getVerifyUserEmailById(id: string)
 
 export async function getVerifyUserEmailByToken(token: string)
 {
-    let currentVerifyUserEmail = await VerifyUserEmail.find({
+    let currentVerifyUserEmail = await VerifyUserEmail.findOne({
         token: token
     })
         .sort(
@@ -124,12 +126,13 @@ export async function getVerifyUserEmailByIdAndFilter(id: string, filter: any)
 export async function addNewVerifyUserEmail(entity: VerifyUserEmailAddVm): Promise<null | boolean>
 {
     let currentVerifyUserEmail = new VerifyUserEmail({
-        email: entity.email
+        email: entity.email,
+        token: await verifyEmailOrMobileNumberTokenMaker('email_')
     })
     let result = await currentVerifyUserEmail.save()
     if (result)
     {
-        console.log(result)
+        console.log(`${getProtocolAndHost(entity.req)}/api/v1/user/verify_email/${result.token}`)
         return true
     }
     else

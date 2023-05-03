@@ -1,8 +1,8 @@
 import {JwtPayload} from "jsonwebtoken";
 import {BEFORE_LINK_V1, currentAuthType, SECRET_JWT} from "../../constant";
 import {expressjwt} from "express-jwt";
-import {isAnyUserLogin} from "../../coreMethod/user";
-import {getUserTokenByUserIdAndTokenUniqueCode} from "../../coreMethod/userToken";
+import {isAnyUserAdmin, isAnyUserLogin} from "../../coreMethod/user";
+import {getUserTokenByAndTokenUniqueCode} from "../../coreMethod/userToken";
 
 export function authJwt()
 {
@@ -14,13 +14,28 @@ export function authJwt()
         isRevoked: async (req, token) =>
         {
             let tokenPayload: JwtPayload = <JwtPayload>token!['payload']
-            currentAuthType.LOGIN_USER_ID = tokenPayload.userId
-            currentAuthType.IS_USER_ADMIN = tokenPayload.isAdmin
-            currentAuthType.LOGIN_USER_TOKEN_UNIQUE_CODE = tokenPayload.uniqueCode
-            currentAuthType.IS_USER_LOGIN = await isAnyUserLogin()
 
-            let currentUserToken: any = await getUserTokenByUserIdAndTokenUniqueCode(currentAuthType.LOGIN_USER_ID, currentAuthType.LOGIN_USER_TOKEN_UNIQUE_CODE)
-            return currentUserToken.isWorkingYet != true;
+            currentAuthType.LOGIN_USER_TOKEN_UNIQUE_CODE = tokenPayload.uniqueCode
+            let currentUserToken: any = await getUserTokenByAndTokenUniqueCode(currentAuthType.LOGIN_USER_TOKEN_UNIQUE_CODE)
+            if (currentUserToken && currentUserToken.isWorkingYet == true)
+            {
+                currentAuthType.LOGIN_USER_ID = tokenPayload.userId
+                console.log('------------------- User Id -------------------')
+                console.log(currentAuthType.LOGIN_USER_ID)
+
+                currentAuthType.IS_USER_ADMIN = await isAnyUserAdmin()
+                console.log('------------------- Is User Admin -------------------')
+                console.log(currentAuthType.IS_USER_ADMIN)
+
+                currentAuthType.IS_USER_LOGIN = await isAnyUserLogin()
+                console.log('------------------- Is Any User Login -------------------')
+                console.log(currentAuthType.IS_USER_LOGIN)
+            }
+
+            return !currentUserToken ||
+                !currentUserToken.uniqueCode ||
+                currentUserToken.uniqueCode == '' ||
+                currentUserToken.isWorkingYet == false;
         },
     }).unless({
         path: [
@@ -33,6 +48,20 @@ export function authJwt()
             },
             {
                 url: /\/api\/v1\/categories(.*)/,
+                methods: [
+                    'GET',
+                    'OPTIONS'
+                ]
+            },
+            {
+                url: /\/api\/v1\/user\/verify_email(.*)/,
+                methods: [
+                    'GET',
+                    'OPTIONS'
+                ]
+            },
+            {
+                url: /\/api\/v1\/user\/verify_phone_number(.*)/,
                 methods: [
                     'GET',
                     'OPTIONS'

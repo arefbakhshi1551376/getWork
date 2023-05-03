@@ -1,5 +1,7 @@
 import {VerifyUserPhoneNumber} from "../../mvc/model/verifyUserPhoneNumber";
 import {VerifyUserPhoneNumberAddVm} from "../type/verifyUserPhoneNumber";
+import {verifyEmailOrMobileNumberTokenMaker} from "../maker";
+import {getProtocolAndHost} from "../constant";
 
 export async function getCountOfVerifyUserPhoneNumber()
 {
@@ -73,7 +75,7 @@ export async function getVerifyUserPhoneNumberById(id: string)
 
 export async function getVerifyUserPhoneNumberByToken(token: string)
 {
-    let currentVerifyUserPhoneNumber = await VerifyUserPhoneNumber.find({
+    let currentVerifyUserPhoneNumber = await VerifyUserPhoneNumber.findOne({
         token: token
     })
         .sort(
@@ -124,12 +126,13 @@ export async function getVerifyUserPhoneNumberByIdAndFilter(id: string, filter: 
 export async function addNewVerifyUserPhoneNumber(entity: VerifyUserPhoneNumberAddVm): Promise<null | boolean>
 {
     let currentVerifyUserPhoneNumber = new VerifyUserPhoneNumber({
-        phoneNumber: entity.phoneNumber
+        phoneNumber: entity.phoneNumber,
+        token: await verifyEmailOrMobileNumberTokenMaker('phoneNumber_')
     })
     let result = await currentVerifyUserPhoneNumber.save()
     if (result)
     {
-        console.log(result)
+        console.log(`${getProtocolAndHost(entity.req)}/api/v1/user/verify_phone_number/${result.token}`)
         return true
     }
     else

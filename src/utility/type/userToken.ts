@@ -1,5 +1,4 @@
 export type UserToken = {
-    userId: string,
     uniqueCode: string,
     isWorkingYet: boolean,
     createDate: Date,
@@ -7,12 +6,10 @@ export type UserToken = {
 }
 
 export type UserTokenAddVm = {
-    userId: string,
     uniqueCode: string,
 }
 
 export type UserTokenChangeIsWorkingYetVm = {
-    userId: string,
     uniqueCode: string,
     updateDate: Date
 }

@@ -54,17 +54,7 @@ export type UserVerifyEmailVm = {
 }
 
 export type UserVerifyPhoneNumberVm = {
-    verificationCode: string,
-    updateDate: Date
-}
-
-export type UserUpdateVerifyEmailVm = {
-    id: string,
-    updateDate: Date
-}
-
-export type UserUpdateVerifyPhoneNumberVm = {
-    id: string,
+    token: string,
     updateDate: Date
 }
 
@@ -90,7 +80,8 @@ export type UserAddByAdminVm = {
     introduction?: string,
     gender?: string,
     city?: string,
-    creator: string
+    creator: string,
+    req: any
 }
 
 export type UserRegisterItselfVm = {
@@ -103,7 +94,8 @@ export type UserRegisterItselfVm = {
     password: string,
     introduction?: string,
     gender?: string,
-    city?: string
+    city?: string,
+    req: any
 }
 
 export type UserChangePasswordVm = {

@@ -5,7 +5,7 @@ export const BEFORE_LINK_V1 = '/api/v1'
 export const SECRET_JWT = 'secret'
 export const currentAuthType: authType = {
     IS_USER_ADMIN: false,
-    IS_USER_LOGIN: true,
+    IS_USER_LOGIN: false,
     LOGIN_USER_TOKEN_UNIQUE_CODE: "",
     LOGIN_USER_ID: ''
 }

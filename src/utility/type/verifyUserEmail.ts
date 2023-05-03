@@ -7,6 +7,7 @@ export type VerifyUserEmail = {
 
 export type VerifyUserEmailAddVm = {
     email: string,
+    req: any
 }
 
 export type VerifyUserEmailUpdateVm = {

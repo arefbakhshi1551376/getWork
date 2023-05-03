@@ -2,10 +2,6 @@ import mongoose, {Schema} from "mongoose";
 import {userAuthUniqueTokenMaker} from "../../utility/maker";
 
 export const userTokenSchema = new Schema({
-    userId: {
-        type: String,
-        required: true
-    },
     uniqueCode: {
         type: String,
         required: true,

@@ -92,11 +92,6 @@ export async function getIntroductionByFilter(filter: any)
 export async function getIntroductionById(id: string)
 {
     emptyMessageList()
-    if (!currentAuthType.IS_USER_ADMIN)
-    {
-        addNewErrorMessage('You are not admin. So you can`t access this part!')
-        return null
-    }
 
     let currentIntroduction = await Introduction.findById(id)
         .sort(

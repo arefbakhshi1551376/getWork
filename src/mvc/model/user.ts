@@ -41,7 +41,7 @@ export const userSchema = new Schema({
     isEnabled: {
         type: Boolean,
         required: true,
-        default: false
+        default: true
     },
     isAdmin: {
         type: Boolean,

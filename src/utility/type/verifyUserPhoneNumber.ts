@@ -7,6 +7,7 @@ export type VerifyUserPhoneNumber = {
 
 export type VerifyUserPhoneNumberAddVm = {
     phoneNumber: string,
+    req: any
 }
 
 export type VerifyUserPhoneNumberUpdateVm = {

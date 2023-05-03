@@ -14,14 +14,14 @@ import {
     registerNewUserByItself,
     updateExistUserImage,
     updateExistUserVerifyEmail,
-    updateExistUserVerifyPhoneNumber
+    updateExistUserVerifyPhoneNumber, getUserByEmail, getUserByPhoneNumber, updateExistUser
 } from "../utility/coreMethod/user";
 import {
     UserAddByAdminVm, UserChangeAdministrationStateVm, UserChangeEnableStateVm,
     UserChangePasswordVm,
     UserDeleteVm,
     UserLoginVm,
-    UserRegisterItselfVm, UserUpdateImageVm,
+    UserRegisterItselfVm, UserUpdateImageVm, UserUpdateVm,
     UserVerifyEmailVm, UserVerifyPhoneNumberVm
 } from "../utility/type/user";
 import {currentAuthType, getUploadPath} from "../utility/constant";
@@ -113,6 +113,7 @@ userRouter.post(
     async (req, res) =>
     {
         let currentUserAddVm: UserAddByAdminVm = {
+            req: req,
             creator: currentAuthType.LOGIN_USER_ID,
             city: req.body.city ? req.body.city : '',
             email: req.body.email ? req.body.email : '',
@@ -129,7 +130,7 @@ userRouter.post(
             phoneNumber: req.body.phoneNumber ? req.body.phoneNumber : '',
             userName: req.body.userName
         }
-        let result: boolean | null = await addNewUserByAdmin(currentUserAddVm)
+        let result = await addNewUserByAdmin(currentUserAddVm)
         if (result == true)
         {
             return res.status(200).json(getSuccessMessageList())
@@ -152,13 +153,14 @@ userRouter.post(
             userName: req.body.userName,
             email: req.body.email ? req.body.email : '',
             phoneNumber: req.body.phoneNumber ? req.body.phoneNumber : '',
-            image: req.body.image ? `${getUploadPath(req)}${req.file?.filename}` : '',
+            image: req.file ? `${getUploadPath(req)}${req.file?.filename}` : '',
             password: req.body.password,
             gender: req.body.gender ? req.body.gender : '',
             city: req.body.city ? req.body.city : '',
-            introduction: req.body.introduction ? req.body.introduction : ''
+            introduction: req.body.introduction ? req.body.introduction : '',
+            req: req
         }
-        let result: boolean | null = await registerNewUserByItself(currentUserAddVm)
+        let result = await registerNewUserByItself(currentUserAddVm)
         if (result == true)
         {
             return res.status(200).json(getSuccessMessageList())
@@ -170,12 +172,44 @@ userRouter.post(
     }
 )
 
-userRouter.post(
-    '/change_password/:id',
+userRouter.put(
+    '/:id',
+    uploadOptions.single('image'),
+    async (req, res) =>
+    {
+        let currentUserUpdateVm: UserUpdateVm = {
+            city: req.body.city,
+            email: req.body.email,
+            family: req.body.family,
+            gender: req.body.gender,
+            id: req.params.id,
+            introduction: req.body.introduction,
+            ip: req.ip,
+            name: req.body.name,
+            phoneNumber: req.body.phoneNumber,
+            updateDate: new Date(),
+            updater: currentAuthType.LOGIN_USER_ID,
+            userName: req.body.userName
+        }
+        console.log(currentUserUpdateVm)
+        let result = await updateExistUser(currentUserUpdateVm)
+        if (result == true)
+        {
+            return res.status(200).json(getSuccessMessageList())
+        }
+        else
+        {
+            return res.status(404).json(getErrorMessageList())
+        }
+    }
+)
+
+userRouter.put(
+    '/change_password',
     async (req, res) =>
     {
         let currentUserChangePasswordVm: UserChangePasswordVm = {
-            id: req.params.id,
+            id: req.body.id,
             newPassword: req.body.newPassword,
             oldPassword: req.body.oldPassword,
             repeatNewPassword: req.body.repeatNewPassword,
@@ -235,12 +269,12 @@ userRouter.post(
     }
 )
 
-userRouter.post(
-    '/verify_email',
+userRouter.get(
+    '/verify_email/:token',
     async (req, res) =>
     {
         let currentUserVerifyEmailVm: UserVerifyEmailVm = {
-            token: req.body.token,
+            token: req.params.token,
             updateDate: new Date()
         }
         let result: boolean | null = await updateExistUserVerifyEmail(currentUserVerifyEmailVm)
@@ -255,12 +289,12 @@ userRouter.post(
     }
 )
 
-userRouter.post(
-    '/verify_phone_number',
+userRouter.get(
+    '/verify_phone_number/:token',
     async (req, res) =>
     {
         let currentUserVerifyPhoneNumberVm: UserVerifyPhoneNumberVm = {
-            verificationCode: req.body.token,
+            token: req.params.token,
             updateDate: new Date()
         }
         let result: boolean | null = await updateExistUserVerifyPhoneNumber(currentUserVerifyPhoneNumberVm)
@@ -275,8 +309,9 @@ userRouter.post(
     }
 )
 
-userRouter.post(
-    '/upload_image/:id',
+userRouter.put(
+    '/upload_image',
+    uploadOptions.single('image'),
     async (req, res) =>
     {
         if (!req.file)
@@ -286,7 +321,7 @@ userRouter.post(
             })
         }
         let currentUserUpdateImageVm: UserUpdateImageVm = {
-            id: req.params.id,
+            id: req.body.id,
             image: `${getUploadPath(req)}${req.file?.filename}`,
             updateDate: new Date()
         }
@@ -294,6 +329,38 @@ userRouter.post(
         if (result == true)
         {
             return res.status(200).json(getSuccessMessageList())
+        }
+        else
+        {
+            return res.status(404).json(getErrorMessageList())
+        }
+    }
+)
+
+userRouter.get(
+    `/by_phone_number/:phoneNumber?`,
+    async (req, res) =>
+    {
+        let currentUser = await getUserByPhoneNumber(req.params.phoneNumber)
+        if (currentUser != null)
+        {
+            return res.status(200).json(currentUser)
+        }
+        else
+        {
+            return res.status(404).json(getErrorMessageList())
+        }
+    }
+)
+
+userRouter.get(
+    `/by_email/:email?`,
+    async (req, res) =>
+    {
+        let currentUser = await getUserByEmail(req.params.email)
+        if (currentUser != null)
+        {
+            return res.status(200).json(currentUser)
         }
         else
         {

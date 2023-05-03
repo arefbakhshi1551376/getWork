@@ -116,12 +116,11 @@ export async function getUserTokenById(id: string)
     }
 }
 
-export async function getUserTokenByUserIdAndTokenUniqueCode(userId: string, uniqueCode: string)
+export async function getUserTokenByAndTokenUniqueCode(uniqueCode: string)
 {
     emptyMessageList()
     let currentUserToken = await UserToken.findOne({
-        uniqueCode: uniqueCode,
-        userId: userId
+        uniqueCode: uniqueCode
     })
 
     if (currentUserToken)
@@ -174,12 +173,12 @@ export async function getUserTokenByIdAndFilter(id: string, filter: any)
 export async function addNewUserToken(entity: UserTokenAddVm): Promise<null | boolean>
 {
     let currentUserToken = new UserToken({
-        uniqueCode: entity.uniqueCode,
-        userId: entity.userId
+        uniqueCode: entity.uniqueCode
     })
     let result = await currentUserToken.save()
     if (result)
     {
+        addNewSuccessMessage('User token added successfully!')
         return true
     }
     else
@@ -189,41 +188,29 @@ export async function addNewUserToken(entity: UserTokenAddVm): Promise<null | bo
     }
 }
 
-export async function updateExistUserTokenIsWorkingYet(entity: UserTokenChangeIsWorkingYetVm): Promise<null | boolean>
+export async function disableExistUserToken(entity: UserTokenChangeIsWorkingYetVm): Promise<null | boolean>
 {
     emptyMessageList()
 
-    if (idIsNotValid(entity.userId))
-    {
-        addNewErrorMessage(`The id ${entity.userId} is invalid!`)
-        return null
-    }
-
-    await getUserById(entity.userId)
-    if (entity.userId == currentAuthType.LOGIN_USER_ID)
-    {
-        addNewErrorMessage('You can not disable yourself')
-        return null
-    }
-
-    let currentUserToken = await getUserTokenByUserIdAndTokenUniqueCode(entity.userId, entity.uniqueCode)
+    let currentUserToken = await getUserTokenByAndTokenUniqueCode(entity.uniqueCode)
     if (!currentUserToken)
     {
         addNewErrorMessage('This token is invalid!')
         return null
     }
+    console.log('Current user token BEFORE UPDATES is:')
+    console.log(currentUserToken)
 
     let result = await UserToken.findOneAndUpdate({
         uniqueCode: entity.uniqueCode,
-        userId: entity.userId
     }, {
         isWorkingYet: false,
         updateDate: entity.updateDate
-    }, {
-        new: true
     })
     if (result)
     {
+        console.log('Current user token AFTER UPDATES is:')
+        console.log(currentUserToken)
         addNewSuccessMessage('The user disabled successfully')
         return true
     }
@@ -232,4 +219,5 @@ export async function updateExistUserTokenIsWorkingYet(entity: UserTokenChangeIs
         addNewErrorMessage('An error occurred while disabling user token!')
         return false
     }
+    // return true
 }

@@ -9,7 +9,7 @@ export const verifyUserPhoneNumberSchema = new Schema({
     token: {
         type: String,
         required: true,
-        default: verifyEmailOrMobileNumberTokenMaker('phoneNumber_')
+        default: ''
     },
     createDate: {
         type: Date,
